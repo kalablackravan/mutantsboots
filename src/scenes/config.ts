@@ -15,7 +15,7 @@ export const CFG = {
     frame: { x: 1210, y: 600, w: 267, h: 391 }, // inferred: the disclaimer, framed on the wall
     door: { x: 1652, y: FLOOR - 992, w: 536, h: 1008 }, // inferred: centred on the wall's light
     vent: { x: 2270, y: 1150, w: 320, h: 182 }, // inferred
-    lab: { x: 2658, y: FLOOR - 1020, w: 741, h: 1100 }, // supplied 1029x1528 art: pipe flange at pixel 1417 rests on the floor
+    lab: { x: 2658, y: FLOOR - 995, w: 741, h: 1100 }, // supplied 1029x1528 art: bottom edge sits on the corridor's visible floor crease (~1512), per user mark-up
     // room (desk pieces)
     bell: { x: 950, y: DESK - 142, w: 180, h: 148 },
     folder: { x: 1180, y: DESK, w: 316, h: 162 },

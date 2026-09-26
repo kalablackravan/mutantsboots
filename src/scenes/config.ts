@@ -25,7 +25,7 @@ export const CFG = {
     menu: { x: 2790, y: DESK - 150, w: 150, h: 210 },
     gallery: { x: 560, y: 360, w: 552, h: 396 },
     board: { x: 2440, y: 300, w: 835, h: 661 },
-    crumple: { x: 2620, y: DESK + 110, w: 98, h: 97 },
+    crumple: { x: 2330, y: DESK + 110, w: 98, h: 97 },
     exit: { x: 950, y: 1270, w: 190, h: 90 }, // the EXIT carved into the desk
   } as Record<string, Box> & { canvas: { w: number; h: number } },
   // portrait: bell and menu pinned to the window edges (see artBox edge logic in app.js)

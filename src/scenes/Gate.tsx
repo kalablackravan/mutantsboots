@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { art } from "@/lib/assets";
 import { CFG, px, type Frame } from "./config";
-import labDoor from "@/assets/fomies/LAB-LOCKDOWN.webp.asset.json";
+import labDoor from "@/assets/fomies/lablockdown.webp.asset.json";
 
 const STOPS = CFG.GATE_STOPS;
 const HOME = STOPS.indexOf("door");

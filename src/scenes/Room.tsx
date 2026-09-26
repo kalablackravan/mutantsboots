@@ -27,6 +27,7 @@ export function Room({ on, f, vw, vh, portrait, st, open }: Props) {
         <img id="hi-board" className={"layer hi" + hi("board")} src={art("hit-noticeboard.webp")} alt="" draggable={false} />
         {[1, 2, 3, 4, 5, 6].map((n) => {
           const b = CFG.papers[n];
+          if (!b) return null;
           return <img key={n} id={"paper-" + n} className={"layer paper" + (hover === "board" ? " lift" : "")} src={art(`noticeboard-paper-${n}.webp`)} alt=""
             style={{ transformOrigin: `${b.x + b.w / 2}% ${b.y + b.h / 2}%` }} draggable={false} />;
         })}

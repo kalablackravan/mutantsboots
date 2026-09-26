@@ -66,9 +66,9 @@ function Office() {
       if (!R) return;
       q(R.intro, R.q2, (a2) => {
         ans.current.a2 = a2;
-        const re2 = R.q2.options.find((o) => o.k === a2)!.react!;
+        const re2 = R.q2.options.find((o) => o.k === a2)?.react ?? "";
         q(re2, R.q3, (a3) => {
-          const re3 = R.q3.options.find((o) => o.k === a3)!.react!;
+          const re3 = R.q3.options.find((o) => o.k === a3)?.react ?? "";
           const k = classify(a1, a2, a3);
           const result = CLASSES[k];
           if (!result) return;

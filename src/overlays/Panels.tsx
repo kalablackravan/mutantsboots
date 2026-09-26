@@ -17,7 +17,7 @@ export function Gallery({ open, onClose }: P) {
         <button type="button" id="galPrev" className="gal-arrow prev" aria-label="previous" disabled={n < 2} onClick={() => setI((i - 1 + n) % n)}>
           <img src={art("gallery-arrow.png")} alt="" draggable={false} />
         </button>
-        <figure className="gal-frame"><img src={art(GALLERY[i])} alt={`fomie ${i + 1}`} draggable={false} /></figure>
+        <figure className="gal-frame"><img src={art(GALLERY[i] ?? GALLERY[0] ?? "")} alt={`fomie ${i + 1}`} draggable={false} /></figure>
         <button type="button" id="galNext" className="gal-arrow next" aria-label="next" disabled={n < 2} onClick={() => setI((i + 1) % n)}>
           <img src={art("gallery-arrow.png")} alt="" draggable={false} />
         </button>

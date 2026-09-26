@@ -63,7 +63,7 @@ export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onLab, onBa
   const act: Record<string, () => void> = { door: onDoor, frame: onFrame, vent: onVent, lab: onLab, bathroom: onBathroom };
   const labels: Record<string, string> = { door: "department of fomo", frame: "public notice", vent: "the vent", lab: "laboratory door", bathroom: "wc" };
   const whole = px({ x: 0, y: 0, w: c.w, h: c.h }, f);
-  const hit = (k: string) => (
+  const hit = (k: typeof STOPS[number]) => (
     <button key={k} type="button" className="hit" aria-label={labels[k]} style={px(CFG.art[k], f)}
       onPointerEnter={() => setHover(k)} onPointerLeave={() => setHover(null)}
       onFocus={() => setHover(k)} onBlur={() => setHover(null)}

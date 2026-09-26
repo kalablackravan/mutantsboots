@@ -163,7 +163,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #s-room.zoom-from{transform:scale(.94);transition:none}
 #s-room.zoom-away{transform:scale(.94);transition:opacity .45s ease,transform .7s ease-in}
 #gate-stage{position:absolute;inset:0;transition:transform .45s cubic-bezier(.2,.8,.2,1);touch-action:pan-y}
-.layer{position:absolute;display:block;pointer-events:none;-webkit-user-drag:none}
+.layer{position:absolute;display:block;max-width:none;pointer-events:none;-webkit-user-drag:none}
 .layer.crop{object-fit:contain}
 .layer.hi{opacity:0;transition:opacity .25s ease}
 .layer.hi.on{opacity:1}

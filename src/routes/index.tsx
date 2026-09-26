@@ -7,6 +7,7 @@ import { Gate } from "@/scenes/Gate";
 import { Room, type RoomState } from "@/scenes/Room";
 import { IV, LINES, CLASSES, classify } from "@/scenes/content";
 import { Gallery, Notices, Tasks, Folder, Disclaimer, Menu, Socials } from "@/overlays/Panels";
+import { LabLock } from "@/overlays/LabLock";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,17 +61,21 @@ function Office() {
   const startInterview = () => {
     q("", IV.opener, (a1) => {
       ans.current.a1 = a1;
-      const R = IV.routes[IV.opener.options.find((o) => o.k === a1)!.r!];
+      const route = IV.opener.options.find((o) => o.k === a1)?.r;
+      const R = route ? IV.routes[route] : undefined;
+      if (!R) return;
       q(R.intro, R.q2, (a2) => {
         ans.current.a2 = a2;
-        const re2 = R.q2.options.find((o) => o.k === a2)!.react!;
+        const re2 = R.q2.options.find((o) => o.k === a2)?.react ?? "";
         q(re2, R.q3, (a3) => {
-          const re3 = R.q3.options.find((o) => o.k === a3)!.react!;
+          const re3 = R.q3.options.find((o) => o.k === a3)?.react ?? "";
           const k = classify(a1, a2, a3);
+          const result = CLASSES[k];
+          if (!result) return;
           setCls(k);
           setSt((s) => ({ ...s, hasFolder: true, landingFolder: true }));
           setTimeout(() => setSt((s) => ({ ...s, landingFolder: false })), 700);
-          setBeat({ text: `${re3} ${CLASSES[k].name}. ${CLASSES[k].desc} ${LINES.draft}` });
+          setBeat({ text: `${re3} ${result.name}. ${result.desc} ${LINES.draft}` });
         });
       });
     });
@@ -91,7 +96,7 @@ function Office() {
   const openRoom = (k: string) => {
     if (k === "bell") return void ring();
     if (k === "exit") return void travel("gate");
-    setOv(({ board: "notices", gallery: "gallery", tasks: "tasks", folder: "folder", menu: "menu", socials: "socials" } as Record<string, string>)[k]);
+    setOv(({ board: "notices", gallery: "gallery", tasks: "tasks", folder: "folder", menu: "menu", socials: "socials" } as Record<string, string>)[k] ?? null);
   };
 
   useEffect(() => { if (!vent) return; const t = setTimeout(() => setVent(null), 3200); return () => clearTimeout(t); }, [vent]);
@@ -111,7 +116,7 @@ function Office() {
       <Gate on={scene === "gate"} f={f} vw={vw} portrait={portrait}
         onDoor={() => travel("room")} onFrame={() => setOv("disclaimer")}
         onVent={() => setVent("…someone is humming in there.")}
-        onElevator={() => setVent("out of order.")} onBathroom={() => setVent("occupied.")} />
+        onLab={() => setOv("lab")} onBathroom={() => setVent("occupied.")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "gate" && vent && <div id="vbub" className="bub vbub" role="status">{vent}</div>}
       {scene === "room" && beat && (
@@ -129,6 +134,7 @@ function Office() {
       )}
       <div id="blackout" className={black} />
       <Disclaimer open={ov === "disclaimer"} onClose={close} />
+       <LabLock open={ov === "lab"} onClose={close} />
       <Gallery open={ov === "gallery"} onClose={close} />
       <Notices open={ov === "notices"} onClose={close} />
       <Tasks open={ov === "tasks"} onClose={close} portrait={portrait} />

@@ -49,13 +49,16 @@ export const IV: {
   },
 };
 export function classify(a1: string, a2: string, a3: string) {
-  const o = IV.opener.options.find((x) => x.k === a1)!;
-  const R = IV.routes[o.r!]!;
+  const o = IV.opener.options.find((x) => x.k === a1);
+  const R = o?.r ? IV.routes[o.r] : undefined;
+  if (!R) return "question";
   const sc: Record<string, number> = Object.fromEntries(ORDER.map((k) => [k, 0]));
-  sc[R.bonus]++;
-  for (const [q, a] of [[R.q2, a2], [R.q3, a3]] as const)
-    Object.entries(q.options.find((x) => x.k === a)!.s!).forEach(([k, v]) => (sc[k] += v));
-  return ORDER.reduce((b, k) => (sc[k] > sc[b] ? k : b), ORDER[0]);
+  sc[R.bonus] = (sc[R.bonus] ?? 0) + 1;
+  for (const [q, a] of [[R.q2, a2], [R.q3, a3]] as const) {
+    const scores = q.options.find((x) => x.k === a)?.s ?? {};
+    Object.entries(scores).forEach(([k, v]) => { sc[k] = (sc[k] ?? 0) + v; });
+  }
+  return ORDER.reduce((b, k) => ((sc[k] ?? 0) > (sc[b] ?? 0) ? k : b), ORDER[0] ?? "question");
 }
 export const LINES = {
   greet: "good. someone's here.",

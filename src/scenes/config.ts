@@ -15,7 +15,7 @@ export const CFG = {
     frame: { x: 1210, y: 600, w: 267, h: 391 }, // inferred: the disclaimer, framed on the wall
     door: { x: 1652, y: FLOOR - 992, w: 536, h: 1008 }, // inferred: centred on the wall's light
     vent: { x: 2270, y: 1150, w: 320, h: 182 }, // inferred
-    elevator: { x: 2720, y: FLOOR - 995, w: 536, h: 1008 }, // inferred
+    lab: { x: 2658, y: FLOOR - 1000, w: 670, h: 1000 }, // lab door, matched to its 1696x2528 artwork
     // room (desk pieces)
     bell: { x: 950, y: DESK - 142, w: 180, h: 148 },
     folder: { x: 1180, y: DESK, w: 316, h: 162 },
@@ -27,7 +27,7 @@ export const CFG = {
     board: { x: 2440, y: 300, w: 835, h: 661 },
     crumple: { x: 2330, y: DESK + 110, w: 98, h: 97 },
     exit: { x: 950, y: 1270, w: 190, h: 90 }, // the EXIT carved into the desk
-  } as Record<string, Box> & { canvas: { w: number; h: number } },
+  },
   // portrait: bell and menu pinned to the window edges (see artBox edge logic in app.js)
   artPortrait: {
     bell: { edge: "left", inset: 16 },
@@ -47,7 +47,7 @@ export const CFG = {
   folderAR: 2440 / 1404,
   // the writable page inside 08-spread (% of the spread)
   page: { x: 56, y: 8, w: 37, h: 82 },
-  GATE_STOPS: ["bathroom", "frame", "door", "vent", "elevator"] as const,
+  GATE_STOPS: ["bathroom", "frame", "door", "vent", "lab"] as const,
   WIDE_RATIO: 1.6,
 };
 
@@ -60,7 +60,8 @@ export function artFrame(vw: number, vh: number): Frame {
   return { scale, ox: (vw - c.w * scale) / 2, oy: wide ? 0 : (vh - c.h * scale) / 2 };
 }
 export function artBox(k: string, f: Frame, vw: number, vh: number): Box {
-  const b = CFG.art[k];
+  const b = CFG.art[k as keyof Omit<typeof CFG.art, "canvas">] as Box | undefined;
+  if (!b) return { x: 0, y: 0, w: 0, h: 0 };
   const p = vw <= vh ? CFG.artPortrait[k] : undefined;
   if (!p) return b;
   const x = p.edge === "right" ? (vw - p.inset - b.w * f.scale - f.ox) / f.scale : (p.inset - f.ox) / f.scale;

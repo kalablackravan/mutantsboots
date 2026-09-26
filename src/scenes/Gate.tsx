@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { art } from "@/lib/assets";
 import { CFG, px, type Frame } from "./config";
+import labDoor from "@/assets/fomies/LAB-LOCKDOWN.webp.asset.json";
 
 const STOPS = CFG.GATE_STOPS;
 const HOME = STOPS.indexOf("door");
@@ -13,12 +14,12 @@ type Props = {
   onDoor: () => void;
   onFrame: () => void;
   onVent: () => void;
-  onElevator: () => void;
+  onLab: () => void;
   onBathroom: () => void;
 };
 
 // the corridor. landscape shows the whole wall; portrait crops to one stop and swipes (placeGate).
-export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onElevator, onBathroom }: Props) {
+export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onLab, onBathroom }: Props) {
   const [hover, setHover] = useState<string | null>(null);
   const [stop, setStop] = useState(HOME);
   const [drag, setDrag] = useState<number | null>(null);
@@ -27,7 +28,7 @@ export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onElevator,
   const c = CFG.art.canvas;
   const lo = vw - (f.ox + c.w * f.scale), hi = -f.ox;
   const shift = (s: number) => {
-    const b = CFG.art[STOPS[s]];
+    const b = CFG.art[STOPS[s] ?? "door"];
     return Math.max(lo, Math.min(hi, vw / 2 - (f.ox + (b.x + b.w / 2) * f.scale)));
   };
   useEffect(() => { if (!portrait) setStop(HOME); }, [portrait]);
@@ -59,14 +60,14 @@ export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onElevator,
     setDrag(null);
   };
 
-  const act: Record<string, () => void> = { door: onDoor, frame: onFrame, vent: onVent, elevator: onElevator, bathroom: onBathroom };
-  const labels: Record<string, string> = { door: "department of fomo", frame: "public notice", vent: "the vent", elevator: "elevator (out of order)", bathroom: "wc" };
+  const act: Record<string, () => void> = { door: onDoor, frame: onFrame, vent: onVent, lab: onLab, bathroom: onBathroom };
+  const labels: Record<string, string> = { door: "department of fomo", frame: "public notice", vent: "the vent", lab: "laboratory door", bathroom: "wc" };
   const whole = px({ x: 0, y: 0, w: c.w, h: c.h }, f);
-  const hit = (k: string) => (
+  const hit = (k: typeof STOPS[number]) => (
     <button key={k} type="button" className="hit" aria-label={labels[k]} style={px(CFG.art[k], f)}
       onPointerEnter={() => setHover(k)} onPointerLeave={() => setHover(null)}
       onFocus={() => setHover(k)} onBlur={() => setHover(null)}
-      onClick={() => { if (!swiped.current) act[k](); }} tabIndex={on ? 0 : -1} />
+      onClick={() => { if (!swiped.current) act[k]?.(); }} tabIndex={on ? 0 : -1} />
   );
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : "")} aria-hidden={!on}
@@ -79,7 +80,7 @@ export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onElevator,
         <img className="layer crop" src={art("hit-room.webp")} alt="" style={px(CFG.art.door, f)} draggable={false} />
         <img id="hi-door" className={"layer crop hi" + (hover === "door" ? " on" : "")} src={art("hover-room.webp")} alt="" style={px(CFG.art.door, f)} draggable={false} />
         <img id="hi-vent" className={"layer crop" + (hover === "vent" ? " peek" : "")} src={art("hit-vent.webp")} alt="" style={px(CFG.art.vent, f)} draggable={false} />
-        <img className="layer crop" src={art("elevator-disabled.webp")} alt="" style={px(CFG.art.elevator, f)} draggable={false} />
+        <img className="layer crop" src={`https://project--c6a959cc-e1f1-46a3-b9dd-2dadabdbb271.lovable.app${labDoor.url}`} alt="" style={px(CFG.art.lab, f)} draggable={false} />
         {STOPS.map(hit)}
       </div>
     </section>

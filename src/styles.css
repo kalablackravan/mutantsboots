@@ -257,7 +257,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-lock-panel button:disabled{opacity:.45;cursor:not-allowed}
 .lab-lock-panel p{margin:0;font-size:14px}
 .gate-lab-door{mix-blend-mode:darken}
-.ov:has(.lab-view){padding:0;background:#000}
+.ov:has(.lab-view){display:block;padding:0;background:#000}
 .lab-view{position:relative;width:100vw;height:100dvh;display:grid;place-items:center;overflow:hidden}
 .chamber-frame{position:relative;width:min(100vw,calc(100dvh * 1672 / 941));aspect-ratio:1672 / 941;overflow:hidden;flex:none}
 .chamber-bg{display:block;width:100%;height:auto}

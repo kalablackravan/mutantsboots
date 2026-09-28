@@ -1,0 +1,4 @@
+- [x] Verify the five exact supplied GitHub artworks and reference composition.
+- [x] Replace the lab chamber with proportionally placed door, window, and interactive cabinet.
+- [x] Use portable CDN images that load in a fresh workspace or Vercel.
+- [ ] Check desktop and mobile presentation, open/closed cabinet, and image loading.

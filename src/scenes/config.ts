@@ -73,3 +73,13 @@ export const px = (b: Box, f: Frame) => ({
   width: b.w * f.scale,
   height: b.h * f.scale,
 });
+
+// Chamber objects share the 1672 × 941 source artwork's coordinates. Widths alone
+// set their scale; each supplied image retains its own original aspect ratio.
+export const CHAMBER = {
+  width: 1672,
+  height: 941,
+  window: { x: 300, y: 265, w: 240 },
+  door: { x: 680, y: 205, w: 310 },
+  cabinet: { x: 1250, y: 430, w: 245 },
+} as const;

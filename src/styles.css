@@ -256,9 +256,21 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-lock-panel button{padding:8px 32px;border:3px solid var(--ink);border-radius:4px;background:var(--butter);font-family:var(--display);font-size:19px;cursor:pointer}
 .lab-lock-panel button:disabled{opacity:.45;cursor:not-allowed}
 .lab-lock-panel p{margin:0;font-size:14px}
-.lab-view{margin:0;position:relative;width:min(1500px,96vw);display:grid}
-.lab-view img{width:100%;height:auto;border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink)}
-.lab-back{position:absolute;left:14px;bottom:14px;padding:8px 24px;border:3px solid var(--ink);border-radius:4px;background:var(--butter);font-family:var(--display);font-size:17px;cursor:pointer}
+.gate-lab-door{mix-blend-mode:darken}
+.ov:has(.lab-view){display:block;padding:0;background:#000}
+.lab-view{position:relative;width:100vw;height:100dvh;display:grid;place-items:center;overflow:hidden}
+.chamber-frame{position:relative;width:min(100vw,calc(100dvh * 1672 / 941));aspect-ratio:1672 / 941;overflow:hidden;flex:none}
+.chamber-bg{display:block;width:100%;height:auto}
+.chamber-window,.chamber-door,.chamber-cabinet{position:absolute;display:block;height:auto;max-width:none}
+.chamber-window{z-index:1}
+.chamber-door{z-index:2;mix-blend-mode:darken}
+.chamber-cabinet{z-index:3;border:0;background:none;padding:0;cursor:pointer;aspect-ratio:1300 / 1209}
+.chamber-cabinet img{display:block;width:100%;height:auto;object-fit:contain}
+.lab-back{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:4;padding:8px 24px;border:3px solid var(--ink);border-radius:4px;background:var(--butter);font-family:var(--display);font-size:17px;cursor:pointer}
+@media (max-width:700px){
+  .lab-view{display:block;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
+  .chamber-frame{position:absolute;top:0;left:0;width:calc(100dvh * 1672 / 941);height:100dvh;max-width:none;margin:0}
+}
 @media (prefers-reduced-motion: reduce){
   #s-room,#s-room.zoom-from,#s-room.zoom-away{transform:none;transition:opacity .45s ease}
   #s-room.await-bell #hi-bell:not(.on),#s-room.landing-folder .fold.cur,#intro-enter span{animation:none}

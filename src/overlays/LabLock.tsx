@@ -1,28 +1,52 @@
 import { useEffect, useRef, useState } from "react";
 import { Overlay } from "./Overlay";
-import labAsset from "@/assets/fomies/lab.webp.asset.json";
+import { CHAMBER } from "@/scenes/config";
+import { chamberArt } from "@/lib/chamberAssets";
 
-// stable absolute Lovable asset URL so the lab art loads on external hosts too
-const LAB = `https://project--0bfd5bc5-6bb7-4ec3-a335-ffc88504037e.lovable.app${labAsset.url}`;
+const placement = (item: { x: number; y: number; w: number }) => ({
+  left: `${item.x / CHAMBER.width * 100}%`,
+  top: `${item.y / CHAMBER.height * 100}%`,
+  width: `${item.w / CHAMBER.width * 100}%`,
+});
 
 export function LabLock({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [code, setCode] = useState("");
   const [inside, setInside] = useState(false);
+  const [cabinetOpen, setCabinetOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const chamberScroll = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) { setCode(""); setInside(false); return; }
+    if (!open) { setCode(""); setInside(false); setCabinetOpen(false); return; }
     const frame = requestAnimationFrame(() => input.current?.focus());
     return () => cancelAnimationFrame(frame);
   }, [open]);
 
+  useEffect(() => {
+    if (!inside) return;
+    const frame = requestAnimationFrame(() => {
+      const view = chamberScroll.current;
+      if (view) view.scrollLeft = (view.scrollWidth - view.clientWidth) / 2;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [inside]);
+
   return (
     <Overlay id="lab-lock" open={open} label="laboratory access" onClose={onClose}>
       {inside ? (
-        <figure className="lab-view">
-          <img src={LAB} alt="the laboratory, seen from inside" draggable={false} />
+        <div className="lab-view" ref={chamberScroll}>
+          <div className="chamber-frame" role="img" aria-label="Laboratory chamber with a locked door and broken window">
+            <img className="chamber-bg" src={chamberArt("emptychamber (1).webp")} alt="" draggable={false} />
+            <img className="chamber-window" src={chamberArt("brokenglasswindows (1).webp")} alt="" style={placement(CHAMBER.window)} draggable={false} />
+            <img className="chamber-door" src={chamberArt("LAB-LOCKDOWN.webp")} alt="" style={placement(CHAMBER.door)} draggable={false} />
+            <button type="button" className="chamber-cabinet" style={placement(CHAMBER.cabinet)}
+              aria-label={cabinetOpen ? "Close cabinet" : "Open cabinet"} aria-pressed={cabinetOpen}
+              onClick={() => setCabinetOpen((value) => !value)}>
+              <img src={chamberArt(cabinetOpen ? "opencabinet.webp" : "closedcabinet.webp")} alt="" draggable={false} />
+            </button>
+          </div>
           <button type="button" className="lab-back" onClick={() => setInside(false)}>back</button>
-        </figure>
+        </div>
       ) : (
         <form className="lab-lock-panel" onSubmit={(e) => { e.preventDefault(); if (code.length === 4) setInside(true); }}>
           <span className="lab-lock-mark" aria-hidden="true">⚠</span>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { art } from "@/lib/assets";
 import { CFG, px, type Frame } from "./config";
-import labDoor from "@/assets/fomies/lablockdown.webp.asset.json";
+import { chamberArt } from "@/lib/chamberAssets";
 
 const STOPS = CFG.GATE_STOPS;
 const HOME = STOPS.indexOf("door");
@@ -80,7 +80,7 @@ export function Gate({ on, f, vw, portrait, onDoor, onFrame, onVent, onLab, onBa
         <img className="layer crop" src={art("hit-room.webp")} alt="" style={px(CFG.art.door, f)} draggable={false} />
         <img id="hi-door" className={"layer crop hi" + (hover === "door" ? " on" : "")} src={art("hover-room.webp")} alt="" style={px(CFG.art.door, f)} draggable={false} />
         <img id="hi-vent" className={"layer crop" + (hover === "vent" ? " peek" : "")} src={art("hit-vent.webp")} alt="" style={px(CFG.art.vent, f)} draggable={false} />
-        <img className="layer crop" src={`https://project--c6a959cc-e1f1-46a3-b9dd-2dadabdbb271.lovable.app${labDoor.url}`} alt="" style={px(CFG.art.lab, f)} draggable={false} />
+        <img className="layer crop gate-lab-door" src={chamberArt("LAB-LOCKDOWN.webp")} alt="" style={px(CFG.art.lab, f)} draggable={false} />
         {STOPS.map(hit)}
       </div>
     </section>

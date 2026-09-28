@@ -14,6 +14,7 @@ export function LabLock({ open, onClose }: { open: boolean; onClose: () => void 
   const [inside, setInside] = useState(false);
   const [cabinetOpen, setCabinetOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const chamberScroll = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) { setCode(""); setInside(false); setCabinetOpen(false); return; }
@@ -21,10 +22,19 @@ export function LabLock({ open, onClose }: { open: boolean; onClose: () => void 
     return () => cancelAnimationFrame(frame);
   }, [open]);
 
+  useEffect(() => {
+    if (!inside) return;
+    const frame = requestAnimationFrame(() => {
+      const view = chamberScroll.current;
+      if (view) view.scrollLeft = (view.scrollWidth - view.clientWidth) / 2;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [inside]);
+
   return (
     <Overlay id="lab-lock" open={open} label="laboratory access" onClose={onClose}>
       {inside ? (
-        <div className="lab-view">
+        <div className="lab-view" ref={chamberScroll}>
           <div className="chamber-frame" role="img" aria-label="Laboratory chamber with a locked door and broken window">
             <img className="chamber-bg" src={chamberArt("emptychamber (1).webp")} alt="" draggable={false} />
             <img className="chamber-window" src={chamberArt("brokenglasswindows (1).webp")} alt="" style={placement(CHAMBER.window)} draggable={false} />

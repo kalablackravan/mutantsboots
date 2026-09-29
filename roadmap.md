@@ -6,5 +6,5 @@
 - [x] Verify the new entry image and enter action on desktop and mobile.
 - [x] Replace the post-ENTER corridor with the seven-layer CDN scene and only one interactive slime door.
 - [x] Verify scene artwork, hover/focus/tap behavior, and transition to Department of FOMO on desktop and mobile.
-- [ ] Align cloning pipes and right-side restricted door with the supplied scene reference.
-- [ ] Remove slime door open/close image flicker and verify the interaction.
+- [x] Align cloning pipes and right-side restricted door with the supplied scene reference.
+- [x] Remove slime door open/close image flicker and verify the interaction.

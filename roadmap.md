@@ -12,3 +12,4 @@
 - [x] Match the cloning machine to the uploaded 3840 × 1800 PSD layer and verify the scene.
 - [x] Align the cloning machine's upper cables exactly with the red-marked wall pipe without changing other scene elements.
 - [x] Correct the cloning machine against the PSD pipe line and shift it slightly left.
+- [x] Replace post-ENTER scene with seven full-frame WEBP_FILES layers and verify portable CDN loading.

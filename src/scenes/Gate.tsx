@@ -23,15 +23,15 @@ export function Gate({ on, onDoor }: Props) {
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : "")} aria-hidden={!on}>
       <div id="gate-stage" className={open && openReady ? "slime-open" : ""}>
-        <SceneLayer name="bg.webp" box={SCENE_LAYERS.bg} className="gate-background" />
-        <SceneLayer name="cloning.webp" box={SCENE_LAYERS.cloning} />
-        <SceneLayer name="chair.webp" box={SCENE_LAYERS.chair} />
-        <SceneLayer name="noaccess-door.webp" box={SCENE_LAYERS.noaccess} />
-        <SceneLayer name="slime_door_closed.webp" box={SCENE_LAYERS.slime} className="slime-closed" />
-        <SceneLayer name="slime_door_open.webp" box={SCENE_LAYERS.slime} className="slime-open-layer"
+        <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
+        <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} />
+        <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
+        <SceneLayer name="clonevessel.webp" box={SCENE_LAYERS.full} />
+        <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
+        <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
+        <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
-        <SceneLayer name="bg_silhouette.webp" box={SCENE_LAYERS.silhouette} className="gate-silhouette" />
-        <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.slime)}
+        <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
           onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}

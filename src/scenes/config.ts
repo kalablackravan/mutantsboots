@@ -46,7 +46,7 @@ export const CFG = {
 // Post-ENTER scene boxes are percentages of its 3840 × 1800 cover-fit frame.
 export const SCENE_LAYERS = {
   bg: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center" },
-  cloning: { left: 3.30, top: 26.70, width: 38.94, height: 66.10 },
+  cloning: { left: 900 / 3840 * 100, top: 1095 / 1800 * 100, width: 62.43, height: 62.43 },
   chair: { left: 28.84, top: 68.79, width: 15.29, height: 24.35 },
   noaccess: { left: 41.29, top: 22.85, width: 23.55, height: 67.25 },
   slime: { left: 76.00, top: 31.40, width: 20.18, height: 57.67 },

@@ -11,23 +11,25 @@ const position = (box: LayerBox): CSSProperties => ({
   objectPosition: box.objectPosition,
 });
 
-function SceneLayer({ name, box, className = "" }: { name: SceneImage; box: LayerBox; className?: string }) {
+function SceneLayer({ name, box, className = "", onLoad }: { name: SceneImage; box: LayerBox; className?: string; onLoad?: (event: SyntheticEvent<HTMLImageElement>) => void }) {
   const hideOnError = (event: SyntheticEvent<HTMLImageElement>) => { event.currentTarget.hidden = true; };
   return <img className={`gate-layer ${className}`} src={sceneImage(name)} alt="" style={position(box)}
-    decoding="async" draggable={false} onError={hideOnError} />;
+    decoding="async" draggable={false} onError={hideOnError} onLoad={onLoad} />;
 }
 
 export function Gate({ on, onDoor }: Props) {
   const [open, setOpen] = useState(false);
+  const [openReady, setOpenReady] = useState(false);
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : "")} aria-hidden={!on}>
-      <div id="gate-stage" className={open ? "slime-open" : ""}>
+      <div id="gate-stage" className={open && openReady ? "slime-open" : ""}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.bg} className="gate-background" />
         <SceneLayer name="cloning.webp" box={SCENE_LAYERS.cloning} />
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.chair} />
         <SceneLayer name="noaccess-door.webp" box={SCENE_LAYERS.noaccess} />
         <SceneLayer name="slime_door_closed.webp" box={SCENE_LAYERS.slime} className="slime-closed" />
-        <SceneLayer name="slime_door_open.webp" box={SCENE_LAYERS.slime} className="slime-open-layer" />
+        <SceneLayer name="slime_door_open.webp" box={SCENE_LAYERS.slime} className="slime-open-layer"
+          onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
         <SceneLayer name="bg_silhouette.webp" box={SCENE_LAYERS.silhouette} className="gate-silhouette" />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.slime)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}

@@ -147,6 +147,7 @@
 :root{
   --ink:#1c2340; --ink-soft:#4a5270; --paper:#f4f9ff; --butter:#ffd84d;
   --lilac:#c9bcff; --mint:#a4ecc8; --coral:#ffb3a3;
+  --gate-black:#000;
   --display:'Chewy',sans-serif; --body:'Nunito',system-ui,sans-serif; --mono:'Courier Prime',ui-monospace,monospace;
 }
 .office{position:fixed;inset:0;background:#000;color:var(--ink);font-family:var(--body);font-weight:700;overflow:hidden;-webkit-user-select:none;user-select:none}

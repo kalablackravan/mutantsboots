@@ -168,10 +168,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .gate-layer[hidden]{display:none}
 .gate-background,.gate-silhouette{object-fit:cover}
 .gate-silhouette{z-index:2}
-.slime-closed,.slime-open-layer{transition:opacity .25s ease}
-.slime-open-layer{opacity:0}
-#gate-stage.slime-open .slime-closed{opacity:0}
-#gate-stage.slime-open .slime-open-layer{opacity:1}
+.slime-open-layer{visibility:hidden}
+#gate-stage.slime-open .slime-closed{visibility:hidden}
+#gate-stage.slime-open .slime-open-layer{visibility:visible}
 .slime-hit{position:absolute;z-index:3;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;touch-action:manipulation;box-shadow:none}
 .slime-hit:hover,.slime-hit:focus,.slime-hit:focus-visible{background:transparent}
 @media (max-aspect-ratio: 1/1){#gate-stage{transform:translate(-83.79%,-50%)}}

@@ -1,7 +1,9 @@
-import { useState, type CSSProperties, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { sceneImage, type SceneImage } from "@/config/cdn";
 import { SCENE_LAYERS } from "./config";
+import { ClassifiedFile } from "@/overlays/ClassifiedFile";
+import { preloadFile } from "@/lib/fileArt";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void };
@@ -21,9 +23,18 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
+  const [fileOpen, setFileOpen] = useState(false);
+  const [fileBusy, setFileBusy] = useState(false);
+  useEffect(() => { if (on) void preloadFile(); }, [on]); // file art is ready long before anyone clicks
+  const openFile = async () => {
+    if (fileBusy || fileOpen) return;
+    setFileBusy(true); await preloadFile(); setFileBusy(false); // never open onto a blank page
+    setCloneHover(false); setFileOpen(true);
+  };
+  const closeFile = useCallback(() => setFileOpen(false), []);
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
-      <div id="gate-stage" className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : ""].filter(Boolean).join(" ")}>
+      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} />
         {/* toxic-green glow copy of the cloning machine: sits behind it, fades in + pulses on hover */}
@@ -36,9 +47,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
-        <div className="clone-hit" aria-hidden="true" style={position(SCENE_LAYERS.cloneHit)}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") setCloneHover(true); }}
-          onPointerLeave={() => setCloneHover(false)} />
+        <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}
+          aria-label="Open the classified file" tabIndex={on ? 0 : -1}
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") setCloneHover(true); void preloadFile(); }}
+          onPointerLeave={() => setCloneHover(false)} onFocus={() => setCloneHover(true)} onBlur={() => setCloneHover(false)}
+          onClick={openFile} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
@@ -46,6 +59,14 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           onClick={onDoor} />
       </div>
       <div className="gate-overlay" aria-hidden="true" />
+      {/* UI above the pulsing overlay, same frame as the stage, so the hint stays readable */}
+      <div id="gate-ui" aria-hidden="true">
+        <span className={"clone-tag" + (cloneHover || fileBusy ? " on" : "")}
+          style={{ left: `${SCENE_LAYERS.cloneHit.left + SCENE_LAYERS.cloneHit.width / 2}%`, top: `${SCENE_LAYERS.cloneHit.top}%` }}>
+          {fileBusy ? "opening file…" : "▸ click to open file"}
+        </span>
+      </div>
+      <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>
   );
 }

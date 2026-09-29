@@ -4,7 +4,7 @@ import { SCENE_IMAGES, sceneImage } from "@/config/cdn";
 // so the whole scene can appear in one frame instead of layer by layer.
 let ready: Promise<void> | null = null;
 
-const loadAndDecode = (src: string) =>
+export const loadAndDecode = (src: string) =>
   new Promise<void>((resolve) => {
     const img = new Image();
     img.decoding = "sync";

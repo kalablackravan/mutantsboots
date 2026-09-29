@@ -53,6 +53,18 @@ export const SCENE_LAYERS = {
   cloneHit: { left: 495 / 3840 * 100, top: 515 / 1800 * 100, width: 685 / 3840 * 100, height: 1045 / 1800 * 100 },
 } as const;
 
+// Classified file: centrespread.webp is a full 3840x1800 canvas with the folder art embedded
+// in place, so every box here is in that canvas (as % of it), exactly like SCENE_LAYERS.
+const cpct = (x: number, y: number, w: number, h: number) => ({ left: x / 38.4, top: y / 18, width: w / 38.4, height: h / 18 });
+export const FILE_LAYOUT = {
+  folder: cpct(1030, 341, 1926, 1112),   // whole folder (clicks here never close the file)
+  cover: cpct(1135, 440, 730, 930),      // green inner cover, left side
+  sheet: cpct(2107, 400, 718, 955),      // top paper sheet, right side
+  spineOrigin: (1982 - 2107) / 718 * 100, // folder spine as transform-origin of the sheet (% of sheet width)
+  sheetClip: "polygon(1.5% 0.3%, 0.3% 1.5%, 0.0% 88.3%, 1.0% 88.4%, 1.1% 92.7%, 0.0% 93.0%, 0.0% 96.5%, 1.0% 96.8%, 1.1% 97.7%, 3.8% 98.5%, 12.1% 97.8%, 15.7% 99.4%, 72.0% 99.8%, 80.6% 97.6%, 84.1% 97.6%, 87.5% 95.2%, 89.7% 95.2%, 92.5% 92.4%, 98.3% 90.7%, 99.9% 89.4%, 99.2% 87.7%, 99.9% 83.9%, 96.2% 50.2%, 96.5% 1.4%, 94.7% 0.2%, 55.6% 1.0%, 50.0% 2.6%, 46.7% 2.6%, 44.8% 1.7%, 44.4% 0.5%, 26.5% 0.8%, 26.0% 0.2%, 16.0% 0.2%, 13.9% 1.2%, 9.6% 1.2%, 5.7% 0.1%)",
+  sheetBg: { size: `${3840 / 718 * 100}% ${1800 / 955 * 100}%`, pos: `${2107 / (3840 - 718) * 100}% ${400 / (1800 - 955) * 100}%` },
+} as const;
+
 export type Frame = { scale: number; ox: number; oy: number };
 // artFrame() from app.js: cover-fit, centred; on wide screens fit and pin to the top.
 export function artFrame(vw: number, vh: number): Frame {

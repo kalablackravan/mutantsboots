@@ -30,8 +30,9 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
   const busy = useRef(false);
   const root = useRef<HTMLDivElement>(null);
 
-  // every time the file is called up it arrives closed, slid out like a book pulled off a shelf
-  useEffect(() => {
+  // every time the file is called up it arrives closed, slid out like a book pulled off a shelf.
+  // Layout effect: the entrance class is in place before the first paint, so nothing jumps.
+  useLayoutEffect(() => {
     if (!open) return;
     setStage("closed"); setCoverTop(true); setMoving(null); setMotion("pull"); busy.current = true;
     playBookPull();

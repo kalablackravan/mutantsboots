@@ -21,12 +21,13 @@ let ready: Promise<void> | null = null;
 export function preloadFile(timeoutMs = 6000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   const font = document.fonts?.load
-    ? document.fonts.load("1em 'Black Ops One'").then(() => undefined, () => undefined)
+    ? Promise.all(["1em 'Black Ops One'", "400 1em 'Courier Prime'", "700 1em 'Courier Prime'"].map((f) => document.fonts.load(f)))
+        .then(() => undefined, () => undefined)
     : Promise.resolve();
   ready ??= Promise.race([
     Promise.all([
       loadAndDecode(sceneImage("bestspread.webp")), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2),
-      loadAndDecode(SPECIMEN_STRIP), font,
+      loadAndDecode(SPECIMEN_STRIP), loadAndDecode(INK_HEAVY), loadAndDecode(INK_LIGHT), font,
     ]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);

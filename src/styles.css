@@ -157,6 +157,8 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .office :focus:not(:focus-visible){outline:none}
 .scene{position:fixed;inset:0;opacity:0;visibility:hidden;transition:opacity .45s ease}
 .scene.on{opacity:1;visibility:visible}
+/* gate is painted (fully decoded) underneath the intro, so ENTER only has to lift the intro */
+.scene.warm{opacity:1;visibility:visible;z-index:0;transition:none;pointer-events:none}
 #blackout{position:fixed;inset:0;z-index:19;background:#000;opacity:0;pointer-events:none;transition:opacity .55s ease-in}
 #blackout.on{opacity:1;pointer-events:auto}
 #blackout.lift{transition:opacity .9s ease-out}

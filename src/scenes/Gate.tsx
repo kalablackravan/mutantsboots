@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { SCENE_LAYERS } from "./config";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
-type Props = { on: boolean; onDoor: () => void };
+type Props = { on: boolean; warm?: boolean; onDoor: () => void };
 
 const position = (box: LayerBox): CSSProperties => ({
   left: `${box.left}%`, top: `${box.top}%`, width: `${box.width}%`, height: `${box.height}%`,
@@ -14,14 +14,14 @@ const position = (box: LayerBox): CSSProperties => ({
 function SceneLayer({ name, box, className = "", onLoad }: { name: SceneImage; box: LayerBox; className?: string; onLoad?: (event: SyntheticEvent<HTMLImageElement>) => void }) {
   const hideOnError = (event: SyntheticEvent<HTMLImageElement>) => { event.currentTarget.hidden = true; };
   return <img className={`gate-layer ${className}`} src={sceneImage(name)} alt="" style={position(box)}
-    decoding="async" draggable={false} onError={hideOnError} onLoad={onLoad} />;
+    decoding="sync" loading="eager" fetchPriority="high" draggable={false} onError={hideOnError} onLoad={onLoad} />;
 }
 
-export function Gate({ on, onDoor }: Props) {
+export function Gate({ on, warm = false, onDoor }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   return (
-    <section id="s-gate" className={"scene" + (on ? " on" : "")} aria-hidden={!on}>
+    <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "")} aria-hidden={!on}>
       <div id="gate-stage" className={open && openReady ? "slime-open" : ""}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} />

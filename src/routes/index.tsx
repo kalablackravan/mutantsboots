@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFrame } from "@/hooks/useFrame";
 import { homepageArt } from "@/lib/homepageAsset";
 import { SCENE_IMAGES, sceneImage } from "@/config/cdn";
+import { preloadScene } from "@/lib/scenePreload";
 import { CFG } from "@/scenes/config";
 import { Gate } from "@/scenes/Gate";
 import { Room, type RoomState } from "@/scenes/Room";
@@ -42,6 +43,8 @@ function Office() {
   const [st, setSt] = useState<RoomState>({ rung: false, hasFolder: false, awaitBell: true, bellDown: false, landingFolder: false, zoom: "" });
   const ans = useRef<{ a1?: string; a2?: string }>({});
   const busy = useRef(false);
+  const [entering, setEntering] = useState(false);
+  useEffect(() => { void preloadScene(); }, []); // start fetching + decoding the scene while the visitor is still on the intro
   const close = useCallback(() => setOv(null), []);
 
   // walking through the department door: black falls, the scene changes under it, black lifts as the room zooms in
@@ -57,6 +60,13 @@ function Office() {
     await wait(900 * t); setBlack("");
     busy.current = false;
     if (to === "room") setBeat(st.rung ? { text: cls ? LINES.draft : LINES.lookAround } : null);
+  };
+
+  // ENTER: wait until every layer is decoded, then reveal the finished scene at once
+  const enter = async () => {
+    if (entering) return; setEntering(true);
+    await preloadScene();
+    setScene("gate"); setEntering(false);
   };
 
   const q = (text: string, question: { q: string; options: Opt[] }, pick: (k: string) => void) =>
@@ -111,12 +121,12 @@ function Office() {
       <section id="intro" className={"scene" + (scene === "intro" ? " on" : "")} aria-hidden={scene !== "intro"}>
         <img className="intro-art" src={homepageArt} alt="" draggable={false} />
         <div className="intro-overlay" aria-hidden="true" />
-        <button type="button" id="intro-enter" onClick={() => setScene("gate")} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
+        <button type="button" id="intro-enter" onClick={enter} aria-busy={entering} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
           <span className="intro-title">mutatedfoots</span>
-          <span className="intro-prompt">enter <span aria-hidden="true">↗</span></span>
+          <span className="intro-prompt">{entering ? "loading…" : <>enter <span aria-hidden="true">↗</span></>}</span>
         </button>
       </section>
-      <Gate on={scene === "gate"} onDoor={() => travel("room")} />
+      <Gate on={scene === "gate"} warm={scene === "intro"} onDoor={() => travel("room")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"

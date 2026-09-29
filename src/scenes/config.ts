@@ -4,18 +4,11 @@
    CFG was not supplied; adjust them here only. */
 export type Box = { x: number; y: number; w: number; h: number };
 
-const FLOOR = 1420; // corridor floor line in bg.webp
 const DESK = 1150; // desk-top resting line in 01-room-open.png
 
 export const CFG = {
   art: {
     canvas: { w: 3840, h: 1800 },
-    // gate (corridor), left to right = GATE_STOPS order
-    bathroom: { x: 590, y: FLOOR - 994, w: 536, h: 1008 }, // inferred
-    frame: { x: 1210, y: 600, w: 267, h: 391 }, // inferred: the disclaimer, framed on the wall
-    door: { x: 1652, y: FLOOR - 992, w: 536, h: 1008 }, // inferred: centred on the wall's light
-    vent: { x: 2270, y: 1150, w: 320, h: 182 }, // inferred
-    lab: { x: 2658, y: FLOOR - 995, w: 741, h: 1100 }, // supplied 1029x1528 art: bottom edge sits on the corridor's visible floor crease (~1512), per user mark-up
     // room (desk pieces)
     bell: { x: 950, y: DESK - 142, w: 180, h: 148 },
     folder: { x: 1180, y: DESK, w: 316, h: 162 },
@@ -47,9 +40,18 @@ export const CFG = {
   folderAR: 2440 / 1404,
   // the writable page inside 08-spread (% of the spread)
   page: { x: 56, y: 8, w: 37, h: 82 },
-  GATE_STOPS: ["bathroom", "frame", "door", "vent", "lab"] as const,
   WIDE_RATIO: 1.6,
 };
+
+// Post-ENTER scene boxes are percentages of its 3840 × 1800 cover-fit frame.
+export const SCENE_LAYERS = {
+  bg: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center" },
+  cloning: { left: 3.30, top: 30.67, width: 38.94, height: 62.13 },
+  chair: { left: 28.84, top: 68.79, width: 15.29, height: 24.35 },
+  noaccess: { left: 41.29, top: 22.85, width: 23.55, height: 67.25 },
+  slime: { left: 73.70, top: 31.40, width: 20.18, height: 57.67 },
+  silhouette: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center bottom" },
+} as const;
 
 export type Frame = { scale: number; ox: number; oy: number };
 // artFrame() from app.js: cover-fit, centred; on wide screens fit and pin to the top.

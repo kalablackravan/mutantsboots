@@ -4,3 +4,5 @@
 - [x] Check desktop and mobile presentation, open/closed cabinet, and image loading.
 - [x] Replace the entry screen with the supplied mutatedfoots background and title while retaining the existing journey.
 - [x] Verify the new entry image and enter action on desktop and mobile.
+- [x] Replace the post-ENTER corridor with the seven-layer CDN scene and only one interactive slime door.
+- [x] Verify scene artwork, hover/focus/tap behavior, and transition to Department of FOMO on desktop and mobile.

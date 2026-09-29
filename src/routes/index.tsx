@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useFrame } from "@/hooks/useFrame";
 import { homepageArt } from "@/lib/homepageAsset";
+import { SCENE_IMAGES, sceneImage } from "@/config/cdn";
 import { CFG } from "@/scenes/config";
 import { Gate } from "@/scenes/Gate";
 import { Room, type RoomState } from "@/scenes/Room";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: homepageArt },
     ],
+    links: SCENE_IMAGES.map((name) => ({ rel: "preload", as: "image", href: sceneImage(name) })),
   }),
   component: Office,
 });
@@ -35,7 +37,6 @@ function Office() {
   const [scene, setScene] = useState<"intro" | "gate" | "room">("intro");
   const [black, setBlack] = useState<"" | "on" | "lift">("");
   const [ov, setOv] = useState<string | null>(null);
-  const [vent, setVent] = useState<string | null>(null);
   const [beat, setBeat] = useState<Beat | null>(null);
   const [cls, setCls] = useState<string | null>(null);
   const [st, setSt] = useState<RoomState>({ rung: false, hasFolder: false, awaitBell: true, bellDown: false, landingFolder: false, zoom: "" });
@@ -101,8 +102,6 @@ function Office() {
     setOv(({ board: "notices", gallery: "gallery", tasks: "tasks", folder: "folder", menu: "menu", socials: "socials" } as Record<string, string>)[k] ?? null);
   };
 
-  useEffect(() => { if (!vent) return; const t = setTimeout(() => setVent(null), 3200); return () => clearTimeout(t); }, [vent]);
-
   if (!fr) return <main className="office" />;
   const { f, vw, vh, portrait } = fr;
   const b = CFG.bubble;
@@ -117,12 +116,8 @@ function Office() {
           <span className="intro-prompt">enter <span aria-hidden="true">↗</span></span>
         </button>
       </section>
-      <Gate on={scene === "gate"} f={f} vw={vw} portrait={portrait}
-        onDoor={() => travel("room")} onFrame={() => setOv("disclaimer")}
-        onVent={() => setVent("…someone is humming in there.")}
-        onLab={() => setOv("lab")} onBathroom={() => setVent("occupied.")} />
+      <Gate on={scene === "gate"} onDoor={() => travel("room")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
-      {scene === "gate" && vent && <div id="vbub" className="bub vbub" role="status">{vent}</div>}
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"
           style={{ left: f.ox + b.cx * f.scale, bottom: vh - (f.oy + b.tip * f.scale) + 20, maxWidth: Math.max(280, Math.min(b.maxw * f.scale, vw - 24)) }}>

@@ -179,12 +179,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .layer.crop{object-fit:contain}
 .layer.hi{opacity:0;transition:opacity .25s ease}
 .layer.hi.on{opacity:1}
-#hi-bathroom{transition:none}
-#hi-door{transition:opacity .5s ease}
-#hi-frame{transition:filter .25s ease}
-#hi-frame.on{filter:brightness(1.12) drop-shadow(0 0 14px rgba(255,216,77,.85))}
-#hi-vent{transition:filter .3s ease}
-#hi-vent.peek{filter:brightness(1.22)}
 #s-room .layer.hi{opacity:1;transition:filter .25s ease,transform .25s ease}
 #s-room .layer.hi.on{filter:brightness(1.12) drop-shadow(0 0 10px rgba(255,216,77,.85));transform:translateY(-3px)}
 #s-room #hi-tasks.on{transform:translateY(-12px)}
@@ -228,8 +222,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .opts button{text-align:left;background:transparent;border:2px solid var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer}
 .opts button:hover{background:var(--butter)}
 .opts b{font-family:var(--display);font-weight:400;margin-right:4px}
-.vbub{left:50%;bottom:18vh}
-.vbub::before{display:none}
 /* overlays */
 .ov{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.72);display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .3s ease;padding:4vmin}
 .ov.on{opacity:1;visibility:visible}

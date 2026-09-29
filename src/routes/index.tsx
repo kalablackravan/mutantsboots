@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useFrame } from "@/hooks/useFrame";
 import { homepageArt } from "@/lib/homepageAsset";
 import { SCENE_IMAGES, sceneImage } from "@/config/cdn";

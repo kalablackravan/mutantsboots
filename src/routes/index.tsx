@@ -111,6 +111,7 @@ function Office() {
       <h1 className="sr-only">mutatedfoots</h1>
       <section id="intro" className={"scene" + (scene === "intro" ? " on" : "")} aria-hidden={scene !== "intro"}>
         <img className="intro-art" src={homepageArt} alt="" draggable={false} />
+        <div className="intro-overlay" aria-hidden="true" />
         <button type="button" id="intro-enter" onClick={() => setScene("gate")} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
           <span className="intro-title">mutatedfoots</span>
           <span className="intro-prompt">enter <span aria-hidden="true">↗</span></span>

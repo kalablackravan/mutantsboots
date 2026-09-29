@@ -162,7 +162,17 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #s-room{transition:opacity .45s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
 #s-room.zoom-from{transform:scale(.94);transition:none}
 #s-room.zoom-away{transform:scale(.94);transition:opacity .45s ease,transform .7s ease-in}
-#gate-stage{position:absolute;inset:0;transition:transform .45s cubic-bezier(.2,.8,.2,1);touch-action:pan-y}
+#gate-stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));overflow:hidden;background:var(--gate-black)}
+.gate-layer{position:absolute;display:block;max-width:none;object-fit:fill;pointer-events:none;-webkit-user-drag:none}
+.gate-layer[hidden]{display:none}
+.gate-background,.gate-silhouette{object-fit:cover}
+.gate-silhouette{z-index:2}
+.slime-closed,.slime-open-layer{transition:opacity .25s ease}
+.slime-open-layer{opacity:0}
+#gate-stage.slime-open .slime-closed{opacity:0}
+#gate-stage.slime-open .slime-open-layer{opacity:1}
+.slime-hit{position:absolute;z-index:3;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;touch-action:manipulation;box-shadow:none}
+.slime-hit:hover,.slime-hit:focus,.slime-hit:focus-visible{background:transparent}
 .layer{position:absolute;display:block;max-width:none;pointer-events:none;-webkit-user-drag:none}
 .layer.crop{object-fit:contain}
 .layer.hi{opacity:0;transition:opacity .25s ease}
@@ -262,7 +272,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-lock-panel button{padding:8px 32px;border:3px solid var(--ink);border-radius:4px;background:var(--butter);font-family:var(--display);font-size:19px;cursor:pointer}
 .lab-lock-panel button:disabled{opacity:.45;cursor:not-allowed}
 .lab-lock-panel p{margin:0;font-size:14px}
-.gate-lab-door{mix-blend-mode:darken}
 .ov:has(.lab-view){display:block;padding:0;background:#000}
 .lab-view{position:relative;width:100vw;height:100dvh;display:grid;place-items:center;overflow:hidden}
 .chamber-frame{position:relative;width:min(100vw,calc(100dvh * 1672 / 941));aspect-ratio:1672 / 941;overflow:hidden;flex:none}

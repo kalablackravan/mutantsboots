@@ -43,16 +43,12 @@ export const CFG = {
   WIDE_RATIO: 1.6,
 };
 
-// Post-ENTER scene boxes are percentages of its 3840 × 1800 cover-fit frame.
+// Every WEBP_FILES layer is a complete 3840 × 1800 transparent canvas with its
+// own artwork already positioned. Overlay the canvases without cropping or offsets.
 export const SCENE_LAYERS = {
-  bg: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center" },
-  // PSD top y=553 aligns the cable ends just beneath the wall pipe; offset 60 art px left.
-  // The source has a 643px transparent left margin; preserve its native proportions.
-  cloning: { left: (527 - 60 - 643 * 0.625) / 3840 * 100, top: 553 / 1800 * 100, width: (2396 * 0.625) / 3840 * 100, height: (1792 * 0.625) / 1800 * 100 },
-  chair: { left: 28.84, top: 68.79, width: 15.29, height: 24.35 },
-  noaccess: { left: 41.29, top: 22.85, width: 23.55, height: 67.25 },
-  slime: { left: 76.00, top: 31.40, width: 20.18, height: 57.67 },
-  silhouette: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center bottom" },
+  full: { left: 0, top: 0, width: 100, height: 100 },
+  // Transparent bounds of closeddoor.webp/opendoor.webp on the same canvas.
+  doorHit: { left: 2593 / 3840 * 100, top: 376 / 1800 * 100, width: 916 / 3840 * 100, height: 1228 / 1800 * 100 },
 } as const;
 
 export type Frame = { scale: number; ox: number; oy: number };

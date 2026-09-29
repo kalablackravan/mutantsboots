@@ -1,19 +1,18 @@
-// Pin this artwork to the same public GitHub-backed CDN revision as the entry image.
-// Changing hosts or revisions requires updating only this base URL.
-export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@66846a4d64a4ff64a622efaa06f04db5cf7ff08b/site/frontend/webp/";
+// Commit-pin the post-ENTER artwork so copied workspaces and deployments use the same files.
+export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@3d3a5e711cfce4e65b0c187081ec14679326cb7e/site/frontend/WEBP_FILES/";
 
 export const sceneImage = (filename: SceneImage) => CDN_BASE + filename;
 
 export type SceneImage =
   | "bg.webp"
-  | "bg_silhouette.webp"
+  | "bgsilhouette.webp"
   | "chair.webp"
-  | "cloning.webp"
-  | "noaccess-door.webp"
-  | "slime_door_closed.webp"
-  | "slime_door_open.webp";
+  | "clonevessel.webp"
+  | "closeddoor.webp"
+  | "lockdoor.webp"
+  | "opendoor.webp";
 
 export const SCENE_IMAGES: SceneImage[] = [
-  "bg.webp", "cloning.webp", "chair.webp", "noaccess-door.webp",
-  "slime_door_closed.webp", "slime_door_open.webp", "bg_silhouette.webp",
+  "bg.webp", "bgsilhouette.webp", "chair.webp", "clonevessel.webp",
+  "closeddoor.webp", "lockdoor.webp", "opendoor.webp",
 ];

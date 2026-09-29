@@ -166,8 +166,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));overflow:hidden;background:var(--gate-black)}
 .gate-layer{position:absolute;display:block;max-width:none;object-fit:fill;pointer-events:none;-webkit-user-drag:none}
 .gate-layer[hidden]{display:none}
-.gate-background,.gate-silhouette{object-fit:cover}
-.gate-silhouette{z-index:2}
+.gate-background{object-fit:cover}
 .slime-open-layer{visibility:hidden}
 #gate-stage.slime-open .slime-closed{visibility:hidden}
 #gate-stage.slime-open .slime-open-layer{visibility:visible}

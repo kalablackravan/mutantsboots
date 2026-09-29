@@ -2,5 +2,5 @@
 - [x] Replace the lab chamber with proportionally placed door, window, and interactive cabinet.
 - [x] Use portable CDN images that load in a fresh workspace or Vercel.
 - [x] Check desktop and mobile presentation, open/closed cabinet, and image loading.
-- [ ] Replace the entry screen with the supplied mutatedfoots background and title while retaining the existing journey.
-- [ ] Verify the new entry image and enter action on desktop and mobile.
+- [x] Replace the entry screen with the supplied mutatedfoots background and title while retaining the existing journey.
+- [x] Verify the new entry image and enter action on desktop and mobile.

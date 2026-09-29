@@ -44,6 +44,7 @@ function Office() {
   const ans = useRef<{ a1?: string; a2?: string }>({});
   const busy = useRef(false);
   const [entering, setEntering] = useState(false);
+  const [gateZoom, setGateZoom] = useState<"" | "zoom-from">("");
   useEffect(() => { void preloadScene(); }, []); // start fetching + decoding the scene while the visitor is still on the intro
   const close = useCallback(() => setOv(null), []);
 
@@ -62,11 +63,18 @@ function Office() {
     if (to === "room") setBeat(st.rung ? { text: cls ? LINES.draft : LINES.lookAround } : null);
   };
 
-  // ENTER: wait until every layer is decoded, then reveal the finished scene at once
+  // ENTER: same walk-in as the department door. Scene is already decoded, then
+  // black falls, the lab appears under it, black lifts as the lab zooms in.
   const enter = async () => {
-    if (entering) return; setEntering(true);
+    if (entering || busy.current) return; setEntering(true);
     await preloadScene();
-    setScene("gate"); setEntering(false);
+    busy.current = true;
+    const t = reduced() ? 0 : 1;
+    setBlack("on"); await wait(560 * t);
+    setGateZoom("zoom-from"); setScene("gate"); setEntering(false); await wait(40);
+    setBlack("lift"); setGateZoom("");
+    await wait(900 * t); setBlack("");
+    busy.current = false;
   };
 
   const q = (text: string, question: { q: string; options: Opt[] }, pick: (k: string) => void) =>
@@ -126,7 +134,7 @@ function Office() {
           <span className="intro-prompt">{entering ? "loading…" : <>enter <span aria-hidden="true">↗</span></>}</span>
         </button>
       </section>
-      <Gate on={scene === "gate"} warm={scene === "intro"} onDoor={() => travel("room")} />
+      <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("room")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"

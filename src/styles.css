@@ -165,6 +165,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #s-room{transition:opacity .45s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
 #s-room.zoom-from{transform:scale(.94);transition:none}
 #s-room.zoom-away{transform:scale(.94);transition:opacity .45s ease,transform .7s ease-in}
+/* ENTER walk-in: the lab zooms in from behind the black, same as the department room */
+#s-gate{transition:opacity .45s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+#s-gate.zoom-from{transform:scale(.94);transition:none}
 #gate-stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));overflow:hidden;background:var(--gate-black)}
 .gate-layer{position:absolute;display:block;max-width:none;object-fit:fill;pointer-events:none;-webkit-user-drag:none}
 .gate-layer[hidden]{display:none}
@@ -282,6 +285,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 }
 @media (prefers-reduced-motion: reduce){
   #s-room,#s-room.zoom-from,#s-room.zoom-away{transform:none;transition:opacity .45s ease}
+  #s-gate,#s-gate.zoom-from{transform:none;transition:opacity .45s ease}
   #s-room.await-bell #hi-bell:not(.on),#s-room.landing-folder .fold.cur,#intro-enter .intro-prompt{animation:none}
   #s-room .layer.hi.on{transform:none}
 }

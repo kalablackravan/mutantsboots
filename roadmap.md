@@ -8,3 +8,4 @@
 - [x] Verify scene artwork, hover/focus/tap behavior, and transition to Department of FOMO on desktop and mobile.
 - [x] Align cloning pipes and right-side restricted door with the supplied scene reference.
 - [x] Remove slime door open/close image flicker and verify the interaction.
+- [ ] Set cloning artwork to X 900 px, Y 1095 px, W 62.43%, H 62.43% in the scene frame and verify the placement.

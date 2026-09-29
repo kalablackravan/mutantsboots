@@ -49,6 +49,8 @@ export const SCENE_LAYERS = {
   full: { left: 0, top: 0, width: 100, height: 100 },
   // Transparent bounds of closeddoor.webp/opendoor.webp on the same canvas.
   doorHit: { left: 2593 / 3840 * 100, top: 376 / 1800 * 100, width: 916 / 3840 * 100, height: 1228 / 1800 * 100 },
+  // Main body of clonevessel.webp (gauges + tube + base) on the same canvas: hover area for the glow.
+  cloneHit: { left: 495 / 3840 * 100, top: 515 / 1800 * 100, width: 685 / 3840 * 100, height: 1045 / 1800 * 100 },
 } as const;
 
 export type Frame = { scale: number; ox: number; oy: number };

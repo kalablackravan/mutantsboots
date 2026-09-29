@@ -177,6 +177,15 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage.slime-open .slime-open-layer{visibility:visible}
 .slime-hit{position:absolute;z-index:3;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;touch-action:manipulation;box-shadow:none}
 .slime-hit:hover,.slime-hit:focus,.slime-hit:focus-visible{background:transparent}
+/* cloning machine hover: toxic green pulse (#39FF14) + slight power-up */
+.clone-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.clone-glow{filter:drop-shadow(0 0 clamp(4px,.5vw,14px) rgba(57,255,20,.95)) drop-shadow(0 0 clamp(10px,1.3vw,34px) rgba(57,255,20,.6))}
+.clone-body{transition:filter .35s ease}
+.clone-hit{position:absolute;z-index:3;pointer-events:auto}
+#gate-stage.clone-hover .clone-glow-wrap{opacity:1}
+#gate-stage.clone-hover .clone-glow{animation:clonePulse 1.6s ease-in-out infinite}
+#gate-stage.clone-hover .clone-body{filter:brightness(1.12) saturate(1.08)}
+@keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}
 @media (max-aspect-ratio: 1/1){#gate-stage{transform:translate(-83.79%,-50%)}}
 .layer{position:absolute;display:block;max-width:none;pointer-events:none;-webkit-user-drag:none}
 .layer.crop{object-fit:contain}
@@ -286,6 +295,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @media (prefers-reduced-motion: reduce){
   #s-room,#s-room.zoom-from,#s-room.zoom-away{transform:none;transition:opacity .45s ease}
   #s-gate,#s-gate.zoom-from{transform:none;transition:opacity .45s ease}
+  #gate-stage.clone-hover .clone-glow{animation:none}
   #s-room.await-bell #hi-bell:not(.on),#s-room.landing-folder .fold.cur,#intro-enter .intro-prompt{animation:none}
   #s-room .layer.hi.on{transform:none}
 }

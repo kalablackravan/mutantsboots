@@ -11,3 +11,4 @@
 - [x] Set cloning artwork to X 900 px, Y 1095 px, W 62.43%, H 62.43% in the scene frame and verify the placement.
 - [x] Match the cloning machine to the uploaded 3840 × 1800 PSD layer and verify the scene.
 - [x] Align the cloning machine's upper cables exactly with the red-marked wall pipe without changing other scene elements.
+- [ ] Correct the cloning machine against the PSD pipe line and shift it slightly left.

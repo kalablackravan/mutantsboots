@@ -11,3 +11,4 @@
 - All room/corridor coordinates live in src/scenes/config.ts (reconstructed CFG, 3840x1800 art px) — the original CFG/index.html was never supplied, so inferred values stay in one place.
 - The chamber and corridor lab door use commit-pinned GitHub-backed CDN assets so a fresh Lovable workspace or Vercel deployment does not rely on an old project's asset origin.
 - Chamber object placement lives in src/scenes/config.ts in the 1672x941 background's pixel coordinate system; scale the frame uniformly and preserve each image's native aspect ratio to avoid stretching.
+- The entry artwork uses a commit-pinned GitHub-backed CDN URL so copying the project or deploying to Vercel does not depend on a Lovable asset origin.

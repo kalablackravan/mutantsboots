@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFrame } from "@/hooks/useFrame";
 import { art } from "@/lib/assets";
+import { homepageArt } from "@/lib/homepageAsset";
 import { CFG } from "@/scenes/config";
 import { Gate } from "@/scenes/Gate";
 import { Room, type RoomState } from "@/scenes/Room";
@@ -12,12 +13,14 @@ import { LabLock } from "@/overlays/LabLock";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "fomies — department of fomo" },
-      { name: "description", content: "walk the corridor, ring the bell, and get classified by the department of fomo's intake officer." },
-      { property: "og:title", content: "fomies — department of fomo" },
-      { property: "og:description", content: "walk the corridor, ring the bell, and get classified by the intake officer." },
+      { title: "mutatedfoots — enter the lab" },
+      { name: "description", content: "Enter the mutatedfoots lab and explore what lies beyond the doors." },
+      { property: "og:title", content: "mutatedfoots — enter the lab" },
+      { property: "og:description", content: "Enter the mutatedfoots lab and explore what lies beyond the doors." },
+      { property: "og:image", content: homepageArt },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: homepageArt },
     ],
   }),
   component: Office,
@@ -106,11 +109,12 @@ function Office() {
   const b = CFG.bubble;
   return (
     <main className="office">
-      <h1 className="sr-only">fomies — department of fomo</h1>
+      <h1 className="sr-only">mutatedfoots</h1>
       <section id="intro" className={"scene" + (scene === "intro" ? " on" : "")} aria-hidden={scene !== "intro"}>
-        <button type="button" id="intro-enter" onClick={() => setScene("gate")} aria-label="enter">
-          <img src={art("logo.png")} alt="fomies" draggable={false} />
-          <span>enter</span>
+        <img className="intro-art" src={homepageArt} alt="" draggable={false} />
+        <button type="button" id="intro-enter" onClick={() => setScene("gate")} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
+          <span className="intro-title">mutatedfoots</span>
+          <span className="intro-prompt">enter <span aria-hidden="true">↗</span></span>
         </button>
       </section>
       <Gate on={scene === "gate"} f={f} vw={vw} portrait={portrait}

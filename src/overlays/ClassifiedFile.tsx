@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { sceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F } from "@/scenes/config";
-import { DEVIL_1, DEVIL_2, SPECIMENS, SPECIMEN_STRIP } from "@/lib/fileArt";
+import { DEVIL_1, DEVIL_2, INK_HEAVY, INK_LIGHT, SPECIMENS, SPECIMEN_STRIP } from "@/lib/fileArt";
 import { playBookPull, playCoverFlip, playFloorDrop, playPageTurn } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -80,9 +80,17 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
   // shrink a page's type a little only if its text would overflow the sheet (any screen size)
   useLayoutEffect(() => {
     if (!open) return;
+    // overflow = the text itself running past the page (absolutely placed stamps may poke out)
+    const over = (el: HTMLElement) => {
+      let bottom = 0;
+      for (const c of Array.from(el.children) as HTMLElement[]) {
+        if (getComputedStyle(c).position !== "absolute") bottom = Math.max(bottom, c.offsetTop + c.offsetHeight);
+      }
+      return bottom > el.clientHeight - (parseFloat(getComputedStyle(el).paddingBottom) || 0) + 1;
+    };
     const fit = () => root.current?.querySelectorAll<HTMLElement>(".cf-page").forEach((el) => {
       let k = 1; el.style.setProperty("--k", "1");
-      while (el.scrollHeight > el.clientHeight + 1 && k > 0.7) { k -= 0.03; el.style.setProperty("--k", k.toFixed(2)); }
+      while (over(el) && k > 0.7) { k -= 0.03; el.style.setProperty("--k", k.toFixed(2)); }
     });
     fit();
     const ro = new ResizeObserver(fit);
@@ -95,7 +103,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
     if (busy.current) return;
     if (stage === "back") { drop(); return; }                      // closed from the back: any click drops it
     const t = e.target as HTMLElement;
-    if (t.closest(".cf-nav")) return;
+    if (t.closest(".cf-arrow")) return;
     if (stage === "closed" && t.closest(".cf-cover")) { next(); return; } // click the closed file to open it
     if (t.closest(".cf-leaf")) return;                             // reading: clicks on the paper do nothing
     drop();                                                        // anywhere else: the file falls
@@ -104,14 +112,17 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
   const shift = stage === "closed" ? F.shift.closed : stage === "back" ? F.shift.back : F.shift.open;
   const turn = (deg: number, z: number): CSSProperties => ({ transform: `rotateY(${deg}deg)`, zIndex: z });
   const mv = (leaf: Leaf) => (moving?.leaf === leaf ? ` moving ${moving.dir}` : "");
-  const nav = (active: boolean) => (active ? 0 : -1);
+  const reading = stage === "spread1" || stage === "spread2";
+  const edgeL = F.src.left[0] / 38.4 + F.shift.open;   // open spread edges on the canvas (%)
+  const edgeR = F.src.right[2] / 38.4 + F.shift.open;
   const hint = stage === "closed" ? "click the file to open it"
     : stage === "back" ? "click anywhere to drop the file"
-    : "◀ back · next ▶ · arrow keys work too · click outside to drop the file";
+    : "turn pages with the arrows or ← → keys · click outside to drop the file";
 
   return (
     <div ref={root} tabIndex={-1} data-stage={stage} className={"cfile" + (open ? " on" : "") + (motion === "drop" ? " dropping" : "")} role="dialog"
-      aria-modal="true" aria-label="Top classified file" aria-hidden={!open} inert={!open} onClick={onClick}>
+      aria-modal="true" aria-label="Top classified file" aria-hidden={!open} inert={!open} onClick={onClick}
+      style={{ "--ink-heavy": `url(${INK_HEAVY})`, "--ink-light": `url(${INK_LIGHT})` } as CSSProperties}>
       <div className="cfile-stage">
         <div className={"cf-motion" + (motion ? " " + motion : "")}>
           <div className="cf-folder" style={{ transform: `translateX(${shift}%)` }}>
@@ -150,9 +161,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                       </figure>
                     </div>
                     <footer className="cf-end"><b>604 escaped · 2 unlogged</b> · status: uncontained</footer>
-                    <span className="cfile-stamp paper-stamp copy">DO NOT COPY</span>
-                    <button type="button" className="cf-nav next" tabIndex={nav(stage === "spread2")}
-                      onClick={(e) => { e.stopPropagation(); next(); }}>next ▶</button>
+                    <span className="cf-stamp-ink paper-stamp copy">DO NOT COPY</span>
                   </div>
                 </div>
               </div>
@@ -160,9 +169,9 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                 <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip)} />
                 <i className="cf-tab left"><b>M1-606</b></i>
                 <div className="cf-outer-ui">
-                  <span className="cf-label"><span>CASE FILE Nº</span><b>M1-606</b><span>RETURN TO ARCHIVE · SUB-LEVEL 3</span></span>
-                  <span className="cfile-stamp big closed">CASE CLOSED</span>
-                  <span className="cf-outer-note">PROPERTY OF LAB 7 · DO NOT REMOVE</span>
+                  <div className="cf-printbox ink"><span>CASE FILE Nº</span><b>M1-606</b><span>RETURN TO ARCHIVE · SUB-LEVEL 3</span></div>
+                  <span className="cf-stamp-ink big closed">CASE CLOSED</span>
+                  <div className="cf-printfoot ink"><i /><span>PROPERTY OF LAB 7 · DO NOT REMOVE</span></div>
                 </div>
               </div>
             </div>
@@ -182,8 +191,6 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                   <h3>03 · THE MUTATION</h3>
                   <p>Then the specimens went into the <b>clone vessel</b>. The 250 ml of M1 met their <b>DNA</b> and bonded with it. Traits shifted. Colours bled. The copies stopped being copies.</p>
                   <p className="cf-strong">They mutated.</p>
-                  <button type="button" className="cf-nav next" tabIndex={nav(stage === "spread1")}
-                    onClick={(e) => { e.stopPropagation(); next(); }}>next ▶</button>
                 </div>
               </div>
               <div className="cf-face back">
@@ -200,9 +207,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                   <p><b className="red">DEVIL II · DARK SOVEREIGN.</b> Still hidden. <b>CAM 02</b> holds one black silhouette and two red eyes.</p>
                   <p className="cf-quote">"Nobody has seen it. Yet."</p>
                   <p className="cf-note">Addendum: the vessel glass is still warm. <b>Nobody has switched it on.</b></p>
-                  <span className="cfile-stamp paper-stamp unc">UNCONTAINED</span>
-                  <button type="button" className="cf-nav prev" tabIndex={nav(stage === "spread2")}
-                    onClick={(e) => { e.stopPropagation(); prev(); }}>◀ back</button>
+                  <span className="cf-stamp-ink paper-stamp unc">UNCONTAINED</span>
                 </div>
               </div>
             </div>
@@ -213,30 +218,36 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                 <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip, true)} />
                 <i className="cf-tab right"><b>M1-606</b></i>
                 <div className="cf-outer-ui">
-                  <span className="cf-label"><span>CASE FILE Nº</span><b>M1-606</b><span>PROJECT SERUM M1 · MUTATED FOOTS</span></span>
-                  <span className="cfile-stamp big">TOP SECRET</span>
-                  <span className="cf-outer-note">CLASSIFIED · EYES ONLY</span>
+                  <div className="cf-printbox ink"><span>CASE FILE Nº</span><b>M1-606</b><span>PROJECT SERUM M1 · MUTATED FOOTS</span></div>
+                  <span className="cf-stamp-ink big">TOP SECRET</span>
+                  <div className="cf-printfoot ink"><i /><span>CLASSIFIED · EYES ONLY</span></div>
                 </div>
               </div>
               <div className="cf-face back">
-                <div className="cf-art" style={crop(F.src.left, F.leftClip)} />
+                <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip)} />
                 <div className="cf-inside">
-                  <span className="cfile-stamp">TOP SECRET</span>
-                  <h2 className="cfile-title">TOP<br />CLASSIFIED<br />INFO</h2>
-                  <dl className="cfile-meta">
+                  <span className="cf-stamp-ink">TOP SECRET</span>
+                  <h2 className="cfile-title ink">TOP<br />CLASSIFIED<br />INFO</h2>
+                  <dl className="cfile-meta ink">
                     <div><dt>CASE FILE</dt><dd>Nº M1-606</dd></div>
                     <div><dt>PROJECT</dt><dd>SERUM M1</dd></div>
                     <div><dt>SUBJECT</dt><dd>MUTATED FOOTS</dd></div>
                     <div><dt>CLEARANCE</dt><dd>LEVEL 5 · EYES ONLY</dd></div>
                   </dl>
-                  <span className="cfile-stamp conf">CONFIDENTIAL</span>
+                  <span className="cf-stamp-ink conf">CONFIDENTIAL</span>
                 </div>
-                <button type="button" className="cf-nav prev on-cover" tabIndex={nav(stage === "spread1")}
-                  onClick={(e) => { e.stopPropagation(); prev(); }}>◀ back</button>
               </div>
             </div>
 
           </div>
+          <button type="button" className="cf-arrow left" aria-label="Previous page" tabIndex={reading ? 0 : -1}
+            style={{ left: `calc(${edgeL}% - 4.4cqw)` }} onClick={(e) => { e.stopPropagation(); prev(); }}>
+            <svg viewBox="0 0 60 100" aria-hidden="true"><path d="M50 8 L10 50 L50 92 Z" /></svg>
+          </button>
+          <button type="button" className="cf-arrow right" aria-label="Next page" tabIndex={reading ? 0 : -1}
+            style={{ left: `calc(${edgeR}% + 1.8cqw)` }} onClick={(e) => { e.stopPropagation(); next(); }}>
+            <svg viewBox="0 0 60 100" aria-hidden="true"><path d="M10 8 L50 50 L10 92 Z" /></svg>
+          </button>
         </div>
       </div>
       <p className="cfile-hint">{hint}</p>

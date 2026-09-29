@@ -46,9 +46,9 @@ export const CFG = {
 // Post-ENTER scene boxes are percentages of its 3840 × 1800 cover-fit frame.
 export const SCENE_LAYERS = {
   bg: { left: 0, top: 0, width: 100, height: 100, objectPosition: "center" },
-  // PSD visible bounds: x 527–1274, y 553–1638. Source has 643px transparent left margin;
-  // at 0.625× scale its full image starts at x≈125, preserving native proportions.
-  cloning: { left: (527 - 643 * 0.625) / 3840 * 100, top: 553 / 1800 * 100, width: (2396 * 0.625) / 3840 * 100, height: (1792 * 0.625) / 1800 * 100 },
+  // PSD width and horizontal placement; raised 78 art px so the upper cables meet the marked wall pipe.
+  // Source has a 643px transparent left margin; preserve the image's native proportions.
+  cloning: { left: (527 - 643 * 0.625) / 3840 * 100, top: 475 / 1800 * 100, width: (2396 * 0.625) / 3840 * 100, height: (1792 * 0.625) / 1800 * 100 },
   chair: { left: 28.84, top: 68.79, width: 15.29, height: 24.35 },
   noaccess: { left: 41.29, top: 22.85, width: 23.55, height: 67.25 },
   slime: { left: 76.00, top: 31.40, width: 20.18, height: 57.67 },

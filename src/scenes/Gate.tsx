@@ -37,6 +37,7 @@ export function Gate({ on, onDoor }: Props) {
           onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
           onClick={onDoor} />
       </div>
+      <div className="gate-overlay" aria-hidden="true" />
     </section>
   );
 }

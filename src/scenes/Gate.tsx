@@ -25,6 +25,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
   const [doorHover, setDoorHover] = useState(false);
+  const [lockHover, setLockHover] = useState(false);
   const [fileOpen, setFileOpen] = useState(false);
   const [fileBusy, setFileBusy] = useState(false);
   useEffect(() => { if (on) void preloadFile(); }, [on]); // file art is ready long before anyone clicks

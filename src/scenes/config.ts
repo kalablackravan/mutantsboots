@@ -51,6 +51,8 @@ export const SCENE_LAYERS = {
   doorHit: { left: 2593 / 3840 * 100, top: 376 / 1800 * 100, width: 916 / 3840 * 100, height: 1228 / 1800 * 100 },
   // Main body of clonevessel.webp (gauges + tube + base) on the same canvas: hover area for the glow.
   cloneHit: { left: 495 / 3840 * 100, top: 515 / 1800 * 100, width: 685 / 3840 * 100, height: 1045 / 1800 * 100 },
+  // Transparent bounds of lockdoor.webp (middle lab lockdown door): hover area for the red glow.
+  lockHit: { left: 1470 / 3840 * 100, top: 303 / 1800 * 100, width: 982 / 3840 * 100, height: 1315 / 1800 * 100 },
 } as const;
 
 // Classified file: bestspread.webp is a full 3840x1800 canvas with the open folder embedded in

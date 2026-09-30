@@ -25,6 +25,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
   const [doorHover, setDoorHover] = useState(false);
+  const [lockHover, setLockHover] = useState(false);
   const [fileOpen, setFileOpen] = useState(false);
   const [fileBusy, setFileBusy] = useState(false);
   useEffect(() => { if (on) void preloadFile(); }, [on]); // file art is ready long before anyone clicks
@@ -40,7 +41,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const closeFile = useCallback(() => setFileOpen(false), []);
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
-      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", doorHover ? "door-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
+      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", doorHover ? "door-hover" : "", lockHover ? "lock-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
         {/* toxic-green glow copy of the cloning machine: sits behind it, fades in + pulses on hover */}
         <div className="clone-glow-wrap" aria-hidden="true">
@@ -64,6 +65,10 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setCloneHover(true); void preloadFile(); }}
           onPointerLeave={() => setCloneHover(false)} onFocus={() => setCloneHover(true)} onBlur={() => setCloneHover(false)}
           onClick={openFile} />
+        <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
+          aria-label="Lab lockdown door" tabIndex={-1}
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
+          onPointerLeave={() => setLockHover(false)} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); setDoorHover(true); } }}

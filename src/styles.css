@@ -191,9 +191,12 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) rgba(57,255,20,.95)) drop-shadow(0 0 clamp(12px,1.4vw,38px) rgba(57,255,20,.6))}
 #gate-stage.door-hover .door-glow-wrap{opacity:.95}
 #gate-stage.door-hover .door-glow{animation:doorPulse 1.15s ease-in-out infinite}
-/* lab lockdown door (middle, stays locked): always-on red glow */
-.lock-glow-wrap{position:absolute;inset:0;opacity:1;pointer-events:none}
-.lock-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger));animation:doorPulse 1.15s ease-in-out infinite}
+/* lab lockdown door (middle, stays locked): red glow only while the cursor is over it */
+.lock-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.lock-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
+.lock-hit{position:absolute;z-index:3;pointer-events:auto;background:transparent;border:0;padding:0;margin:0;cursor:default;-webkit-tap-highlight-color:transparent}
+#gate-stage.lock-hover .lock-glow-wrap{opacity:.95}
+#gate-stage.lock-hover .lock-glow{animation:doorPulse 1.15s ease-in-out infinite}
 @keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes doorPulse{0%,100%{opacity:.5}50%{opacity:1}}
 #gate-ui{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));z-index:2;pointer-events:none}

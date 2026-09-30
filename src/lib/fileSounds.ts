@@ -106,3 +106,72 @@ export function playFloorDrop(delay = 0.47) {
       [{ type: "bandpass", f: 2600, q: 0.9 }], 0.25);
   } catch { /* sound is optional */ }
 }
+
+/** Creates and unlocks the shared audio context during a visitor gesture. */
+export function primeSceneAudio() {
+  try { audio(); } catch { /* sound is optional */ }
+}
+
+/** A wet pneumatic release, steel latch, and heavy laboratory gate movement. */
+export function playGateOpen() {
+  try {
+    const m = master(0.72); if (!m) return; const { c, out, t } = m;
+    thump(c, out, t, 105, 48, 0.28, 0.8);
+    burst(c, out, t + 0.04, 0.32, (x) => Math.pow(1 - x, 1.6),
+      [{ type: "highpass", f: 180 }, { type: "bandpass", f: 920, q: 1.4, to: [[340, 0.32]] }], 0.72, [0.8, 1.2], [8, 20]);
+    burst(c, out, t + 0.2, 0.95, (x) => Math.sin(Math.PI * x) * Math.pow(1 - x, 0.45),
+      [{ type: "lowpass", f: 780, q: 0.65, to: [[260, 0.95]] }], 0.5, [0.72, 1.28], [18, 55]);
+    thump(c, out, t + 0.92, 82, 42, 0.22, 0.7);
+  } catch { /* sound is optional */ }
+}
+
+/** Starts a quiet submerged bubbling loop and returns its stop function. */
+export function startSubmergedBubbleLoop(): () => void {
+  try {
+    const c = audio();
+    if (!c) return () => undefined;
+    const out = c.createGain();
+    out.gain.setValueAtTime(0.0001, c.currentTime);
+    out.gain.exponentialRampToValueAtTime(0.18, c.currentTime + 0.12);
+    out.connect(c.destination);
+
+    const bed = c.createBufferSource();
+    bed.buffer = noise(c, 1.4, () => 0.24, [0.8, 1.15], [38, 90]);
+    bed.loop = true;
+    const lowpass = c.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 420;
+    bed.connect(lowpass); lowpass.connect(out); bed.start();
+
+    let stopped = false;
+    const bubble = () => {
+      if (stopped) return;
+      const at = c.currentTime + 0.01;
+      const oscillator = c.createOscillator();
+      oscillator.type = "sine";
+      const start = 120 + Math.random() * 130;
+      oscillator.frequency.setValueAtTime(start, at);
+      oscillator.frequency.exponentialRampToValueAtTime(start * (1.5 + Math.random() * 0.65), at + 0.12);
+      const gain = c.createGain();
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.17 + Math.random() * 0.13, at + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.15);
+      oscillator.connect(gain); gain.connect(out); oscillator.start(at); oscillator.stop(at + 0.17);
+    };
+    bubble();
+    const timer = window.setInterval(bubble, 150 + Math.random() * 120);
+
+    return () => {
+      if (stopped) return;
+      stopped = true;
+      window.clearInterval(timer);
+      const at = c.currentTime;
+      out.gain.cancelScheduledValues(at);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), at);
+      out.gain.exponentialRampToValueAtTime(0.0001, at + 0.14);
+      window.setTimeout(() => { try { bed.stop(); out.disconnect(); } catch { /* already stopped */ } }, 180);
+    };
+  } catch {
+    return () => undefined;
+  }
+}

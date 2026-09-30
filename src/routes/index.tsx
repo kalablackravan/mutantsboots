@@ -10,6 +10,7 @@ import { Room, type RoomState } from "@/scenes/Room";
 import { IV, LINES, CLASSES, classify } from "@/scenes/content";
 import { Gallery, Notices, Tasks, Folder, Disclaimer, Menu, Socials } from "@/overlays/Panels";
 import { LabLock } from "@/overlays/LabLock";
+import { primeSceneAudio } from "@/lib/fileSounds";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,6 +68,7 @@ function Office() {
   // black falls, the lab appears under it, black lifts as the lab zooms in.
   const enter = async () => {
     if (entering || busy.current) return; setEntering(true);
+    primeSceneAudio();
     await preloadScene();
     busy.current = true;
     const t = reduced() ? 0 : 1;

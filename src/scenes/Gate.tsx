@@ -54,13 +54,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           onPointerLeave={() => setCloneHover(false)} onFocus={() => setCloneHover(true)} onBlur={() => setCloneHover(false)}
           onClick={openFile} />
         <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
-          aria-label="Lab lockdown door" tabIndex={-1}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
-          onPointerLeave={() => setLockHover(false)} />
+          aria-label="Lab lockdown door" tabIndex={-1} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); setDoorHover(true); } }}
-          onPointerLeave={() => { setOpen(false); setDoorHover(false); }} onFocus={() => { setOpen(true); setDoorHover(true); }} onBlur={() => { setOpen(false); setDoorHover(false); }}
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
+          onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
           onClick={() => { onDoor(); }} />
       </div>
       <div className="gate-overlay" aria-hidden="true" />

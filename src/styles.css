@@ -194,7 +194,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 /* lab lockdown door (middle, stays locked): red glow only while the cursor is over it */
 .lock-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
 .lock-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
-.lock-hit{position:absolute;z-index:3;pointer-events:auto;background:transparent;border:0;padding:0;margin:0;cursor:default;-webkit-tap-highlight-color:transparent}
+.lock-hit{position:absolute;z-index:3;pointer-events:auto;background:transparent;border:0;padding:0;margin:0;cursor:not-allowed;-webkit-tap-highlight-color:transparent}
 #gate-stage.lock-hover .lock-glow-wrap{opacity:.95}
 #gate-stage.lock-hover .lock-glow{animation:doorPulse 1.15s ease-in-out infinite}
 @keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}

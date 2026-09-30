@@ -187,9 +187,13 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage.clone-hover .clone-glow{animation:clonePulse 1.6s ease-in-out infinite}
 #gate-stage.clone-hover .clone-body{filter:brightness(1.12) saturate(1.08)}
 .door-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
+/* restricted access door (right, opens on click): toxic green glow on hover */
+.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) rgba(57,255,20,.95)) drop-shadow(0 0 clamp(12px,1.4vw,38px) rgba(57,255,20,.6))}
 #gate-stage.door-hover .door-glow-wrap{opacity:.95}
 #gate-stage.door-hover .door-glow{animation:doorPulse 1.15s ease-in-out infinite}
+/* lab lockdown door (middle, stays locked): always-on red glow */
+.lock-glow-wrap{position:absolute;inset:0;opacity:1;pointer-events:none}
+.lock-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger));animation:doorPulse 1.15s ease-in-out infinite}
 @keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes doorPulse{0%,100%{opacity:.5}50%{opacity:1}}
 #gate-ui{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));z-index:2;pointer-events:none}
@@ -410,6 +414,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
   #s-gate,#s-gate.zoom-from{transform:none;transition:opacity .45s ease}
   #gate-stage.clone-hover .clone-glow{animation:none}
   #gate-stage.door-hover .door-glow{animation:none}
+  .lock-glow{animation:none}
   .cf-leaf,.cf-folder{transition-duration:.01s}
   .cf-motion.pull,.cf-motion.drop{animation-duration:.01s}
   .cf-arrow.right svg,.cf-rec{animation:none}

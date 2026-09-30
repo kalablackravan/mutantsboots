@@ -52,6 +52,9 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="door-glow" />
         </div>
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
+        <div className="lock-glow-wrap" aria-hidden="true">
+          <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-glow" />
+        </div>
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />

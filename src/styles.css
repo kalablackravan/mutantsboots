@@ -187,7 +187,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage.clone-hover .clone-glow{animation:clonePulse 1.6s ease-in-out infinite}
 #gate-stage.clone-hover .clone-body{filter:brightness(1.12) saturate(1.08)}
 .door-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
+.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-toxic)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-toxic))}
 #gate-stage.door-hover .door-glow-wrap{opacity:.95}
 #gate-stage.door-hover .door-glow{animation:doorPulse 1.15s ease-in-out infinite}
 @keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}
@@ -196,7 +196,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .gate-tag{position:absolute;transform:translate(-50%,-125%);white-space:nowrap;padding:.4em .85em;border:1px solid var(--lab-frame);border-radius:4px;background:var(--lab-panel);font:700 clamp(11px,.85vw,15px) var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .25s ease}
 .gate-tag.on{opacity:1}
 .clone-tag{color:var(--lab-toxic);text-shadow:0 0 6px var(--lab-toxic);box-shadow:0 0 14px color-mix(in oklab,var(--lab-toxic) 30%,transparent)}
-.restricted-tag{color:var(--lab-danger);text-shadow:0 0 6px var(--lab-danger);box-shadow:0 0 14px color-mix(in oklab,var(--lab-danger) 34%,transparent)}
+.restricted-tag{border:none;background:transparent;box-shadow:none;padding:.35em .55em;color:#fff;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 -2px 0 #000,0 2px 0 #000,-2px 0 0 #000,2px 0 0 #000,0 0 6px var(--lab-danger),0 0 14px var(--lab-danger)}
 /* classified file: scene blurs behind, folder art stays exactly where it sits on the canvas */
 #gate-stage{transition:filter .45s ease}
 #gate-stage.file-open{filter:blur(9px) brightness(.7) saturate(.9)}

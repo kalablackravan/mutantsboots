@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playGateOpen, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void };
@@ -65,7 +65,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); setDoorHover(true); } }}
           onPointerLeave={() => { setOpen(false); setDoorHover(false); }} onFocus={() => { setOpen(true); setDoorHover(true); }} onBlur={() => { setOpen(false); setDoorHover(false); }}
-          onClick={() => { playGateOpen(); onDoor(); }} />
+          onClick={() => { onDoor(); }} />
       </div>
       <div className="gate-overlay" aria-hidden="true" />
       {/* UI above the pulsing overlay, same frame as the stage, so the hint stays readable */}
@@ -76,7 +76,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
         </span>
         <span className={"gate-tag restricted-tag" + (doorHover ? " on" : "")}
           style={{ left: `${SCENE_LAYERS.doorHit.left + SCENE_LAYERS.doorHit.width / 2}%`, top: `${SCENE_LAYERS.doorHit.top}%` }}>
-          ▸ you no access
+          no access
         </span>
       </div>
       <ClassifiedFile open={fileOpen} onClose={closeFile} />

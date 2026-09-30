@@ -397,9 +397,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @media (prefers-reduced-motion: reduce){
   #s-room,#s-room.zoom-from,#s-room.zoom-away{transform:none;transition:opacity .45s ease}
   #s-gate,#s-gate.zoom-from{transform:none;transition:opacity .45s ease}
-  #gate-stage.clone-hover .clone-glow{animation:none}
-  #gate-stage.door-hover .door-glow{animation:none}
-  .lock-glow{animation:none}
   .cf-leaf,.cf-folder{transition-duration:.01s}
   .cf-motion.pull,.cf-motion.drop{animation-duration:.01s}
   .cf-arrow.right svg,.cf-rec{animation:none}

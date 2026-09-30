@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { LAB_ROOM_IMAGE } from "@/config/cdn";
+import { Button } from "@/components/ui/button";
 
 export function LabLock({ open, onClose }: { open: boolean; onClose: () => void }) {
   const exit = useRef<HTMLButtonElement>(null);
@@ -25,7 +26,7 @@ export function LabLock({ open, onClose }: { open: boolean; onClose: () => void 
         <div className="lab-room-stage">
           <img src={LAB_ROOM_IMAGE} alt="Laboratory room" draggable={false} />
         </div>
-        <button ref={exit} type="button" className="lab-room-exit" onClick={onClose}>EXIT</button>
+        <Button ref={exit} type="button" variant="ghost" className="lab-room-exit" onClick={onClose}>EXIT</Button>
       </>}
     </div>
   );

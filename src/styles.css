@@ -405,7 +405,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-room-overlay.on{opacity:1;visibility:visible;transition:opacity .45s ease}
 .lab-room-stage{position:absolute;left:50%;top:50%;width:max(100vw,calc(100dvh * 32 / 15));height:max(100dvh,calc(100vw * 15 / 32));transform:translate(-50%,-50%) scale(.94);animation:labRoomEnter .9s cubic-bezier(.2,.7,.2,1) forwards}
 .lab-room-stage img{display:block;width:100%;height:100%;object-fit:fill;max-width:none;-webkit-user-drag:none}
-.lab-room-exit{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2;padding:8px 12px;border:0;background:transparent;color:var(--paper)!important;font:700 clamp(15px,1.2vw,20px) var(--mono)!important;letter-spacing:.12em;cursor:pointer;text-shadow:0 2px 4px var(--gate-black)}
+.lab-room-exit{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:2;padding:8px 12px;border:0;border-radius:0;background:transparent;color:var(--paper)!important;font:700 clamp(15px,1.2vw,20px) var(--mono)!important;letter-spacing:.12em;cursor:pointer;text-shadow:0 2px 4px var(--gate-black)}
 .lab-room-exit:hover,.lab-room-exit:focus-visible{color:var(--butter)!important}
 @keyframes labRoomEnter{to{transform:translate(-50%,-50%) scale(1)}}
 @media (prefers-reduced-motion: reduce){

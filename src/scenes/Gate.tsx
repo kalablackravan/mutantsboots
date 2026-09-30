@@ -7,7 +7,7 @@ import { preloadFile } from "@/lib/fileArt";
 import { playGateOpen, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
-type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void };
+type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab: () => void };
 
 const position = (box: LayerBox): CSSProperties => ({
   left: `${box.left}%`, top: `${box.top}%`, width: `${box.width}%`, height: `${box.height}%`,
@@ -70,7 +70,7 @@ function MatrixSign({ active }: { active: boolean }) {
   );
 }
 
-export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
+export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
@@ -110,9 +110,9 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           onPointerLeave={() => setCloneHover(false)} onFocus={() => setCloneHover(true)} onBlur={() => setCloneHover(false)}
           onClick={openFile} />
         <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
-          aria-label="Lab lockdown door" tabIndex={-1}
+          aria-label="Open lab lockdown room" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
-          onPointerLeave={() => setLockHover(false)} />
+          onPointerLeave={() => setLockHover(false)} onClick={onLab} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); doorSound(); } }}

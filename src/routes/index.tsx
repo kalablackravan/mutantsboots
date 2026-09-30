@@ -136,7 +136,7 @@ function Office() {
           <span className="intro-prompt">{entering ? "loading…" : <>enter <span aria-hidden="true">↗</span></>}</span>
         </button>
       </section>
-      <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("room")} />
+       <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("room")} onLab={() => setOv("lab")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"

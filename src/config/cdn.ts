@@ -4,6 +4,9 @@ export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@
 // Same pinned commit, site/assets folder (devil prints used in the classified file).
 export const SITE_ASSETS = CDN_BASE.replace("/frontend/WEBP_FILES/", "/assets/");
 
+// Pinned to the commit that introduced this room so every deployment keeps it.
+export const LAB_ROOM_IMAGE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@a6518976e76b03bb081162bd6564d48817dffc7d/site/frontend/WEBP_FILES/2ndbg.webp";
+
 export const sceneImage = (filename: SceneImage) => CDN_BASE + filename;
 
 export type SceneImage =

@@ -187,7 +187,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage.clone-hover .clone-glow{animation:clonePulse 1.6s ease-in-out infinite}
 #gate-stage.clone-hover .clone-body{filter:brightness(1.12) saturate(1.08)}
 .door-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-toxic)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-toxic))}
+.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
 #gate-stage.door-hover .door-glow-wrap{opacity:.95}
 #gate-stage.door-hover .door-glow{animation:doorPulse 1.15s ease-in-out infinite}
 @keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}

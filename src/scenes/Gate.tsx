@@ -74,10 +74,6 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           style={{ left: `${SCENE_LAYERS.cloneHit.left + SCENE_LAYERS.cloneHit.width / 2}%`, top: `${SCENE_LAYERS.cloneHit.top}%` }}>
           {fileBusy ? "opening file…" : "▸ click to open file"}
         </span>
-        <span className={"gate-tag restricted-tag" + (doorHover ? " on" : "")}
-          style={{ left: `${SCENE_LAYERS.doorHit.left + SCENE_LAYERS.doorHit.width / 2}%`, top: `${SCENE_LAYERS.doorHit.top}%` }}>
-          no access
-        </span>
       </div>
       <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>

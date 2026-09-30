@@ -41,19 +41,9 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
       <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
-        {/* toxic-green glow copy of the cloning machine: sits behind it, fades in + pulses on hover */}
-        <div className="clone-glow-wrap" aria-hidden="true">
-          <SceneLayer name="clonevessel.webp" box={SCENE_LAYERS.full} className="clone-glow" />
-        </div>
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="clonevessel.webp" box={SCENE_LAYERS.full} className="clone-body" />
-        <div className="door-glow-wrap" aria-hidden="true">
-          <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="door-glow" />
-        </div>
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
-        <div className="lock-glow-wrap" aria-hidden="true">
-          <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-glow" />
-        </div>
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />

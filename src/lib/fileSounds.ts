@@ -81,15 +81,15 @@ export function playCoverFlip() {
   } catch { /* sound is optional */ }
 }
 
-/** a book dragged off a packed library shelf: friction slide, then a soft tock as it comes free */
-export function playBookPull() {
+/** the file arriving: a soft, warm slide and a gentle felt-like settle on the desk (no scratchy friction) */
+export function playFileArrive() {
   try {
-    const m = master(0.6); if (!m) return; const { c, out, t } = m;
-    const slide = (x: number) => (x < 0.18 ? x / 0.18 : x < 0.78 ? 1 : 1 - (x - 0.78) / 0.22);
-    burst(c, out, t, 0.55, slide, [{ type: "bandpass", f: 650, q: 1.3, to: [[900, 0.5]] }], 1.3, [0.25, 1.6], [15, 45]); // stick-slip rub
-    burst(c, out, t, 0.55, slide, [{ type: "lowpass", f: 320 }], 0.9, [0.6, 1.3], [30, 70]);                            // book body rumble
-    burst(c, out, t + 0.52, 0.05, (x) => Math.pow(1 - x, 3), [{ type: "lowpass", f: 1600 }], 0.8);
-    thump(c, out, t + 0.52, 190, 120, 0.07, 0.5);
+    const m = master(0.85); if (!m) return; const { c, out, t } = m;
+    const bell = (x: number) => Math.pow(Math.sin(Math.PI * Math.min(1, x)), 2);
+    burst(c, out, t, 0.5, bell, [{ type: "lowpass", f: 520, q: 0.5, to: [[1400, 0.22], [620, 0.5]] }], 0.9, [1, 1]);
+    thump(c, out, t + 0.46, 160, 100, 0.18, 0.32);
+    burst(c, out, t + 0.46, 0.05, (x) => Math.pow(1 - x, 2), [{ type: "lowpass", f: 700 }], 0.25, [1, 1]);
+    burst(c, out, t + 0.5, 0.22, bell, [{ type: "bandpass", f: 1800, q: 0.7 }], 0.06, [1, 1]);
   } catch { /* sound is optional */ }
 }
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { sceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F } from "@/scenes/config";
 import { DEVIL_1, DEVIL_2, INK_HEAVY, INK_LIGHT, SPECIMENS, SPECIMEN_STRIP } from "@/lib/fileArt";
-import { playBookPull, playCoverFlip, playFloorDrop, playPageTurn } from "@/lib/fileSounds";
+import { playCoverFlip, playFileArrive, playFloorDrop, playPageTurn } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
 type Stage = "closed" | "spread1" | "spread2" | "back";
@@ -35,7 +35,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
   useLayoutEffect(() => {
     if (!open) return;
     setStage("closed"); setCoverTop(true); setMoving(null); setMotion("pull"); busy.current = true;
-    playBookPull();
+    playFileArrive();
     root.current?.focus();
     const t = setTimeout(() => { setMotion(""); busy.current = false; }, 640);
     return () => clearTimeout(t);

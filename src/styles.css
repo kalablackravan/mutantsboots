@@ -207,9 +207,12 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .cf-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .cf-face.back{transform:rotateY(180deg)}
 .cf-art{position:absolute;inset:0;background-repeat:no-repeat}
+.cf-baked{position:absolute;top:0;height:100%}
+.cf-baked img{display:block;width:100%;height:100%;max-width:none;-webkit-user-drag:none}
+.cf-baked::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:linear-gradient(to right,rgba(0,0,0,.55),rgba(0,0,0,.15));-webkit-mask-image:var(--baked);mask-image:var(--baked);-webkit-mask-size:100% 100%;mask-size:100% 100%}
 .cf-art::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:linear-gradient(to right,rgba(0,0,0,.55),rgba(0,0,0,.15))}
-.cf-leaf.moving.fwd>.front>.cf-art::after,.cf-leaf.moving.rev>.back>.cf-art::after{animation:cfAway 1.1s ease-in forwards}
-.cf-leaf.moving.fwd>.back>.cf-art::after,.cf-leaf.moving.rev>.front>.cf-art::after{animation:cfArrive 1.1s ease-out forwards}
+.cf-leaf.moving.fwd>.front>.cf-art::after,.cf-leaf.moving.rev>.back>.cf-art::after,.cf-leaf.moving.fwd>.front>.cf-baked::after,.cf-leaf.moving.rev>.back>.cf-baked::after{animation:cfAway 1.1s ease-in forwards}
+.cf-leaf.moving.fwd>.back>.cf-art::after,.cf-leaf.moving.rev>.front>.cf-art::after,.cf-leaf.moving.fwd>.back>.cf-baked::after,.cf-leaf.moving.rev>.front>.cf-baked::after{animation:cfArrive 1.1s ease-out forwards}
 @keyframes cfAway{0%{opacity:0}50%{opacity:.75}100%{opacity:.75}}
 @keyframes cfArrive{0%{opacity:.75}50%{opacity:.5}100%{opacity:0}}
 .cf-outer{filter:brightness(1.02) saturate(.78) sepia(.12) contrast(1.02)}
@@ -228,7 +231,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .cf-stamp-ink.big{font-size:3.1cqw;border-width:.38cqw;padding:.3cqw 1.4cqw;transform:rotate(-11deg)}
 .cf-stamp-ink.big.closed{transform:rotate(8deg)}
 .cf-stamp-ink.conf{transform:rotate(5deg);font-size:1.15cqw}
-.cf-stamp-ink.paper-stamp{position:absolute;font-size:calc(1.05cqw * var(--k))}
+.cf-stamp-ink.paper-stamp{position:absolute;mix-blend-mode:normal;color:#941015;font-size:calc(1.05cqw * var(--k))}
 .cf-stamp-ink.paper-stamp.unc{right:1%;bottom:1%;font-size:calc(.9cqw * var(--k));transform:rotate(-8deg)}
 .cf-stamp-ink.paper-stamp.copy{right:3%;bottom:4%;transform:rotate(-6deg)}
 /* page arrows, outside the open file */

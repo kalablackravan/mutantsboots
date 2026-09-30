@@ -22,6 +22,18 @@ const crop = (src: readonly [number, number, number, number], clip: string, mirr
   };
 };
 
+// Cover faces are pre-rendered images of the exact inked look (multiply ink, worn stamps, tab):
+// a flat picture has no live blending, so it cannot flicker while the file slides or turns.
+const TAB = 4; // % of face width captured beyond the cover for the tab
+function Baked({ name, left, width }: { name: "file_front.webp" | "file_inside.webp" | "file_back.webp"; left: number; width: number }) {
+  const src = sceneImage(name);
+  return (
+    <div className="cf-baked" style={{ left: `${left}%`, width: `${width}%`, "--baked": `url(${src})` } as CSSProperties}>
+      <img src={src} alt="" draggable={false} decoding="sync" />
+    </div>
+  );
+}
+
 export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [stage, setStage] = useState<Stage>("closed");
   const [coverTop, setCoverTop] = useState(true);            // cover above the pages while closed / swinging to or from closed
@@ -167,13 +179,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                 </div>
               </div>
               <div className="cf-face back">
-                <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip)} />
-                <i className="cf-tab left"><b>M1-606</b></i>
-                <div className="cf-outer-ui">
-                  <div className="cf-printbox ink"><span>CASE FILE Nº</span><b>M1-606</b><span>RETURN TO ARCHIVE · SUB-LEVEL 3</span></div>
-                  <span className="cf-stamp-ink big closed">CASE CLOSED</span>
-                  <div className="cf-printfoot ink"><i /><span>PROPERTY OF LAB 7 · DO NOT REMOVE</span></div>
-                </div>
+                <Baked name="file_back.webp" left={-TAB} width={100 + TAB} />
               </div>
             </div>
 
@@ -216,27 +222,10 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
             {/* front cover: outside shown while closed, inside (TOP CLASSIFIED INFO) once opened */}
             <div className={"cf-leaf cf-cover" + mv("cover")} style={{ ...at(F.cover), ...turn(stage === "closed" ? 0 : -180, coverTop ? 30 : 5) }}>
               <div className="cf-face front">
-                <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip, true)} />
-                <i className="cf-tab right"><b>M1-606</b></i>
-                <div className="cf-outer-ui">
-                  <div className="cf-printbox ink"><span>CASE FILE Nº</span><b>M1-606</b><span>PROJECT SERUM M1 · MUTATED FOOTS</span></div>
-                  <span className="cf-stamp-ink big">TOP SECRET</span>
-                  <div className="cf-printfoot ink"><i /><span>CLASSIFIED · EYES ONLY</span></div>
-                </div>
+                <Baked name="file_front.webp" left={0} width={100 + TAB} />
               </div>
               <div className="cf-face back">
-                <div className="cf-art cf-outer" style={crop(F.src.left, F.leftClip)} />
-                <div className="cf-inside">
-                  <span className="cf-stamp-ink">TOP SECRET</span>
-                  <h2 className="cfile-title ink">TOP<br />CLASSIFIED<br />INFO</h2>
-                  <dl className="cfile-meta ink">
-                    <div><dt>CASE FILE</dt><dd>Nº M1-606</dd></div>
-                    <div><dt>PROJECT</dt><dd>SERUM M1</dd></div>
-                    <div><dt>SUBJECT</dt><dd>MUTATED FOOTS</dd></div>
-                    <div><dt>CLEARANCE</dt><dd>LEVEL 5 · EYES ONLY</dd></div>
-                  </dl>
-                  <span className="cf-stamp-ink conf">CONFIDENTIAL</span>
-                </div>
+                <Baked name="file_inside.webp" left={0} width={100} />
               </div>
             </div>
 

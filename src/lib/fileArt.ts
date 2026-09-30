@@ -26,7 +26,8 @@ export function preloadFile(timeoutMs = 6000): Promise<void> {
     : Promise.resolve();
   ready ??= Promise.race([
     Promise.all([
-      loadAndDecode(sceneImage("bestspread.webp")), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2),
+      loadAndDecode(sceneImage("bestspread.webp")), loadAndDecode(sceneImage("file_front.webp")),
+      loadAndDecode(sceneImage("file_inside.webp")), loadAndDecode(sceneImage("file_back.webp")), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2),
       loadAndDecode(SPECIMEN_STRIP), loadAndDecode(INK_HEAVY), loadAndDecode(INK_LIGHT), font,
     ]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),

@@ -55,6 +55,22 @@ export const SCENE_LAYERS = {
   lockHit: { left: 1470 / 3840 * 100, top: 303 / 1800 * 100, width: 982 / 3840 * 100, height: 1315 / 1800 * 100 },
 } as const;
 
+// Cloning machine split into layers on the same canvas (base / specimen / cables);
+// the three pressure gauges get live needles (pivot + dial radius in canvas px).
+export const CLONE = {
+  gauges: [
+    { cx: 566, cy: 813, r: 20, dur: 1.7, delay: 0 },    // 1: side gauge
+    { cx: 879, cy: 543, r: 37, dur: 2.3, delay: 0.2 },  // 2: big top gauge
+    { cx: 962, cy: 573, r: 22, dur: 1.4, delay: 0.45 }, // 3: small top gauge
+  ],
+} as const;
+
+// Lab lockdown door: the sign's text strip and the two red beacons (canvas px -> %).
+export const LOCK = {
+  sign: { left: 1846 / 38.4, top: 400 / 18, width: (2088 - 1846) / 38.4, height: (452 - 400) / 18 },
+  beacons: [{ x: 1665 / 38.4, y: 435 / 18 }, { x: 2246 / 38.4, y: 436 / 18 }],
+} as const;
+
 // Classified file: bestspread.webp is a full 3840x1800 canvas with the open folder embedded in
 // place. The folder is rebuilt from three crops of it that each turn on the spine (x 2027):
 // front cover (left half), the page-1/2 sheet, and the back half (papers). Boxes are % of the canvas.

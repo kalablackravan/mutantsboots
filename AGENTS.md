@@ -13,3 +13,4 @@
 - The chamber uses commit-pinned GitHub-backed CDN assets so a fresh Lovable workspace or Vercel deployment does not rely on an old project's asset origin.
 - Chamber object placement lives in src/scenes/config.ts in the 1672x941 background's pixel coordinate system; scale the frame uniformly and preserve each image's native aspect ratio to avoid stretching.
 - The entry artwork uses a commit-pinned GitHub-backed CDN URL so copying the project or deploying to Vercel does not depend on a Lovable asset origin.
+- The LAB LOCKDOWN door opens the full-frame 3840x1800 2ndbg.webp from its own commit-pinned GitHub-backed CDN URL, with UI controls layered over the artwork.

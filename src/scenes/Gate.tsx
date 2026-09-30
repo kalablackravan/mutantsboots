@@ -7,7 +7,7 @@ import { preloadFile } from "@/lib/fileArt";
 import { playDoorOpen, startAlertLoop, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
-type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab: () => void };
+type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void };
 
 const position = (box: LayerBox): CSSProperties => ({
   left: `${box.left}%`, top: `${box.top}%`, width: `${box.width}%`, height: `${box.height}%`,

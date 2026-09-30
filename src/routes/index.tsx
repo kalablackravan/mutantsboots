@@ -9,7 +9,7 @@ import { Gate } from "@/scenes/Gate";
 import { Room, type RoomState } from "@/scenes/Room";
 import { IV, LINES, CLASSES, classify } from "@/scenes/content";
 import { Gallery, Notices, Tasks, Folder, Disclaimer, Menu, Socials } from "@/overlays/Panels";
-import { LabLock } from "@/overlays/LabLock";
+import { LabRoom, preloadLab } from "@/scenes/LabRoom";
 import { primeSceneAudio } from "@/lib/fileSounds";
 
 export const Route = createFileRoute("/")({
@@ -36,7 +36,7 @@ const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-r
 
 function Office() {
   const fr = useFrame();
-  const [scene, setScene] = useState<"intro" | "gate" | "room">("intro");
+  const [scene, setScene] = useState<"intro" | "gate" | "room" | "lab">("intro");
   const [black, setBlack] = useState<"" | "on" | "lift">("");
   const [ov, setOv] = useState<string | null>(null);
   const [beat, setBeat] = useState<Beat | null>(null);
@@ -46,19 +46,23 @@ function Office() {
   const busy = useRef(false);
   const [entering, setEntering] = useState(false);
   const [gateZoom, setGateZoom] = useState<"" | "zoom-from">("");
+  const [labZoom, setLabZoom] = useState<"" | "zoom-from">("");
   useEffect(() => { void preloadScene(); }, []); // start fetching + decoding the scene while the visitor is still on the intro
+  useEffect(() => { if (scene === "gate") void preloadLab(); }, [scene]); // lab room ready before the door is clicked
   const close = useCallback(() => setOv(null), []);
 
   // walking through the department door: black falls, the scene changes under it, black lifts as the room zooms in
-  const travel = async (to: "room" | "gate") => {
+  const travel = async (to: "room" | "gate" | "lab") => {
     if (busy.current) return; busy.current = true;
+    if (to === "lab") await preloadLab(); // the lab room is decoded before the door lets anyone in
     const t = reduced() ? 0 : 1;
     if (to === "gate") setSt((s) => ({ ...s, zoom: "zoom-away" }));
     setBlack("on"); await wait(560 * t);
     setBeat(null);
     if (to === "room") setSt((s) => ({ ...s, zoom: "zoom-from" }));
+    if (to === "lab") setLabZoom("zoom-from");
     setScene(to); await wait(40);
-    setBlack("lift"); setSt((s) => ({ ...s, zoom: "" }));
+    setBlack("lift"); setSt((s) => ({ ...s, zoom: "" })); setLabZoom("");
     await wait(900 * t); setBlack("");
     busy.current = false;
     if (to === "room") setBeat(st.rung ? { text: cls ? LINES.draft : LINES.lookAround } : null);
@@ -136,7 +140,8 @@ function Office() {
           <span className="intro-prompt">{entering ? "loading…" : <>enter <span aria-hidden="true">↗</span></>}</span>
         </button>
       </section>
-       <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("room")} onLab={() => setOv("lab")} />
+       <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("lab")} />
+      <LabRoom on={scene === "lab"} zoom={labZoom} onExit={() => travel("gate")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"
@@ -153,7 +158,6 @@ function Office() {
       )}
       <div id="blackout" className={black} />
       <Disclaimer open={ov === "disclaimer"} onClose={close} />
-       <LabLock open={ov === "lab"} onClose={close} />
       <Gallery open={ov === "gallery"} onClose={close} />
       <Notices open={ov === "notices"} onClose={close} />
       <Tasks open={ov === "tasks"} onClose={close} portrait={portrait} />

@@ -127,3 +127,13 @@ export const CHAMBER = {
   door: { x: 680, y: 205, w: 310 },
   cabinet: { x: 1250, y: 430, w: 245 },
 } as const;
+
+// Lab room (behind the restricted door): 2ndbg + desk are full canvases; the three desk
+// objects sit over the drawn ones (image box = whole file incl. padding, hit = the object).
+export const LAB = {
+  items: {
+    clipboard: { img: { left: 43.5519, top: 63.0701, width: 5.8055, height: 9.2475 }, hit: { left: 1688 / 38.4, top: 1146 / 18, width: 192 / 38.4, height: 146 / 18 } },
+    flask: { img: { left: 57.7513, top: 61.8807, width: 3.3345, height: 7.5108 }, hit: { left: 2245 / 38.4, top: 1125 / 18, width: 72 / 38.4, height: 110 / 18 } },
+    files: { img: { left: 60.0743, top: 62.6974, width: 4.7991, height: 7.689 }, hit: { left: 2311 / 38.4, top: 1131 / 18, width: 178 / 38.4, height: 132 / 18 } },
+  },
+} as const;

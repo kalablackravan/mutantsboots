@@ -178,31 +178,13 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #gate-stage.slime-open .slime-open-layer{visibility:visible}
 .slime-hit{position:absolute;z-index:3;cursor:pointer;background:transparent;border:0;border-radius:0;padding:0;touch-action:manipulation;box-shadow:none}
 .slime-hit:hover,.slime-hit:focus,.slime-hit:focus-visible{background:transparent}
-/* cloning machine hover: toxic green pulse (#39FF14) + slight power-up */
-.clone-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-.clone-glow{filter:drop-shadow(0 0 clamp(4px,.5vw,14px) rgba(57,255,20,.95)) drop-shadow(0 0 clamp(10px,1.3vw,34px) rgba(57,255,20,.6))}
 .clone-body{transition:filter .35s ease}
 .clone-hit{position:absolute;z-index:3;pointer-events:auto;background:transparent;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-#gate-stage.clone-hover .clone-glow-wrap{opacity:1}
-#gate-stage.clone-hover .clone-glow{animation:clonePulse 1.6s ease-in-out infinite}
-#gate-stage.clone-hover .clone-body{filter:brightness(1.12) saturate(1.08)}
-.door-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-/* restricted access door (right, opens on click): toxic green glow on hover */
-.door-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) rgba(57,255,20,.95)) drop-shadow(0 0 clamp(12px,1.4vw,38px) rgba(57,255,20,.6))}
-#gate-stage.door-hover .door-glow-wrap{opacity:.95}
-#gate-stage.door-hover .door-glow{animation:doorPulse 1.15s ease-in-out infinite}
-/* lab lockdown door (middle, stays locked): red glow only while the cursor is over it */
-.lock-glow-wrap{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
-.lock-glow{filter:drop-shadow(0 0 clamp(5px,.55vw,15px) var(--lab-danger)) drop-shadow(0 0 clamp(12px,1.4vw,38px) var(--lab-danger))}
 .lock-hit{position:absolute;z-index:3;pointer-events:auto;background:transparent;border:0;padding:0;margin:0;cursor:not-allowed;-webkit-tap-highlight-color:transparent}
-#gate-stage.lock-hover .lock-glow-wrap{opacity:.95}
-#gate-stage.lock-hover .lock-glow{animation:doorPulse 1.15s ease-in-out infinite}
-@keyframes clonePulse{0%,100%{opacity:.5}50%{opacity:1}}
-@keyframes doorPulse{0%,100%{opacity:.5}50%{opacity:1}}
 #gate-ui{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));z-index:2;pointer-events:none}
 .gate-tag{position:absolute;transform:translate(-50%,-125%);white-space:nowrap;padding:.4em .85em;border:1px solid var(--lab-frame);border-radius:4px;background:var(--lab-panel);font:700 clamp(11px,.85vw,15px) var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .25s ease}
 .gate-tag.on{opacity:1}
-.clone-tag{color:var(--lab-toxic);text-shadow:0 0 6px var(--lab-toxic);box-shadow:0 0 14px color-mix(in oklab,var(--lab-toxic) 30%,transparent)}
+.clone-tag{color:var(--lab-toxic);text-shadow:none;box-shadow:none}
 /* classified file: scene blurs behind, folder art stays exactly where it sits on the canvas */
 #gate-stage{transition:filter .45s ease}
 #gate-stage.file-open{filter:blur(9px) brightness(.7) saturate(.9)}
@@ -415,9 +397,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @media (prefers-reduced-motion: reduce){
   #s-room,#s-room.zoom-from,#s-room.zoom-away{transform:none;transition:opacity .45s ease}
   #s-gate,#s-gate.zoom-from{transform:none;transition:opacity .45s ease}
-  #gate-stage.clone-hover .clone-glow{animation:none}
-  #gate-stage.door-hover .door-glow{animation:none}
-  .lock-glow{animation:none}
   .cf-leaf,.cf-folder{transition-duration:.01s}
   .cf-motion.pull,.cf-motion.drop{animation-duration:.01s}
   .cf-arrow.right svg,.cf-rec{animation:none}

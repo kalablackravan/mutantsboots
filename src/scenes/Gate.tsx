@@ -24,8 +24,6 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
-  const [doorHover, setDoorHover] = useState(false);
-  const [lockHover, setLockHover] = useState(false);
   const [fileOpen, setFileOpen] = useState(false);
   const [fileBusy, setFileBusy] = useState(false);
   useEffect(() => { if (on) void preloadFile(); }, [on]); // file art is ready long before anyone clicks
@@ -41,21 +39,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
   const closeFile = useCallback(() => setFileOpen(false), []);
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
-      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", doorHover ? "door-hover" : "", lockHover ? "lock-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
+      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
-        {/* toxic-green glow copy of the cloning machine: sits behind it, fades in + pulses on hover */}
-        <div className="clone-glow-wrap" aria-hidden="true">
-          <SceneLayer name="clonevessel.webp" box={SCENE_LAYERS.full} className="clone-glow" />
-        </div>
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="clonevessel.webp" box={SCENE_LAYERS.full} className="clone-body" />
-        <div className="door-glow-wrap" aria-hidden="true">
-          <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="door-glow" />
-        </div>
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
-        <div className="lock-glow-wrap" aria-hidden="true">
-          <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-glow" />
-        </div>
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
@@ -66,13 +54,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor }: Props) {
           onPointerLeave={() => setCloneHover(false)} onFocus={() => setCloneHover(true)} onBlur={() => setCloneHover(false)}
           onClick={openFile} />
         <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
-          aria-label="Lab lockdown door" tabIndex={-1}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
-          onPointerLeave={() => setLockHover(false)} />
+          aria-label="Lab lockdown door" tabIndex={-1} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); setDoorHover(true); } }}
-          onPointerLeave={() => { setOpen(false); setDoorHover(false); }} onFocus={() => { setOpen(true); setDoorHover(true); }} onBlur={() => { setOpen(false); setDoorHover(false); }}
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
+          onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
           onClick={() => { onDoor(); }} />
       </div>
       <div className="gate-overlay" aria-hidden="true" />

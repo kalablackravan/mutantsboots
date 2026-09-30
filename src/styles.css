@@ -187,22 +187,18 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .clone-tag{padding:0;border:0;background:none;box-shadow:none;color:#fff;letter-spacing:.1em;text-shadow:-1.5px -1.5px 0 #000,1.5px -1.5px 0 #000,-1.5px 1.5px 0 #000,1.5px 1.5px 0 #000,0 -1.5px 0 #000,0 1.5px 0 #000,-1.5px 0 0 #000,1.5px 0 0 #000}
 /* cloning machine: gauges, cables that plug in on hover, specimen that stirs */
 .gauge{position:absolute;pointer-events:none}
+/* cap indicator lights: blink on/off forever (glow when on, dimmed when off) */
+.cap-light{position:absolute;pointer-events:none}
+.cap-light::after{content:"";position:absolute;inset:3px;border-radius:30%;background:rgba(8,10,18,.72);animation:capOff var(--lp) steps(1,end) var(--ld) infinite}
+.cap-light i{position:absolute;left:-90%;top:-140%;width:280%;height:380%;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--lc),.95),rgba(var(--lc),.45) 40%,rgba(var(--lc),0));mix-blend-mode:screen;animation:capGlow var(--lp) steps(1,end) var(--ld) infinite}
+@keyframes capGlow{0%{opacity:1}50%{opacity:0}}
+@keyframes capOff{0%{opacity:0}50%{opacity:1}}
 .gauge-needle{position:absolute;left:47%;top:11%;width:6%;height:39%;background:#191412;clip-path:polygon(50% 0,100% 100%,0 100%);transform-origin:50% 100%;transform:rotate(-120deg)}
 .gauge-needle.run{animation:gaugeSweep var(--gd) ease-in-out var(--gdl) infinite}
 .gauge-pin{position:absolute;left:42%;top:42%;width:16%;height:16%;border-radius:50%;background:#191412;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.25)}
 @keyframes gaugeSweep{0%{transform:rotate(-120deg)}62%{transform:rotate(108deg)}70%{transform:rotate(99deg)}78%{transform:rotate(114deg)}86%{transform:rotate(104deg)}100%{transform:rotate(-120deg)}}
-.clone-cables{opacity:0;transform:translate3d(0,-4%,0);transition:transform .6s cubic-bezier(.25,1.35,.45,1),opacity .28s ease}
-#gate-stage.clone-hover .clone-cables{opacity:1;transform:translate3d(0,0,0)}
-.clone-specimen{transform-origin:21.22% 59.06%}
-#gate-stage.clone-hover .clone-specimen{animation:specSway 3s ease-in-out infinite}
-@keyframes specSway{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(.12%,-.22%) rotate(.6deg)}50%{transform:translate(0,-.42%) rotate(0)}75%{transform:translate(-.12%,-.22%) rotate(-.6deg)}}
 /* lab lockdown: Matrix sign + emergency beacons washing the lab in red */
 #gate-ui{container-type:inline-size}
-.matrix-sign{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#06110a;border-radius:.2cqw;box-shadow:inset 0 0 .6cqw rgba(0,0,0,.9);opacity:0;transition:opacity .22s ease}
-.matrix-sign.on{opacity:1}
-.matrix-sign b{position:relative;font:700 .7cqw/1 var(--mono);letter-spacing:.06em;white-space:pre;color:#46ff7a;text-shadow:0 0 .25cqw #46ff7a,0 0 .6cqw rgba(70,255,122,.6)}
-.matrix-rain{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 .5cqw,rgba(70,255,122,.13) .5cqw .56cqw);-webkit-mask-image:linear-gradient(180deg,transparent,#000 40%,transparent);mask-image:linear-gradient(180deg,transparent,#000 40%,transparent);-webkit-mask-size:100% 200%;mask-size:100% 200%;animation:matrixFall 1.1s linear infinite}
-@keyframes matrixFall{from{-webkit-mask-position:0 100%;mask-position:0 100%}to{-webkit-mask-position:0 -100%;mask-position:0 -100%}}
 .alarm{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;overflow:hidden}
 .alarm.on{opacity:1}
 .alarm:not(.on) *{animation-play-state:paused}
@@ -352,7 +348,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .intro-overlay,.gate-overlay{position:fixed;inset:0;background:#000;pointer-events:none;z-index:1;opacity:.5;animation:overlayPulse 4s ease-in-out infinite}
 @keyframes overlayPulse{0%,100%{opacity:.5}50%{opacity:.7}}
 @media (prefers-reduced-motion: reduce){
-  .gauge-needle.run,#gate-stage.clone-hover .clone-specimen,.beacon-beam,.beacon-lamp,.alarm-wash,.matrix-rain{animation:none}.intro-overlay,.gate-overlay{animation:none;opacity:.6}}
+  .gauge-needle.run,.cap-light i,.cap-light::after,.beacon-beam,.beacon-lamp,.alarm-wash{animation:none}.intro-overlay,.gate-overlay{animation:none;opacity:.6}}
 #intro-enter{position:absolute;z-index:2;left:50%;bottom:max(5vh,env(safe-area-inset-bottom));transform:translateX(-50%);background:none;border:0;cursor:pointer;display:grid;justify-items:center;gap:3px;text-align:center;white-space:nowrap;max-width:calc(100vw - 24px);padding:8px 18px;color:var(--paper) !important;text-shadow:0 2px 12px #000,0 1px 3px #000}
 #intro-enter .intro-title{font-family:var(--display);font-size:clamp(32px,5vw,74px);line-height:1.05}
 #intro-enter .intro-prompt{font-family:var(--mono);font-size:clamp(16px,2vw,23px);font-weight:700;text-transform:uppercase;animation:bellPulse 2.4s ease-in-out infinite}

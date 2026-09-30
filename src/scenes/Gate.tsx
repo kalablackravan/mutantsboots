@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playGateOpen, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorOpen, startAlertLoop, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab: () => void };
@@ -44,39 +44,13 @@ function Gauge({ cx, cy, r, dur, delay, active }: { cx: number; cy: number; r: n
   );
 }
 
-// "LAB LOCKDOWN" re-typed Matrix style: every letter rains random glyphs, then locks in, left to right.
-const GLYPHS = "01234567890123456789ABCDEFGHJKLMNPQRSTUVWXYZ#$%&*+=<>";
-function MatrixSign({ active }: { active: boolean }) {
-  const WORD = "LAB LOCKDOWN";
-  const [text, setText] = useState(WORD);
-  useEffect(() => {
-    if (!active) return;
-    const start = performance.now();
-    const lock = [...WORD].map((_, i) => 180 + i * 85 + Math.random() * 60);
-    const tick = () => {
-      const t = performance.now() - start;
-      setText([...WORD].map((ch, i) => (ch === " " || t >= (lock[i] ?? 0) ? ch : GLYPHS[Math.floor(Math.random() * GLYPHS.length)])).join(""));
-      if (t >= Math.max(...lock)) window.clearInterval(id);
-    };
-    const id = window.setInterval(tick, 45); tick();
-    return () => window.clearInterval(id);
-  }, [active]);
-  return (
-    <div className={"matrix-sign" + (active ? " on" : "")} aria-hidden="true" style={{
-      left: `${LOCK.sign.left}%`, top: `${LOCK.sign.top}%`, width: `${LOCK.sign.width}%`, height: `${LOCK.sign.height}%`,
-    }}>
-      <span className="matrix-rain" /><b>{text}</b>
-    </div>
-  );
-}
-
 export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
   const [lockHover, setLockHover] = useState(false);
   const lastDoorSound = useRef(0);
-  const doorSound = () => { const now = performance.now(); if (now - lastDoorSound.current > 1200) { lastDoorSound.current = now; playGateOpen(); } };
+  const doorSound = () => { const now = performance.now(); if (now - lastDoorSound.current > 1200) { lastDoorSound.current = now; playDoorOpen(); } };
   const [fileOpen, setFileOpen] = useState(false);
   const [fileBusy, setFileBusy] = useState(false);
   useEffect(() => { if (on) void preloadFile(); }, [on]); // file art is ready long before anyone clicks
@@ -84,6 +58,10 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
     if (!on || !cloneHover || fileOpen) return;
     return startSubmergedBubbleLoop();
   }, [on, cloneHover, fileOpen]);
+  useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
+    if (!on || !lockHover || fileOpen) return;
+    return startAlertLoop();
+  }, [on, lockHover, fileOpen]);
   const openFile = async () => {
     if (fileBusy || fileOpen) return;
     setFileBusy(true); await preloadFile(); setFileBusy(false); // never open onto a blank page
@@ -99,6 +77,12 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
         {CLONE.gauges.map((g, i) => <Gauge key={i} {...g} active={cloneHover && !fileOpen} />)}
         <SceneLayer name="clonespecimen.webp" box={SCENE_LAYERS.full} className="clone-specimen" />
         <SceneLayer name="clonecables.webp" box={SCENE_LAYERS.full} className="clone-cables" />
+        {CLONE.lights.map((l, i) => (
+          <span key={i} className="cap-light" aria-hidden="true" style={{
+            left: `${(l.x0 - 3) / 38.4}%`, top: `${(l.y0 - 3) / 18}%`, width: `${(l.x1 - l.x0 + 6) / 38.4}%`, height: `${(l.y1 - l.y0 + 6) / 18}%`,
+            "--lc": l.color, "--lp": `${l.period}s`, "--ld": `${l.delay}s`,
+          } as CSSProperties}><i /></span>
+        ))}
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
@@ -130,7 +114,6 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
             </span>
           ))}
         </div>
-        <MatrixSign active={lockHover && !fileOpen} />
         <span className={"gate-tag clone-tag" + (cloneHover || fileBusy ? " on" : "")}
           style={{ left: `${SCENE_LAYERS.cloneHit.left + SCENE_LAYERS.cloneHit.width / 2}%`, top: `${SCENE_LAYERS.cloneHit.top}%` }}>
           {fileBusy ? "opening file…" : "▸ click to open file"}

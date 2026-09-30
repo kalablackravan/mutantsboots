@@ -175,3 +175,54 @@ export function startSubmergedBubbleLoop(): () => void {
     return () => undefined;
   }
 }
+
+/** A smooth sci-fi door: soft pneumatic "pssh", a gentle motor glide and a quiet settle. */
+export function playDoorOpen() {
+  try {
+    const m = master(1.0); if (!m) return; const { c, out, t } = m;
+    const bell = (x: number) => Math.pow(Math.sin(Math.PI * Math.min(1, x)), 2);
+    burst(c, out, t, 0.38, (x) => (x < 0.06 ? x / 0.06 : Math.pow(1 - (x - 0.06) / 0.94, 2.2)),
+      [{ type: "bandpass", f: 2400, q: 0.7, to: [[1300, 0.38]] }, { type: "lowpass", f: 3200 }], 0.32, [1, 1]);
+    burst(c, out, t + 0.08, 0.62, bell, [{ type: "lowpass", f: 420, q: 0.6, to: [[1150, 0.3], [520, 0.62]] }], 0.55, [1, 1]);
+    const o = c.createOscillator(); o.type = "triangle";
+    o.frequency.setValueAtTime(105, t + 0.08); o.frequency.exponentialRampToValueAtTime(168, t + 0.6);
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 520;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.12, t + 0.2); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.66);
+    o.connect(lp); lp.connect(g); g.connect(out); o.start(t + 0.08); o.stop(t + 0.7);
+    thump(c, out, t + 0.62, 120, 78, 0.13, 0.24);
+  } catch { /* sound is optional */ }
+}
+
+/** Lockdown alert: a soft two-note chime with a light echo, repeating quietly while active. Returns stop(). */
+export function startAlertLoop(period = 1.1): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.setValueAtTime(0.0001, c.currentTime);
+    out.gain.exponentialRampToValueAtTime(0.08, c.currentTime + 0.2); out.connect(c.destination);
+    const echo = c.createDelay(); echo.delayTime.value = 0.19;
+    const fb = c.createGain(); fb.gain.value = 0.28;
+    const tone = c.createBiquadFilter(); tone.type = "lowpass"; tone.frequency.value = 1800;
+    echo.connect(fb); fb.connect(tone); tone.connect(echo); echo.connect(out);
+    const note = (at: number, f: number, dur: number) => {
+      for (const [mul, lvl] of [[1, 1], [2, 0.14]] as const) {
+        const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f * mul;
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(lvl, at + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+        o.connect(g); g.connect(out); g.connect(echo); o.start(at); o.stop(at + dur + 0.02);
+      }
+    };
+    let next = c.currentTime + 0.05, stopped = false;
+    const schedule = () => {
+      while (!stopped && next < c.currentTime + 0.4) { note(next, 659.3, 0.2); note(next + 0.2, 523.3, 0.3); next += period; }
+    };
+    schedule();
+    const timer = window.setInterval(schedule, 120);
+    return () => {
+      if (stopped) return; stopped = true; window.clearInterval(timer);
+      const at = c.currentTime; out.gain.cancelScheduledValues(at);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), at); out.gain.exponentialRampToValueAtTime(0.0001, at + 0.25);
+      window.setTimeout(() => { try { out.disconnect(); echo.disconnect(); } catch { /* done */ } }, 400);
+    };
+  } catch { return () => undefined; }
+}

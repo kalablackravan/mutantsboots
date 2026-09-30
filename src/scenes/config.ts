@@ -63,11 +63,16 @@ export const CLONE = {
     { cx: 879, cy: 543, r: 37, dur: 2.3, delay: 0.2 },  // 2: big top gauge
     { cx: 962, cy: 573, r: 22, dur: 1.4, delay: 0.45 }, // 3: small top gauge
   ],
+  // indicator lights on the cap (blue, blue, red): bounding boxes in canvas px, blink period (s)
+  lights: [
+    { x0: 826, y0: 631, x1: 849, y1: 646, color: "80,160,255", period: 1.2, delay: 0 },
+    { x0: 888, y0: 633, x1: 910, y1: 649, color: "80,160,255", period: 1.2, delay: -0.6 },
+    { x0: 942, y0: 639, x1: 965, y1: 655, color: "255,60,50", period: 0.9, delay: -0.2 },
+  ],
 } as const;
 
 // Lab lockdown door: the sign's text strip and the two red beacons (canvas px -> %).
 export const LOCK = {
-  sign: { left: 1846 / 38.4, top: 400 / 18, width: (2088 - 1846) / 38.4, height: (452 - 400) / 18 },
   beacons: [{ x: 1665 / 38.4, y: 435 / 18 }, { x: 2246 / 38.4, y: 436 / 18 }],
 } as const;
 

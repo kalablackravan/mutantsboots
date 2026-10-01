@@ -72,7 +72,8 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
     if (!item || dropping) return;
     setDropping(true);
     if (item === "flask") playGlassBreak(0.42); else playFloorDrop(0.42);
-    window.setTimeout(() => { onClose(); setDropping(false); }, 560);
+    // clear the content in the same tick so the dropped item never pops back during the fade-out
+    window.setTimeout(() => { setShown(null); onClose(); setDropping(false); }, 560);
   }, [item, dropping, onClose]);
   useEffect(() => {
     if (item) { setShown(item); return; }

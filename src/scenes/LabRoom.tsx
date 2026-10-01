@@ -3,6 +3,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F, LAB } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { INK_HEAVY } from "@/lib/fileArt";
+import { WlClipboard } from "./WlClipboard";
 import { playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type Item = "clipboard" | "flask" | "files";
@@ -10,7 +11,7 @@ type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
 const FULL: Box = { left: 0, top: 0, width: 100, height: 100 };
 const ITEMS: { id: Item; img: SceneImage; label: string }[] = [
-  { id: "clipboard", img: "clipboard.webp", label: "▸ clipboard" },
+  { id: "clipboard", img: "clipboard.webp", label: "▸ wl injection" },
   { id: "flask", img: "flask_black_border.webp", label: "▸ serum m1" },
   { id: "files", img: "files_black_border.webp", label: "▸ files" },
 ];
@@ -97,17 +98,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
         <div className={"lv-clipboard" + (dropping ? " drop" : "")} key={"c" + String(item)}>
           <img src={sceneImage("clipboard_black_border_thin.webp")} alt="" draggable={false} />
           <div className="lv-clip-paper">
-            <h3>SERUM M1 · BATCH CHECK</h3>
-            <p className="lv-sub">Lab 7 · Sub-Level 3 · shift log</p>
-            <ul>
-              <li className="done">Control specimens logged <b>(606)</b></li>
-              <li className="done">Clone vessel pressure nominal</li>
-              <li className="done"><b>250 ml</b> dose measured per specimen</li>
-              <li className="done">Vessel liquid temperature stable</li>
-              <li>Vial seals inspected</li>
-              <li>Containment drill</li>
-            </ul>
-            <p className="lv-sign">Checked by: <span className="redact">████████</span></p>
+            <WlClipboard active={item === "clipboard"} />
           </div>
         </div>
       )}

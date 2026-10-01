@@ -482,3 +482,34 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lv-note{margin-top:4cqw;font-size:3cqw;border-left:.5cqw solid rgba(142,26,26,.6);padding-left:2cqw}
 @media (max-width:760px){.lv-flask{flex-direction:column;gap:18px}.lv-flask-stage{height:min(42vh,360px)}.lv-serum{width:min(90vw,460px)}}
 @media (prefers-reduced-motion: reduce){.lv-flask-stage,.lv-flask-canvas.wobble,.lab-view > div{animation:none}.lv-serum dl div{animation:none;opacity:1}}
+
+/* ---------- WL "mutation injection" clipboard ---------- */
+.wl{display:flex;flex-direction:column;gap:2.4cqw;height:100%}
+.wl h3{margin:0;font-family:'Black Ops One',var(--mono);font-weight:400;font-size:5.4cqw;line-height:1.1;letter-spacing:.04em;color:#1d1815}
+.wl-text{margin:0;font-size:3.3cqw;line-height:1.45}
+.wl-text.dim{opacity:.7}
+.wl b{font-weight:700;color:#000}
+.wl-field{display:grid;gap:1cqw;margin-top:1cqw}
+.wl-field span{font-size:2.5cqw;letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+.wl-field input{width:100%;box-sizing:border-box;padding:2.2cqw 2.4cqw;border:.45cqw solid #2b2420;border-radius:.6cqw;background:rgba(255,255,255,.45);font:700 3.1cqw var(--mono);color:#14100d;outline:none;-webkit-user-select:text;user-select:text}
+.wl-field input::placeholder{color:rgba(43,36,32,.45);font-weight:400}
+.wl-field input:focus{border-color:#8e1a1a;box-shadow:0 0 0 .5cqw rgba(142,26,26,.18)}
+.wl .wl-btn{align-self:stretch;padding:2.6cqw 2cqw;border:0;border-radius:.6cqw;background:#1d1815;color:#efe6cc;font:400 4.2cqw 'Black Ops One',var(--mono);letter-spacing:.08em;cursor:pointer;box-shadow:0 .6cqw 0 #8e1a1a;transition:transform .12s ease,background .2s ease}
+.wl .wl-btn:hover,.wl .wl-btn:focus-visible{background:#8e1a1a;outline:none}
+.wl .wl-btn:active{transform:translateY(.4cqw);box-shadow:0 .2cqw 0 #8e1a1a}
+.wl .wl-btn:disabled{opacity:.6;cursor:wait}
+.wl .wl-link{align-self:flex-start;padding:0;border:0;background:none;font:700 3cqw var(--mono);color:#8e1a1a;text-decoration:underline;text-underline-offset:.6cqw;cursor:pointer}
+.wl-trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.wl-result{justify-content:center}
+.wl-big{margin:0;font-family:'Black Ops One',var(--mono);font-size:5.6cqw;line-height:1.15;letter-spacing:.03em;color:#1d1815}
+.wl-big.red{color:#8e1a1a}
+.wl-big.cold,.wl-text.cold{color:#4a5d6b}
+.wl-subject{margin:0;font-size:2.7cqw;opacity:.75;word-break:break-all}
+.wl .cf-stamp-ink{mix-blend-mode:normal;white-space:normal;text-align:center}
+.wl .wl-stamp{align-self:center;font-size:5.6cqw;border-width:.7cqw;padding:1cqw 3cqw;margin:1cqw 0 3cqw;transform:rotate(-8deg);color:#9e0f16}
+.wl .wl-mutated{align-self:center;font-size:8.4cqw;line-height:1.02;padding:2cqw 3.5cqw;border-width:.9cqw;margin:2cqw 0 4cqw;transform:rotate(-6deg);color:#9e0f16}
+.wl-immune{align-self:center;margin:2cqw 0 4cqw;text-align:center;font-family:'Black Ops One',var(--mono);font-size:8cqw;line-height:1.02;letter-spacing:.06em;color:#6c8174;opacity:.85}
+.wl-blink{animation:wlBlink 1.1s steps(2) infinite}
+@keyframes wlBlink{50%{opacity:.25}}
+.wl-loading{justify-content:center;align-items:center;font:700 3.6cqw var(--mono);letter-spacing:.2em}
+@media (prefers-reduced-motion: reduce){.wl-blink{animation:none}}

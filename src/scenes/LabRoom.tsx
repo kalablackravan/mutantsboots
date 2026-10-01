@@ -44,6 +44,9 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
           <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
             style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
+        <span className="lab-clipboard-print" style={at(LAB.items.clipboard.img)} aria-hidden="true">
+          <b>MUTATION INJECTION<br />PROTOCOL</b>
+        </span>
         {ITEMS.map((it) => (
           <button key={it.id} type="button" className="lab-hit" style={at(LAB.items[it.id].hit)} aria-label={`Open ${it.id}`}
             tabIndex={on && !view ? 0 : -1}

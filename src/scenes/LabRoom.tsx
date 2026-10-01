@@ -18,7 +18,7 @@ const ITEMS: { id: Item; img: SceneImage; label: string }[] = [
 
 // Everything the room and its three views need, decoded before the door lets anyone in.
 const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "desk.webp", "clipboard.webp", "flask_black_border.webp",
-  "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp"];
+  "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp", "frame_black_border.webp"];
 let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
@@ -105,18 +105,27 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
       {shown === "flask" && (
         <div className={"lv-flask" + (dropping ? " drop" : "")} key={"f" + String(item)}>
           <FlaskSpin active={item === "flask"} />
-          <article className="lv-serum">
-            <p className="lv-kicker">specimen agent · batch M1-606</p>
-            <h2>SERUM M1</h2>
-            <dl>
-              <div><dt>Purpose</dt><dd>Grow guard clones for the <b>Zcash shielded pool</b></dd></div>
-              <div><dt>Dose</dt><dd><b>250 ml</b> per control specimen</dd></div>
-              <div><dt>Action</dt><dd>Bonds with host <b>DNA</b>. Traits shift. Copies stop being copies.</dd></div>
-              <div><dt>Stability</dt><dd><b>Unstable.</b> Vaporises on contact with air.</dd></div>
-              <div><dt>Incident</dt><dd>Vial cracked at <b>03:13</b>. Lab-wide exposure.</dd></div>
-              <div><dt>Result</dt><dd><b>606 mutants.</b> 604 reached Zcash · 2 unlogged.</dd></div>
-            </dl>
-            <span className="cf-stamp-ink lv-hazard">HAZARD · LEVEL 5</span>
+          <article className="lv-mint">
+            <img src={sceneImage("frame_black_border.webp")} alt="" draggable={false} />
+            <div className="lv-mint-in">
+              <h2>MINT DETAILS</h2>
+              <dl>
+                <div><dt>Mint time</dt><dd>TBA</dd></div>
+                <div><dt>Price</dt><dd>FREE MINT</dd></div>
+                <div><dt>Network</dt><dd>Zcash</dd></div>
+                <div><dt>Supply</dt><dd>606</dd></div>
+                <div><dt>Marketplace</dt><dd>TBA</dd></div>
+              </dl>
+              <h3>RARITY</h3>
+              <ul className="lv-rarity">
+                <li className="legend"><b>1</b><em>Legend</em> · Dark Sovereign</li>
+                <li className="epic"><b>1</b><em>Epic</em> · Hellspawn</li>
+                <li className="ultra"><b>100</b><em>Ultra Rare</em></li>
+                <li className="rare"><b>204</b><em>Rare</em></li>
+                <li className="unc"><b>300</b><em>Uncommon</em></li>
+              </ul>
+              <a className="lv-mint-x" href="https://x.com/mutatedfoots" target="_blank" rel="noopener noreferrer">follow @mutatedfoots on X for more updates ↗</a>
+            </div>
           </article>
         </div>
       )}

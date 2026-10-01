@@ -434,7 +434,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-view > div{animation:lvIn .5s cubic-bezier(.2,.8,.25,1) both}
 .lab-view > div.drop{animation:lvDrop .56s cubic-bezier(.55,0,1,.45) both}
 .lv-flask.drop{animation:none}
-.lv-flask.drop .lv-serum{opacity:0;transition:opacity .18s ease}
+.lv-flask.drop .lv-serum,.lv-flask.drop .lv-mint{opacity:0;transition:opacity .18s ease}
 .lv-flask.drop .lv-flask-stage{animation:lvDrop .56s cubic-bezier(.55,0,1,.45) both}
 .lab-view.dropping .lv-hint{opacity:0}
 @keyframes lvDrop{from{transform:translate3d(0,0,0) rotate(0)}to{transform:translate3d(3%,78vh,0) rotate(14deg)}}
@@ -550,3 +550,34 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .wl-form .wl .wl-btn,.wl-form.wl .wl-btn{padding:2cqw;font-size:3.9cqw}
 .wl .wl-follow{padding:1.3cqw 2cqw;font-size:2.85cqw;white-space:nowrap}
 .wl-form.wl .wl-link{font-size:2.8cqw}
+
+/* flask view: mint details printed in the slime frame */
+.lv-mint{position:relative;height:min(82vh,780px);aspect-ratio:1040/1552;container-type:inline-size;filter:drop-shadow(0 1.2vh 2.4vh rgba(0,0,0,.6));animation:lvLine .5s ease .15s both}
+.lv-mint > img{display:block;width:100%;height:100%;max-width:none;-webkit-user-drag:none}
+.lv-mint-in{position:absolute;left:19%;top:28.5%;width:55%;height:52%;display:flex;flex-direction:column;gap:1.3cqw;color:#2b2420;font:400 3.1cqw/1.32 var(--mono)}
+.lv-mint-in h2{margin:0;font:400 6.4cqw/1 'Black Ops One',var(--mono);letter-spacing:.04em;color:#1d1815}
+.lv-mint-in h3{margin:.8cqw 0 0;padding-bottom:.6cqw;border-bottom:.3cqw solid rgba(29,24,21,.5);font:400 3.7cqw 'Black Ops One',var(--mono);letter-spacing:.1em;color:#1d1815}
+.lv-mint-in dl{margin:0;display:grid;gap:.7cqw}
+.lv-mint-in dl div{display:flex;justify-content:space-between;align-items:baseline;gap:2cqw;padding-bottom:.5cqw;border-bottom:.2cqw dashed rgba(29,24,21,.3)}
+.lv-mint-in dt{font-size:2.6cqw;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.lv-mint-in dd{margin:0;font-weight:700;color:#000;text-align:right}
+.lv-rarity{list-style:none;margin:0;padding:0;display:grid;gap:.8cqw}
+.lv-rarity li{display:flex;align-items:center;gap:1.4cqw}
+.lv-rarity li::before{content:"";flex:none;width:2.4cqw;height:2.4cqw;border-radius:50%;background:var(--rc);box-shadow:0 0 1.2cqw var(--rc)}
+.lv-rarity b{min-width:4.6cqw;text-align:right;font-weight:700;color:#000}
+.lv-rarity em{font-style:normal;font-weight:700;color:var(--rc2)}
+.lv-rarity .legend{--rc:#f0b323;--rc2:#a8740a}.lv-rarity .epic{--rc:#9b4de3;--rc2:#6d2bb0}
+.lv-rarity .ultra{--rc:#e0443a;--rc2:#a3221b}.lv-rarity .rare{--rc:#3b8de0;--rc2:#1f5fa8}.lv-rarity .unc{--rc:#3fb15e;--rc2:#23753c}
+.lv-mint .lv-mint-x{margin-top:auto;font:700 2.7cqw var(--mono);color:#8e1a1a;text-decoration:underline;text-underline-offset:.6cqw}
+.lv-mint .lv-mint-x:hover{color:#c11c22}
+/* WL status scanner */
+.wl-scanning{gap:3cqw}
+.wl-scanbox{position:relative;width:34cqw;height:34cqw;border:.5cqw solid #1d1815;border-radius:1.2cqw;background:rgba(10,20,14,.06);overflow:hidden}
+.wl-dna{position:absolute;inset:6%;width:88%;height:88%}
+.wl-dna path{fill:none;stroke:#1d1815;stroke-width:2.2;stroke-linecap:round}
+.wl-dna line{stroke:#2bb455;stroke-width:1.6;opacity:.75}
+.wl-laser{position:absolute;left:0;right:0;top:0;height:.7cqw;background:#3ddc6a;box-shadow:0 0 2cqw #3ddc6a,0 0 5cqw rgba(61,220,106,.6);animation:wlLaser .85s ease-in-out infinite alternate}
+@keyframes wlLaser{from{transform:translateY(0)}to{transform:translateY(33cqw)}}
+.wl-scanning .wl-bar i{animation-duration:1.7s}
+@media (prefers-reduced-motion: reduce){.wl-laser{animation:none;top:50%}}
+@media (max-width:760px){.lv-mint{height:min(62vh,540px)}}

@@ -1,5 +1,5 @@
 // Commit-pin the post-ENTER artwork so copied workspaces and deployments use the same files.
-export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@dc14fda1ee89fced638eb93592f09d7221f7826f/site/frontend/WEBP_FILES/";
+export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@3dcd346e99e662649114e145eefd9aec54128f7e/site/frontend/WEBP_FILES/";
 
 // Same pinned commit, site/assets folder (devil prints used in the classified file).
 export const SITE_ASSETS = CDN_BASE.replace("/frontend/WEBP_FILES/", "/assets/");
@@ -29,7 +29,8 @@ export type SceneImage =
   | "clipboard.webp"
   | "clipboard_black_border_thin.webp"
   | "flask_black_border.webp"
-  | "files_black_border.webp";
+  | "files_black_border.webp"
+  | "frame_black_border.webp";
 
 export const SCENE_IMAGES: SceneImage[] = [
   "bg.webp", "bgsilhouette.webp", "chair.webp", "clonebase.webp", "clonecables.webp", "clonespecimen.webp",

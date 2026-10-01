@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { WL_API } from "@/config/wl";
+import { playInject, playScan } from "@/lib/fileSounds";
 
 type Phase = "live" | "closed" | "results";
 type Kind = "infected" | "incubating" | "immune" | "mutated" | "rejected" | "invalid" | "badx" | "follow" | "slow" | "down" | "closed";
 const X_URL = "https://x.com/mutatedfoots";
 const INJECT_MS = 2400;                                    // length of the in-form injection animation
+const SCAN_MS = 1700;                                      // length of the status scan animation
+// DNA helix for the scanner (two strands + rungs)
+const HELIX = (() => {
+  const a: string[] = [], b: string[] = [], rungs: [number, number, number][] = [];
+  for (let y = 8; y <= 112; y += 2) { const s = Math.sin(y / 11) * 26; a.push(`${60 + s},${y}`); b.push(`${60 - s},${y}`); if (y % 8 === 0) rungs.push([60 + s, 60 - s, y]); }
+  return { a: "M" + a.join("L"), b: "M" + b.join("L"), rungs };
+})();
 // quick shape checks in the browser; the lab server verifies the wallet checksum too
 const looksZcash = (w: string) => /^(t[13][1-9A-HJ-NP-Za-km-z]{33}|zs1[02-9ac-hj-np-z]{75}|u1[02-9ac-hj-np-z]{100,600})$/i.test(w);
 const looksX = (h: string) => /^@?[A-Za-z0-9_]{1,15}$/.test(h);
@@ -37,15 +45,16 @@ export function WlClipboard({ active }: { active: boolean }) {
   const [trap, setTrap] = useState("");                  // honeypot (bots fill it, people never see it)
   const [busy, setBusy] = useState(false);
   const [injecting, setInjecting] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [kind, setKind] = useState<Kind | null>(null);
   const [subj, setSubj] = useState<{ x?: string | null | undefined; wallet?: string | undefined }>({});
   const first = useRef<HTMLInputElement>(null);
 
-  const blank = () => { setWallet(""); setXh(""); setQuery(""); setTrap(""); setSubj({}); setKind(null); setBusy(false); setInjecting(false); };
+  const blank = () => { setWallet(""); setXh(""); setQuery(""); setTrap(""); setSubj({}); setKind(null); setBusy(false); setInjecting(false); setScanning(false); setFollowed(false); };
 
   useEffect(() => {                                       // every time the clipboard is picked up: clean sheet
     if (!active) return;
-    blank(); setFollowed(false);
+    blank();
     let live = true;
     api("/wl/phase").then(({ data }) => {
       if (!live) return;
@@ -64,7 +73,7 @@ export function WlClipboard({ active }: { active: boolean }) {
     if (!followed) return setKind("follow");
     if (!looksX(x)) return setKind("badx");
     if (!looksZcash(w)) return setKind("invalid");
-    setBusy(true); setInjecting(true);
+    setBusy(true); setInjecting(true); playInject();
     try {
       const [res] = await Promise.all([api("/wl/submit", { method: "POST", body: JSON.stringify({ wallet: w, x, website: trap }) }), wait(INJECT_MS)]);
       const { code, data } = res;
@@ -84,9 +93,9 @@ export function WlClipboard({ active }: { active: boolean }) {
     const raw = query.trim();
     const q = looksZcash(cleanWallet(raw)) ? cleanWallet(raw) : looksX(raw) ? "@" + cleanX(raw) : "";
     if (!q) return setKind("invalid");
-    setBusy(true);
+    setBusy(true); setScanning(true); playScan();
     try {
-      const { code, data } = await api("/wl/status?q=" + encodeURIComponent(q));
+      const [{ code, data }] = await Promise.all([api("/wl/status?q=" + encodeURIComponent(q)), wait(SCAN_MS)]);
       setSubj(data.x || data.wallet ? { x: data.x, wallet: data.wallet } : { x: q.startsWith("@") ? q : null, wallet: q.startsWith("@") ? undefined : `${q.slice(0, 6)}…${q.slice(-4)}` });
       if (code === 429) setKind("slow");
       else if (code !== 200) setKind("invalid");
@@ -94,7 +103,7 @@ export function WlClipboard({ active }: { active: boolean }) {
       else setKind(data.submitted ? "incubating" : "immune");
       if (data.phase) setPhase(data.phase);
     } catch { setKind("down"); }
-    setBusy(false);
+    setScanning(false); setBusy(false);
   };
 
   if (phase === null) return <div className="wl wl-center"><p className="wl-blink wl-mono">LINKING TO LAB…</p></div>;
@@ -116,6 +125,21 @@ export function WlClipboard({ active }: { active: boolean }) {
       <div className="wl-bar"><i /></div>
       <p className="wl-mono wl-blink">INJECTING SERUM M1…</p>
       <p className="wl-text dim">binding virus to <b>@{cleanX(xh)}</b></p>
+    </div>
+  );
+
+  if (scanning) return (                                     // the scanner sweeping the subject
+    <div className="wl wl-center wl-scanning" aria-live="polite">
+      <div className="wl-scanbox">
+        <svg className="wl-dna" viewBox="0 0 120 120" aria-hidden="true">
+          <path d={HELIX.a} /><path d={HELIX.b} />
+          {HELIX.rungs.map(([x1, x2, y]) => <line key={y} x1={x1} x2={x2} y1={y} y2={y} />)}
+        </svg>
+        <i className="wl-laser" />
+      </div>
+      <div className="wl-bar"><i /></div>
+      <p className="wl-mono wl-blink">SCANNING SUBJECT…</p>
+      <p className="wl-text dim">{query.trim().length > 20 ? `${query.trim().slice(0, 8)}…${query.trim().slice(-6)}` : query.trim()}</p>
     </div>
   );
 

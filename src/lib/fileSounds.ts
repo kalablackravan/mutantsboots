@@ -248,3 +248,50 @@ export function playGlassBreak(delay = 0.42) {
       [{ type: "bandpass", f: 900, q: 0.9, to: [[500, 0.3]] }], 0.45, [0.6, 1.4], [10, 30]);
   } catch { /* sound is optional */ }
 }
+
+function tone(c: AudioContext, out: AudioNode, at: number, f: number, dur: number, lvl: number, type: OscillatorType = "sine") {
+  const o = c.createOscillator(); o.type = type; o.frequency.value = f;
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(lvl, at + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  o.connect(g); g.connect(out); o.start(at); o.stop(at + dur + 0.02);
+}
+
+/** WL injection (~2.4 s, matches the syringe): soft plunger push, serum blips, a rising charge, a small "done" chime. */
+export function playInject() {
+  try {
+    const m = master(1.1); if (!m) return; const { c, out, t } = m;
+    const bell = (x: number) => Math.pow(Math.sin(Math.PI * Math.min(1, x)), 2);
+    burst(c, out, t, 2.2, (x) => bell(x) * 0.8, [{ type: "lowpass", f: 600, q: 0.7, to: [[1100, 1.8], [700, 2.2]] }], 0.5, [1, 1]);
+    for (let i = 0; i < 14; i++) {
+      const at = t + 0.25 + i * 0.13 + Math.random() * 0.05, f = 380 + Math.random() * 380;
+      const o = c.createOscillator(); o.type = "sine";
+      o.frequency.setValueAtTime(f, at); o.frequency.exponentialRampToValueAtTime(f * 1.7, at + 0.06);
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(0.07, at + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.1);
+    }
+    const o = c.createOscillator(); o.type = "triangle";
+    o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(520, t + 2.2);
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1200;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.4);
+    g.gain.setValueAtTime(0.06, t + 2.0); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.3);
+    o.connect(lp); lp.connect(g); g.connect(out); o.start(t); o.stop(t + 2.35);
+    thump(c, out, t + 2.25, 900, 600, 0.04, 0.12);
+    tone(c, out, t + 2.3, 880, 0.35, 0.09); tone(c, out, t + 2.39, 1320, 0.4, 0.08);
+  } catch { /* sound is optional */ }
+}
+
+/** WL status scan (~1.7 s): scanner sweep hum, steady beeps, a "scan complete" two-tone. */
+export function playScan() {
+  try {
+    const m = master(1.3); if (!m) return; const { c, out, t } = m;
+    const o = c.createOscillator(); o.type = "triangle";
+    o.frequency.setValueAtTime(160, t); o.frequency.linearRampToValueAtTime(480, t + 0.75); o.frequency.linearRampToValueAtTime(160, t + 1.5);
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.15);
+    g.gain.setValueAtTime(0.05, t + 1.35); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.55);
+    o.connect(lp); lp.connect(g); g.connect(out); o.start(t); o.stop(t + 1.6);
+    for (let i = 0; i < 5; i++) tone(c, out, t + 0.1 + i * 0.28, 1150, 0.05, 0.08);
+    tone(c, out, t + 1.55, 988, 0.12, 0.1); tone(c, out, t + 1.66, 1480, 0.22, 0.09);
+  } catch { /* sound is optional */ }
+}

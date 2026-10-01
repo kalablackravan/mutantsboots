@@ -513,3 +513,40 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @keyframes wlBlink{50%{opacity:.25}}
 .wl-loading{justify-content:center;align-items:center;font:700 3.6cqw var(--mono);letter-spacing:.2em}
 @media (prefers-reduced-motion: reduce){.wl-blink{animation:none}}
+
+/* WL v2: follow step, step numbers, in-form injection */
+.wl-center{justify-content:center;align-items:center;text-align:center}
+.wl-mono{margin:0;font:700 3.2cqw var(--mono);letter-spacing:.18em}
+.wl-form{gap:1.9cqw}
+.wl-form h3{font-size:4.9cqw}
+.wl-n{display:inline-grid;place-items:center;flex:none;width:4.4cqw;height:4.4cqw;margin-right:1.5cqw;border-radius:50%;background:#1d1815;color:#efe6cc;font:700 2.6cqw var(--mono);font-style:normal;letter-spacing:0}
+.wl .wl-follow{display:flex;align-items:center;padding:1.7cqw 2.2cqw;border:.45cqw dashed #1d1815;border-radius:.6cqw;font:700 3.1cqw var(--mono);color:#1d1815;text-decoration:none;letter-spacing:.03em;transition:background .2s ease}
+.wl .wl-follow:hover,.wl .wl-follow:focus-visible{background:rgba(29,24,21,.08);outline:none}
+.wl .wl-follow.done{border-style:solid;border-color:#2f6b3a;color:#2f6b3a}
+.wl .wl-follow.done .wl-n{background:#2f6b3a}
+.wl-field span{display:flex;align-items:center}
+.wl-injecting{gap:3.2cqw}
+.wl-syringe{width:86%;height:auto;overflow:visible}
+.wl-barrel{fill:rgba(220,235,225,.55);stroke:#1d1815;stroke-width:2.5}
+.wl-serum{fill:#3ddc6a;transform-box:fill-box;transform-origin:100% 50%;animation:wlSerum 2.4s cubic-bezier(.4,0,.6,1) forwards}
+.wl-plunger{fill:#1d1815;animation:wlPush 2.4s cubic-bezier(.4,0,.6,1) forwards}
+.wl-hub,.wl-needle{fill:#5a5550}
+.wl-tick{fill:#1d1815}
+.wl-drop{fill:#3ddc6a;animation:wlDrop .6s ease-in infinite}
+@keyframes wlSerum{from{transform:scaleX(1)}to{transform:scaleX(.04)}}
+@keyframes wlPush{from{transform:translateX(0)}to{transform:translateX(136px)}}
+@keyframes wlDrop{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+.wl-bar{width:86%;height:2.4cqw;border:.4cqw solid #1d1815;border-radius:2cqw;overflow:hidden;background:rgba(255,255,255,.4)}
+.wl-bar i{display:block;width:100%;height:100%;background:repeating-linear-gradient(45deg,#3ddc6a 0 2cqw,#2bb455 2cqw 4cqw);transform-origin:0 50%;animation:wlBar 2.4s cubic-bezier(.4,0,.6,1) forwards}
+@keyframes wlBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){.wl-serum,.wl-plunger,.wl-drop,.wl-bar i{animation:none}}
+
+/* WL v2 form: everything fits on the sheet */
+.wl-form{gap:1.45cqw}
+.wl-form h3{font-size:4.6cqw}
+.wl-form .wl-text{font-size:3cqw;line-height:1.38}
+.wl-form .wl-field{gap:.7cqw;margin-top:0}
+.wl-form .wl-field input{padding:1.6cqw 2.2cqw;font-size:2.9cqw}
+.wl-form .wl .wl-btn,.wl-form.wl .wl-btn{padding:2cqw;font-size:3.9cqw}
+.wl .wl-follow{padding:1.3cqw 2cqw;font-size:2.85cqw;white-space:nowrap}
+.wl-form.wl .wl-link{font-size:2.8cqw}

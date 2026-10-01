@@ -164,9 +164,12 @@ export function ExitPad({ tabIndex, onExit, onTag }: { tabIndex: number; onExit:
 }
 
 // ---------------------------------------------------------------- dead machine by the gas tanks: OUT OF SERVICE
-export function OutOfService() {
+export function OutOfService({ onTag }: { onTag?: (k: string | null) => void }) {
   const q = LAB_FX.oos;
   return (
+    <>
+    <span className="lab-oos-hit" style={at(q.hit)} aria-hidden="true"
+      onPointerEnter={() => onTag?.("oos")} onPointerLeave={() => onTag?.(null)} />
     <svg className="lab-oos" style={at(q.box)} viewBox="0 0 152 76" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <clipPath id="oosClip"><polygon points={q.poly} /></clipPath>
@@ -181,7 +184,8 @@ export function OutOfService() {
           <text x="98" y="54" textAnchor="middle" className="oos-t">SERVICE</text>
         </g>
         <rect width="152" height="76" fill="url(#oosScan)" />
-              </g>
+      </g>
     </svg>
+    </>
   );
 }

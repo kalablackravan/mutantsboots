@@ -6,7 +6,6 @@ import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
 import { LabPhone } from "./LabPhone";
-import { FLASK_CLIP, FLASK_CUT } from "@/lib/deskArt";
 import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
 import { loadTraits } from "@/lib/useTraits";
@@ -33,6 +32,7 @@ const WALL_TAGS: { id: string; text: string; box: Box }[] = [
   { id: "tank0", text: "▸ toxic gas", box: LAB_FX.tanks[0].hit },
   { id: "tank1", text: "▸ toxic gas", box: { ...LAB_FX.tanks[1].hit, left: LAB_FX.tanks[1].hit.left - 3 } },
   { id: "phone", text: "▸ phone call", box: LAB_FX.phone.hit },
+  { id: "oos", text: "▸ out of service", box: LAB_FX.oos.hit },
 ];
 
 // Everything the room and its three views need, decoded before the door lets anyone in.
@@ -62,7 +62,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         <DeskScreens live={on && !view} hot={hover === "display"} />
         <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} onTag={setTag} />
-        <OutOfService />
+        <OutOfService onTag={setTag} />
         <LabPhone on={on} paused={!!view} tabIndex={on && !view ? 0 : -1} onTag={setTag} />
         {LAB_FX.shadows.map((d, i) => (
           <span key={i} className="lab-ao" aria-hidden="true"
@@ -70,9 +70,8 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         ))}
         <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} onTag={setTag} />
         {ITEMS.map((it) => (
-          <img key={it.id} className={"gate-layer lab-item" + (it.id === "flask" ? " lab-flask-cut" : "") + (hover === it.id ? " hot" : "")}
-            src={it.id === "flask" ? FLASK_CUT : sceneImage(it.img)} alt=""
-            style={it.id === "flask" ? { ...at(LAB.items.flask.img), clipPath: FLASK_CLIP } : at(LAB.items[it.id].img)} draggable={false} />
+          <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
+            style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
         <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
         {LAB_FX.screens.map((sc, i) => (

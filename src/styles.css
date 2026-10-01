@@ -747,7 +747,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .sprite img.ghost{opacity:.22;filter:grayscale(1)}
 
 /* new desk (photoroom.webp): see-through screens, cast shadow, cropped single traits, TV views */
-.lab-desk{z-index:1;filter:saturate(1.8) brightness(.82)}
+.lab-desk{z-index:1;filter:saturate(1.4) brightness(.97)}
 .tcrop{position:relative;display:block;aspect-ratio:1;overflow:hidden;contain:paint;pointer-events:none}
 .tcrop img{position:absolute;max-width:none;height:auto;aspect-ratio:1;image-rendering:pixelated;pointer-events:none}
 .lvd-stage .tcrop.big{height:90%;max-width:90%;filter:drop-shadow(0 0 1.4cqw rgba(60,255,140,.25))}
@@ -770,9 +770,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 
 @keyframes lvdSwap{from{opacity:.25}}
 .lvd-grid button{touch-action:manipulation}
-/* flask cut out of the new desk art: same grade as the desk, lifts on hover */
-.lab-item.lab-flask-cut{filter:saturate(1.8) brightness(.82)}
-.lab-item.lab-flask-cut.hot{filter:saturate(1.9) brightness(1.05)}
 
 /* dead machine screen */
 .lab-oos{position:absolute;z-index:1;pointer-events:none;overflow:visible}
@@ -795,3 +792,4 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-phone{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 @media (prefers-reduced-motion: reduce){.lab-rings.on path,.lab-rings.on circle,.lab-oos .oos-glow{animation:none}.lab-rings path{opacity:.8}}
 .sprite,.sprite img{pointer-events:none}
+.lab-oos-hit{position:absolute;z-index:3}

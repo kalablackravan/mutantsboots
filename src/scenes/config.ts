@@ -133,7 +133,7 @@ export const CHAMBER = {
 export const LAB = {
   items: {
     clipboard: { img: { left: 1673 / 38.4, top: 1159.4 / 18, width: 232 / 38.4, height: 173.2 / 18 }, hit: { left: 1688 / 38.4, top: 1178 / 18, width: 204 / 38.4, height: 136 / 18 } },
-    flask: { img: { left: 2308 / 38.4, top: 1146 / 18, width: 92 / 38.4, height: 120 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
+    flask: { img: { left: 2285.9 / 38.4, top: 1152.3 / 18, width: 113 / 38.4, height: 119.4 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
     files: { img: { left: 2387.7 / 38.4, top: 1141.9 / 18, width: 191.5 / 38.4, height: 143.8 / 18 }, hit: { left: 2392 / 38.4, top: 1160 / 18, width: 185 / 38.4, height: 125 / 18 } },
   },
 } as const;
@@ -166,7 +166,7 @@ export const LAB_FX = {
     { cx: 2184, cy: 89, r: 41, kind: "wander" as const },
   ],
   // the dead machine by the gas tanks: its slanted screen (box) and the screen shape inside it (box units 152x76)
-  oos: { box: lb(3460, 1072, 152, 76), poly: "3,2 140,2 150,74 16,74" },
+  oos: { box: lb(3460, 1072, 152, 76), poly: "3,2 140,2 150,74 16,74", hit: lb(3388, 985, 252, 515) },
   // wall phone (left keypad with the cord) + the panel next to it: rings, picks up, threatens
   phone: { hit: lb(1262, 772, 232, 232), rings: lb(1352, 790, 70, 70), led: { x: 1332 / 38.4, y: 942 / 18 } },
   // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT

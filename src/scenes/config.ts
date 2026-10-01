@@ -137,3 +137,37 @@ export const LAB = {
     files: { img: { left: 60.0743, top: 62.6974, width: 4.7991, height: 7.689 }, hit: { left: 2311 / 38.4, top: 1131 / 18, width: 178 / 38.4, height: 132 / 18 } },
   },
 } as const;
+
+// Lab room live details, in 2ndbg.webp canvas px (3840x1800). Tweak placement here only.
+const lb = (x: number, y: number, w: number, h: number) => ({ left: x / 38.4, top: y / 18, width: w / 38.4, height: h / 18 });
+export const LAB_FX = {
+  // CCTV feeds inside the two wall TVs (screen glass only)
+  tvs: [
+    { box: lb(521, 1041, 124, 96), devil: 2 as const, label: "CAM 02 · TANK 001" }, // small TV on the stand: Dark Sovereign
+    { box: lb(2918, 840, 204, 158), devil: 1 as const, label: "CAM 01 · TANK 000" }, // big terminal: Hellspawn
+  ],
+  // green glass tubes on the wall: glass box, blink period (s), phase (s), rgb
+  tubes: [
+    { box: lb(1610, 15, 72, 175), p: 3.4, d: -0.4, c: "90,255,150" },
+    { box: lb(1708, 162, 57, 160), p: 2.6, d: -1.7, c: "90,255,150" },
+    { box: lb(1798, 210, 52, 112), p: 3.9, d: -2.9, c: "90,255,150" },
+    { box: lb(2297, 15, 75, 175), p: 4.4, d: -0.9, c: "90,255,150" },
+    { box: lb(2292, 205, 86, 110), p: 2.9, d: -2.2, c: "90,235,225" },
+    { box: lb(1692, 500, 63, 155), p: 3.1, d: -0.2, c: "90,255,150" },
+    { box: lb(1802, 512, 60, 143), p: 3.7, d: -1.1, c: "90,255,150" },
+    { box: lb(1910, 475, 65, 180), p: 2.7, d: -2.4, c: "90,255,150" },
+    { box: lb(2020, 525, 63, 130), p: 4.1, d: -0.7, c: "90,255,150" },
+    { box: lb(2125, 518, 65, 137), p: 3.3, d: -3.0, c: "90,255,150" },
+    { box: lb(2230, 515, 63, 140), p: 2.8, d: -1.4, c: "90,255,150" },
+  ],
+  // the two pressure gauges: dial centre + face radius; "build" is the one the hiss is synced to
+  gauges: [
+    { cx: 2006, cy: 136, r: 45, kind: "build" as const },
+    { cx: 2184, cy: 89, r: 41, kind: "wander" as const },
+  ],
+  // gas cylinders: hover box + valve (smoke origin)
+  tanks: [
+    { hit: lb(3648, 880, 135, 630), valve: { x: 3712 / 38.4, y: 898 / 18 } },
+    { hit: lb(3783, 885, 57, 625), valve: { x: 3822 / 38.4, y: 905 / 18 } },
+  ],
+} as const;

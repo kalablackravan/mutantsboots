@@ -419,12 +419,10 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 /* ---------- lab room behind the restricted door ---------- */
 #s-lab{transition:opacity .45s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
 #s-lab.zoom-from{transform:scale(.94);transition:none}
-#lab-stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));overflow:hidden;background:#05080a;transition:filter .4s ease}
+#lab-stage{container-type:inline-size;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));overflow:hidden;background:#05080a;transition:filter .4s ease}
 #lab-stage.viewing{filter:blur(9px) brightness(.62) saturate(.9)}
 .lab-item{filter:brightness(.86) saturate(.95);transition:filter .25s ease,transform .25s ease}
 .lab-item.hot{filter:brightness(1.05) saturate(1.05) drop-shadow(0 0 .35vw rgba(140,255,170,.55));transform:translateY(-.35%)}
-.lab-clipboard-print{position:absolute;z-index:2;pointer-events:none;container-type:inline-size}
-.lab-clipboard-print b{position:absolute;left:29%;top:34%;width:53%;transform:rotate(29deg) skewX(-4deg);transform-origin:center;color:var(--gate-black);font:400 7.2cqw/.96 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;text-wrap:balance;opacity:.9;text-shadow:0 .25cqw 0 color-mix(in srgb,var(--paper) 35%,transparent)}
 .lab-hit{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lab-shade{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 55%,transparent 55%,rgba(0,0,0,.55))}
 #lab-ui{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));z-index:2;pointer-events:none}
@@ -583,3 +581,71 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .wl-scanning .wl-bar i{animation-duration:1.7s}
 @media (prefers-reduced-motion: reduce){.wl-laser{animation:none;top:50%}}
 @media (max-width:760px){.lv-mint{height:min(62vh,540px)}}
+
+/* ---------- lab room: live details (config: LAB_FX in src/scenes/config.ts) ---------- */
+/* desk clipboard: the WL form printed on the top sheet */
+.lab-print{position:absolute;z-index:2;pointer-events:none;overflow:visible;mix-blend-mode:multiply;opacity:.92;transition:transform .25s ease}
+.lab-print.hot{transform:translateY(-.35%)}
+.lab-print text{fill:#1d1815;font-family:var(--mono)}
+.lab-print .lp-title{font-family:'Black Ops One',var(--mono);font-size:92px}
+.lab-print .lp-body{font-size:38px}
+.lab-print .b,.lab-print tspan.b{font-weight:700;fill:#000}
+.lab-print .lp-dash{fill:none;stroke:#1d1815;stroke-width:4;stroke-dasharray:14 10}
+.lab-print .lp-n{fill:#1d1815}.lab-print .lp-n.dim{fill:#57504a}
+.lab-print .lp-nt{fill:#efe8da;font:700 30px var(--mono);text-anchor:middle}
+.lab-print .lp-label{fill:#8a8075;font:700 30px var(--mono);letter-spacing:2px}
+.lab-print .lp-input{fill:rgba(255,255,255,.35);stroke:#1d1815;stroke-width:3}
+.lab-print .lp-ph{fill:#9a9086;font-size:30px}
+.lab-print .lp-btn{fill:#1a1614}.lab-print .lp-btn-edge{fill:#9b1c1c}
+.lab-print .lp-btn-t{fill:#efe8da;font-family:'Black Ops One',var(--mono);font-size:50px;text-anchor:middle}
+.lab-print .lp-link{fill:#9b1c1c;font:700 30px var(--mono)}.lab-print .lp-link-u{fill:#9b1c1c}
+
+/* green tubes: blink on / off in a loop (glow when on, glass dims when off) */
+.lab-tube{position:absolute;z-index:1;pointer-events:none}
+.lab-tube b{position:absolute;inset:4% 8%;border-radius:40%/18%;background:radial-gradient(closest-side,rgba(4,16,14,.86) 55%,rgba(4,16,14,0));opacity:0;animation:tubeOff var(--tp) linear var(--td) infinite}
+.lab-tube i{position:absolute;left:-60%;right:-60%;top:-25%;bottom:-25%;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--tc),.6),rgba(var(--tc),.22) 45%,rgba(var(--tc),0));mix-blend-mode:screen;animation:tubeOn var(--tp) linear var(--td) infinite}
+@keyframes tubeOn{0%,38%{opacity:1}40%{opacity:.1}42%{opacity:.9}44%,58%{opacity:0}60%{opacity:.7}61%{opacity:.15}63%,100%{opacity:1}}
+@keyframes tubeOff{0%,38%{opacity:0}40%{opacity:.8}42%{opacity:.1}44%,58%{opacity:.92}60%{opacity:.3}61%{opacity:.8}63%,100%{opacity:0}}
+
+/* pressure gauges: repainted dial with a live needle */
+.lab-gauge{position:absolute;z-index:1;pointer-events:none;overflow:visible}
+.lab-gauge .lg-tick{stroke:#1d2324;stroke-width:.1;stroke-linecap:round}.lab-gauge .lg-tick.red{stroke:#8e2020}
+.lab-gauge .lg-needle{fill:#6e1418;transform-box:view-box;transform-origin:0 0;transform:rotate(-118deg)}
+.lab-gauge .lg-needle.build.run{animation:gaugeBuild 4.2s linear infinite}
+.lab-gauge .lg-needle.wander.run{animation:gaugeWander 3.1s ease-in-out infinite}
+.lab-gauge .lg-pin{fill:#1d2426;stroke:#4b5658;stroke-width:.04}
+.lab-gauge .lg-glass{fill:none;stroke:rgba(255,255,255,.12);stroke-width:.04}
+@keyframes gaugeBuild{0%{transform:rotate(-118deg)}8%{transform:rotate(-112deg)}55%{transform:rotate(70deg);animation-timing-function:linear}58%{transform:rotate(84deg)}61%{transform:rotate(74deg)}64%{transform:rotate(88deg)}67%{transform:rotate(78deg)}70%{transform:rotate(90deg)}73%{transform:rotate(80deg)}78%{transform:rotate(86deg);animation-timing-function:cubic-bezier(.3,0,.2,1)}88%{transform:rotate(-114deg)}91%{transform:rotate(-122deg)}94%{transform:rotate(-115deg)}100%{transform:rotate(-118deg)}}
+@keyframes gaugeWander{0%{transform:rotate(-30deg)}18%{transform:rotate(6deg)}24%{transform:rotate(-2deg)}46%{transform:rotate(44deg)}52%{transform:rotate(36deg)}70%{transform:rotate(58deg)}84%{transform:rotate(12deg)}100%{transform:rotate(-30deg)}}
+
+/* TVs: the devils' CCTV feeds, always playing */
+.lab-tv{position:absolute;z-index:1;pointer-events:none;overflow:hidden;border-radius:16%/20%;background:#8a0f16;container-type:inline-size;box-shadow:inset 0 0 6cqw rgba(0,0,0,.85)}
+.lab-tv.night{background:#3a0508}
+.lab-tv .tv-art{position:absolute;inset:0;display:grid;place-items:center;animation:tvJolt 4.3s steps(1,end) infinite}
+.lab-tv .tv-art img{height:100%;width:auto;max-width:none;image-rendering:pixelated;filter:contrast(1.15) saturate(.85) brightness(.95)}
+.lab-tv.night .tv-art{animation-duration:5.7s;animation-delay:-2s}
+.lab-tv .tv-scan{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.32) 0 1.5cqw,transparent 1.5cqw 3cqw)}
+.lab-tv .tv-noise{position:absolute;inset:-40%;opacity:.16;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");background-size:40cqw 40cqw;animation:tvNoise .3s steps(3) infinite}
+.lab-tv .tv-roll{position:absolute;left:0;right:0;height:20%;top:-22%;background:rgba(255,255,255,.07);animation:tvRoll 5s linear infinite}
+.lab-tv .tv-rec{position:absolute;left:9%;top:9%;display:flex;align-items:center;gap:2cqw;font:800 7.5cqw/1 var(--mono);color:#fff;letter-spacing:.06em;text-shadow:0 .6cqw 0 #000}
+.lab-tv .tv-rec i{width:5cqw;height:5cqw;border-radius:50%;background:#ff2b2b;animation:tvRec 1s steps(1) infinite}
+.lab-tv .tv-id{position:absolute;right:8%;bottom:5%;font:800 5.4cqw/1 var(--mono);color:#fff;letter-spacing:.04em;text-shadow:0 .6cqw 0 #000;white-space:nowrap}
+.lab-tv .tv-focus{position:absolute;left:50%;top:50%;width:16%;aspect-ratio:1;transform:translate(-50%,-50%);border:.8cqw solid rgba(255,255,255,.6)}
+.lab-tv .tv-cut{position:absolute;inset:0;opacity:0;background:#cfcfcf url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");background-size:30cqw 30cqw;mix-blend-mode:hard-light;animation:tvCut 9s steps(1,end) infinite}
+.lab-tv.night .tv-cut{animation-delay:-4.5s}
+.lab-tv .tv-glass{position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse 60% 45% at 72% 22%,rgba(255,255,255,.16),transparent 70%),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+@keyframes tvNoise{0%{transform:translate(0,0)}33%{transform:translate(-6%,4%)}66%{transform:translate(5%,-5%)}}
+@keyframes tvRoll{to{top:110%}}
+@keyframes tvRec{50%{opacity:0}}
+@keyframes tvJolt{0%{transform:none}46%{transform:translateX(2.5%)}47%{transform:translateX(-1.5%)}48%{transform:none}83%{transform:translateY(-2%)}84%{transform:none}}
+@keyframes tvCut{0%{opacity:0}62%{opacity:.85}64%{opacity:.4}65%{opacity:.9}67%{opacity:0}}
+
+/* gas cylinders: smoke only while hovered */
+.lab-tank-hit{position:absolute;z-index:3}
+.lab-smoke{position:absolute;z-index:2;width:0;height:0;pointer-events:none}
+.lab-smoke i{position:absolute;left:0;top:0;width:calc(2.2cqw * var(--ps));aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,rgba(205,214,210,.55),rgba(185,196,192,.22) 55%,rgba(185,196,192,0));filter:blur(.25cqw);opacity:0;animation:smokeRise 2.4s ease-out forwards}
+@keyframes smokeRise{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}12%{opacity:.75}100%{transform:translate(calc(-50% + var(--dx) * 2.6cqw),calc(-50% - 9cqw)) scale(2.8);opacity:0}}
+
+@media (prefers-reduced-motion: reduce){
+  .lab-tube b,.lab-tube i,.lab-tv .tv-art,.lab-tv .tv-noise,.lab-tv .tv-roll,.lab-tv .tv-cut,.lab-tv .tv-rec i{animation:none}
+}

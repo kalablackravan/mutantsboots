@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { sceneImage, type SceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F, LAB } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
-import { INK_HEAVY } from "@/lib/fileArt";
+import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
+import { ClipboardPrint, LabFx } from "./LabFx";
 import { playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type Item = "clipboard" | "flask" | "files";
@@ -23,7 +24,7 @@ let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
-    Promise.all(LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n)))).then(() => undefined),
+    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2)]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;
@@ -40,13 +41,12 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
         <img className="gate-layer" src={sceneImage("desk.webp")} alt="" style={at(FULL)} draggable={false} />
+        <LabFx live={on && !view} />
         {ITEMS.map((it) => (
           <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
             style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
-        <span className="lab-clipboard-print" style={at(LAB.items.clipboard.img)} aria-hidden="true">
-          <b>MUTATION INJECTION<br />PROTOCOL</b>
-        </span>
+        <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
         {ITEMS.map((it) => (
           <button key={it.id} type="button" className="lab-hit" style={at(LAB.items[it.id].hit)} aria-label={`Open ${it.id}`}
             tabIndex={on && !view ? 0 : -1}

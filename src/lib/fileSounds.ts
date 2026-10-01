@@ -295,3 +295,54 @@ export function playScan() {
     tone(c, out, t + 1.55, 988, 0.12, 0.1); tone(c, out, t + 1.66, 1480, 0.22, 0.09);
   } catch { /* sound is optional */ }
 }
+
+// one dry needle "tick" (ratchet of a pressure gauge)
+function tick(c: AudioContext, out: AudioNode, at: number, gain: number) {
+  const o = c.createOscillator(); o.type = "square"; o.frequency.value = 1300 + Math.random() * 600;
+  const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2600; bp.Q.value = 2.2;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(gain, at + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + 0.018);
+  o.connect(bp); bp.connect(g); g.connect(out); o.start(at); o.stop(at + 0.03);
+}
+
+/** Lab pressure gauge: pulse() plays one cycle (pressure builds, needle chatters, valve vents),
+ *  timed to the 4.2s "build" needle animation. stop() fades it out. */
+export function gaugeSound(period = 4.2): { pulse: () => void; stop: () => void } {
+  const none = { pulse: () => undefined, stop: () => undefined };
+  try {
+    const c = audio(); if (!c) return none;
+    const out = c.createGain(); out.gain.value = 0.5; out.connect(c.destination);
+    let stopped = false;
+    const pulse = () => {
+      if (stopped) return;
+      try {
+        const t = c.currentTime + 0.02;
+        // pressure building: a low rumble that climbs with the needle
+        burst(c, out, t, 2.4, (x) => x * x, [{ type: "lowpass", f: 160, q: 0.7, to: [[620, 2.3]] }], 0.12, [0.85, 1.15], [30, 80]);
+        // needle ratchet: ticks speed up as it climbs, chatter at the top
+        let when = t + 0.25, gap = 0.24;
+        while (when < t + period * 0.75) {
+          tick(c, out, when, when > t + period * 0.55 ? 0.07 : 0.04);
+          gap = Math.max(0.06, gap * 0.9); when += gap + Math.random() * 0.02;
+        }
+        // release valve: sharp steam hiss that fades + a soft knock in the pipe
+        const vent = t + period * 0.78;
+        burst(c, out, vent, 0.8, (x) => (x < 0.04 ? x / 0.04 : Math.pow(1 - x, 1.8)),
+          [{ type: "highpass", f: 900 }, { type: "bandpass", f: 3200, q: 0.9, to: [[1500, 0.8]] }], 0.42, [0.9, 1.1], [6, 14]);
+        thump(c, out, vent, 95, 52, 0.2, 0.18);
+      } catch { /* sound is optional */ }
+    };
+    const stop = () => {
+      if (stopped) return; stopped = true;
+      const t = c.currentTime;
+      out.gain.cancelScheduledValues(t);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      window.setTimeout(() => { try { out.disconnect(); } catch { /* gone */ } }, 260);
+    };
+    return { pulse, stop };
+  } catch {
+    return none;
+  }
+}

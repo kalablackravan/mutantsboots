@@ -15,3 +15,4 @@
 - [x] Replace post-ENTER scene with seven full-frame WEBP_FILES layers and verify portable CDN loading.
 - [x] Put the silhouette above the cloning chamber and add matching clone/lockdown hover labels, glows, and sounds.
 - [x] Replace the lab-lock screen with the pinned 2ndbg room, preserving the dark zoom entrance and adding an EXIT text control.
+- [x] Print a readable Mutation Injection Protocol title on the lab-room clipboard without changing its interaction or placement.

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { LAB_FX } from "./config";
+import { Tv } from "./LabFx";
 import { BLANK_DISPLAY } from "@/config/cdn";
 import { useTraits } from "@/lib/useTraits";
 import { playBlip } from "@/lib/fileSounds";
@@ -17,7 +18,20 @@ export function Sprite({ layers, className = "", focus }: { layers: Trait[]; cla
   );
 }
 
-// ---------------------------------------------------------------- the three desk monitors (matrix green)
+/** One trait on its own, zoomed to its own pixels (so a 4px ear fills the box like a costume does). */
+export function TraitCrop({ t, className = "" }: { t: Trait; className?: string }) {
+  const [x0, y0, x1, y1] = t.bb;
+  const side = Math.max(x1 - x0, y1 - y0, 16) + 2;
+  const left = (-x0 + (side - (x1 - x0)) / 2) / side * 100;
+  const top = (-y0 + (side - (y1 - y0)) / 2) / side * 100;
+  return (
+    <span className={"tcrop " + className}>
+      <img src={t.img} alt="" draggable={false} style={{ width: `${(44 / side) * 100}%`, left: `${left}%`, top: `${top}%` }} />
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------- the desk monitors (matrix green)
 // centre: a random specimen assembles layer by layer · right: one trait at a time · left: the scan log
 export function DeskScreens({ live, hot }: { live: boolean; hot: boolean }) {
   const T = useTraits();
@@ -51,7 +65,8 @@ export function DeskScreens({ live, hot }: { live: boolean; hot: boolean }) {
   const shown = layers.slice(0, step);
   const last = shown[shown.length - 1];
   const done = step >= layers.length && layers.length > 0;
-  const [sText, sBuild, sTrait] = LAB_FX.screens;
+  const scr = (k: string) => LAB_FX.screens.find((x) => x.kind === k)!;
+  const sText = scr("text"), sBuild = scr("build"), sTrait = scr("trait"), sWave = scr("wave");
   return (
     <>
       <span className={"desk-screen ds-text" + (hot ? " hot" : "")} style={at(sText.box)} aria-hidden="true">
@@ -67,8 +82,16 @@ export function DeskScreens({ live, hot }: { live: boolean; hot: boolean }) {
         <span className="ds-tint"><Sprite layers={shown} /></span>
       </span>
       <span className={"desk-screen ds-trait" + (hot ? " hot" : "")} style={at(sTrait.box)} aria-hidden="true">
-        {one && T && <span className="ds-tint" key={one.id}><Sprite layers={T.layersOf(T.wearing(one))} focus={one.id} /></span>}
+        {one && <span className="ds-tint" key={one.id}><TraitCrop t={one} /></span>}
         {one && <em>{one.cat.toUpperCase()} · {one.name.toUpperCase()}</em>}
+      </span>
+      <span className={"desk-screen ds-wave" + (hot ? " hot" : "")} style={at(sWave.box)} aria-hidden="true">
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none">
+          <path className="wv a" d="M0 60 L20 60 L28 58 L34 64 L40 20 L46 86 L52 56 L70 60 L90 60 L98 58 L104 64 L110 20 L116 86 L122 56 L140 60 L160 60 L168 58 L174 64 L180 20 L186 86 L192 56 L200 60" />
+          <path className="wv b" d="M0 80 Q25 70 50 80 T100 80 T150 80 T200 80" />
+        </svg>
+        <span className="wv-bars"><i /><i /><i /><i /><i /><i /></span>
+        <em>VITALS · {String(scan).padStart(3, "0")}</em>
       </span>
     </>
   );
@@ -82,14 +105,13 @@ export function TraitScanner({ active }: { active: boolean }) {
   const T = useTraits();
   const [cat, setCat] = useState<TraitCat>("eyes");
   const [sel, setSel] = useState<string>("");
-  const [iso, setIso] = useState(false);
   const list = useMemo(() => (T ? T.traitsOf(cat) : []), [T, cat]);
   const trait = list.find((t) => t.id === sel) ?? list[0];
   useEffect(() => {          // every time the screen is switched on: a random layer and trait
     if (!active || !T) return;
     const c = T.TRAIT_CATS[Math.floor(Math.random() * T.TRAIT_CATS.length)] ?? "eyes";
     const l = T.traitsOf(c);
-    setCat(c); setSel(l[Math.floor(Math.random() * l.length)]?.id ?? ""); setIso(false);
+    setCat(c); setSel(l[Math.floor(Math.random() * l.length)]?.id ?? "");
   }, [active, T]);
   useEffect(() => {
     if (!active || !list.length) return;
@@ -102,17 +124,13 @@ export function TraitScanner({ active }: { active: boolean }) {
     addEventListener("keydown", k); return () => removeEventListener("keydown", k);
   }, [active, list, trait]);
 
-  const layers = T && trait ? (iso ? [trait] : T.layersOf(T.wearing(trait))) : [];
   const idx = trait ? list.indexOf(trait) + 1 : 0;
   return (
     <div className="lvd-screen">
       <header className="lvd-top"><b>TRAIT SCANNER // LAB 7</b><span>{T ? `${T.TRAITS.length} TRAITS · ${T.TRAIT_CATS.length} LAYERS` : "BOOTING…"}</span></header>
       <div className="lvd-main">
         <div className="lvd-view">
-          <div className="lvd-stage" key={(trait?.id ?? "") + String(iso)}><Sprite layers={layers} className="big" /></div>
-          <button type="button" className="lvd-iso" onClick={() => { setIso((v) => !v); playBlip(!iso); }}>
-            {iso ? "◉ trait only" : "◉ on specimen"} <span>· switch</span>
-          </button>
+          <div className="lvd-stage" key={trait?.id ?? ""}>{trait && <TraitCrop t={trait} className="big" />}</div>
         </div>
         <div className="lvd-info">
           {trait && (
@@ -126,7 +144,7 @@ export function TraitScanner({ active }: { active: boolean }) {
             {list.map((t) => (
               <button key={t.id} type="button" role="option" aria-selected={t.id === trait?.id} title={t.name}
                 className={t.id === trait?.id ? "on" : ""} onClick={() => { setSel(t.id); playBlip(); }}>
-                <Sprite layers={T ? T.layersOf(T.wearing(t)) : [t]} focus={t.id} />
+                <TraitCrop t={t} />
               </button>
             ))}
           </div>
@@ -135,7 +153,7 @@ export function TraitScanner({ active }: { active: boolean }) {
       <nav className="lvd-tabs" aria-label="Trait layers">
         {(T?.TRAIT_CATS ?? []).map((c) => (
           <button key={c} type="button" className={c === cat ? "on" : ""}
-            onClick={() => { if (!T) return; setCat(c); setSel(T.traitsOf(c)[0]?.id ?? ""); setIso(false); playBlip(); }}>
+            onClick={() => { if (!T) return; setCat(c); setSel(T.traitsOf(c)[0]?.id ?? ""); playBlip(); }}>
             {CAT_LABEL[c]}
           </button>
         ))}
@@ -145,10 +163,14 @@ export function TraitScanner({ active }: { active: boolean }) {
   );
 }
 
-export function TraitDisplay({ active, dropping }: { active: boolean; dropping: boolean }) {
+export type DisplayMode = { kind: "traits" } | { kind: "cam"; devil: 1 | 2; label: string };
+export function TraitDisplay({ active, dropping, mode = { kind: "traits" } }: { active: boolean; dropping: boolean; mode?: DisplayMode }) {
   return (
     <div className={"lv-display" + (dropping ? " drop" : "")}>
-      <TraitScanner active={active} />
+      <i className="lvd-black" aria-hidden="true" />
+      {mode.kind === "traits"
+        ? <TraitScanner active={active} />
+        : <div className="lvd-screen lvd-cam"><Tv devil={mode.devil} label={mode.label} big /></div>}
       <img className="lvd-bezel" src={BLANK_DISPLAY} alt="" draggable={false} />
     </div>
   );

@@ -132,9 +132,9 @@ export const CHAMBER = {
 // objects sit over the drawn ones (image box = whole file incl. padding, hit = the object).
 export const LAB = {
   items: {
-    clipboard: { img: { left: 43.5519, top: 63.0701, width: 5.8055, height: 9.2475 }, hit: { left: 1688 / 38.4, top: 1146 / 18, width: 192 / 38.4, height: 146 / 18 } },
-    flask: { img: { left: 57.7513, top: 61.8807, width: 3.3345, height: 7.5108 }, hit: { left: 2245 / 38.4, top: 1125 / 18, width: 72 / 38.4, height: 110 / 18 } },
-    files: { img: { left: 60.0743, top: 62.6974, width: 4.7991, height: 7.689 }, hit: { left: 2311 / 38.4, top: 1131 / 18, width: 178 / 38.4, height: 132 / 18 } },
+    clipboard: { img: { left: 1673 / 38.4, top: 1159.4 / 18, width: 232 / 38.4, height: 173.2 / 18 }, hit: { left: 1688 / 38.4, top: 1178 / 18, width: 204 / 38.4, height: 136 / 18 } },
+    flask: { img: { left: 2285.9 / 38.4, top: 1152.3 / 18, width: 113 / 38.4, height: 119.4 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
+    files: { img: { left: 2387.7 / 38.4, top: 1141.9 / 18, width: 191.5 / 38.4, height: 143.8 / 18 }, hit: { left: 2392 / 38.4, top: 1160 / 18, width: 185 / 38.4, height: 125 / 18 } },
   },
 } as const;
 
@@ -143,8 +143,8 @@ const lb = (x: number, y: number, w: number, h: number) => ({ left: x / 38.4, to
 export const LAB_FX = {
   // CCTV feeds inside the two wall TVs (screen glass only)
   tvs: [
-    { box: lb(521, 1041, 124, 96), devil: 2 as const, label: "CAM 02 · TANK 001" }, // small TV on the stand: Dark Sovereign
-    { box: lb(2918, 840, 204, 158), devil: 1 as const, label: "CAM 01 · TANK 000" }, // big terminal: Hellspawn
+    { box: lb(521, 1041, 124, 96), hit: lb(500, 1010, 180, 160), devil: 2 as const, label: "CAM 02 · TANK 001" }, // small TV on the stand: Dark Sovereign
+    { box: lb(2918, 840, 204, 158), hit: lb(2880, 790, 290, 290), devil: 1 as const, label: "CAM 01 · TANK 000" }, // big terminal: Hellspawn
   ],
   // green glass tubes on the wall: glass box, blink period (s), phase (s), rgb
   tubes: [
@@ -168,22 +168,27 @@ export const LAB_FX = {
   // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT
   exitPad: { hit: lb(3258, 800, 106, 154), screen: lb(3288, 824, 60, 35), key: lb(3334, 872, 17, 44) },
   // the three green desk monitors (screen glass): text log, live specimen build, single trait
+  // desk monitors (photoroom.webp has see-through screens; these sit behind the bezels)
   screens: [
-    { box: lb(1668, 952, 150, 144), kind: "text" as const },
-    { box: lb(1901, 934, 195, 150), kind: "build" as const },
-    { box: lb(2162, 1012, 146, 117), kind: "trait" as const },
+    { box: lb(1678, 971, 180, 164), kind: "text" as const },
+    { box: lb(1941, 954, 227, 160), kind: "build" as const },
+    { box: lb(2228, 1044, 176, 127), kind: "trait" as const },
+    { box: lb(2228, 881, 159, 122), kind: "wave" as const },
   ],
   // soft contact shadows on the desk / floor: centre x, y, width, height (canvas px)
   shadows: [
-    { x: 2020, y: 1238, w: 300, h: 26 },  // keyboard
-    { x: 2192, y: 1214, w: 70, h: 18 },   // mouse
-    { x: 1712, y: 1132, w: 190, h: 22 },  // left monitor
-    { x: 2002, y: 1124, w: 170, h: 20 },  // centre monitor
-    { x: 2262, y: 1150, w: 160, h: 18 },  // right monitors
-    { x: 2282, y: 1226, w: 90, h: 16 },   // flask
-    { x: 2402, y: 1236, w: 200, h: 24 },  // files stack
-    { x: 1786, y: 1228, w: 220, h: 26 },  // clipboard
+    { x: 2037, y: 1246, w: 260, h: 24 },  // keyboard
+    { x: 2212, y: 1240, w: 64, h: 16 },   // mouse
+    { x: 2356, y: 1258, w: 86, h: 16 },   // flask
+    { x: 2486, y: 1282, w: 200, h: 22 },  // files stack
+    { x: 1792, y: 1312, w: 220, h: 24 },  // clipboard
   ],
+  // cast shadow of the desk on the floor and the wall behind it (canvas px polygons, blurred)
+  deskShadow: {
+    floor: "1490,1530 2600,1510 2820,1600 2760,1640 1470,1635",
+    under: "1560,1340 2560,1335 2560,1560 1560,1565",
+    wall: "2590,1240 2650,1250 2780,1590 2600,1590",
+  },
   // gas cylinders: hover box + valve (smoke origin)
   tanks: [
     { hit: lb(3648, 880, 135, 630), valve: { x: 3712 / 38.4, y: 898 / 18 } },

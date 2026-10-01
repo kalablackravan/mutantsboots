@@ -693,18 +693,18 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @media (prefers-reduced-motion: reduce){.lab-exitpad-screen b,.lv-spec{animation:none}}
 
 /* ---------- lab: things sit on the desk (contact shadows) ---------- */
-.lab-item{filter:brightness(.86) saturate(.95) drop-shadow(.06cqw .14cqw .1cqw rgba(0,0,0,.55)) drop-shadow(.12cqw .3cqw .35cqw rgba(0,0,0,.35))}
+.lab-item{z-index:1;filter:brightness(.86) saturate(.95) drop-shadow(.06cqw .14cqw .1cqw rgba(0,0,0,.55)) drop-shadow(.12cqw .3cqw .35cqw rgba(0,0,0,.35))}
 .lab-item.hot{filter:brightness(1.05) saturate(1.05) drop-shadow(.06cqw .14cqw .1cqw rgba(0,0,0,.55)) drop-shadow(0 0 .35vw rgba(140,255,170,.55))}
 .lab-ao{position:absolute;z-index:1;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,.28) 55%,rgba(0,0,0,0));mix-blend-mode:multiply}
 
 /* ---------- lab: desk monitors, matrix green ---------- */
 .sprite{position:relative;display:block;aspect-ratio:1}
 .sprite img{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.desk-screen{position:absolute;z-index:1;pointer-events:none;overflow:hidden;border-radius:10%/12%;background:#04140b;container-type:inline-size;box-shadow:inset 0 0 6cqw rgba(0,0,0,.9);transition:filter .2s ease}
+.desk-screen{position:absolute;z-index:1;pointer-events:none;overflow:hidden;border-radius:4%;background:#04140b;container-type:inline-size;box-shadow:inset 0 0 6cqw rgba(0,0,0,.9);transition:filter .2s ease}
 .desk-screen::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.35) 0 1.2cqw,transparent 1.2cqw 2.6cqw),radial-gradient(ellipse at center,rgba(60,255,140,.08),transparent 70%);pointer-events:none;animation:dsFlick 3.7s steps(1,end) infinite}
 .desk-screen.hot{filter:brightness(1.35)}
 .ds-tint{position:absolute;inset:6% 12%;display:grid;place-items:center;isolation:isolate;background:#04140b;filter:drop-shadow(0 0 2cqw rgba(60,255,140,.55))}
-.ds-tint .sprite{height:100%;filter:grayscale(1) brightness(1.5) contrast(1.25)}
+.ds-tint .sprite,.ds-tint .tcrop{height:100%;filter:grayscale(1) brightness(1.5) contrast(1.25)}
 .ds-tint::after{content:"";position:absolute;inset:0;background:#3dff86;mix-blend-mode:multiply}
 .ds-trait .ds-tint{inset:6% 18% 20%;animation:dsIn .25s steps(3,end)}
 .ds-trait em{position:absolute;left:0;right:0;bottom:6%;text-align:center;font:700 7cqw/1 var(--mono);font-style:normal;color:#5dff9a;text-shadow:0 0 2cqw rgba(60,255,140,.8);white-space:nowrap;overflow:hidden}
@@ -718,32 +718,53 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 /* ---------- lab: trait scanner front view (blank CRT) ---------- */
 .lv-display{position:relative;height:min(84vh,calc(94vw * 1424 / 1771));aspect-ratio:1771/1424;filter:drop-shadow(0 1.2vh 2.4vh rgba(0,0,0,.6))}
 .lvd-bezel{position:absolute;z-index:2;left:-58.44%;top:-15.31%;width:216.83%;max-width:none;pointer-events:none;user-select:none}
-.lvd-screen{position:absolute;z-index:1;left:13.9%;top:15%;width:72.2%;height:62.4%;border-radius:3.5%;overflow:hidden;container-type:inline-size;background:radial-gradient(ellipse at 50% 45%,#0b2a18,#030c07 75%);color:#6dffa4;font-family:var(--mono);display:grid;grid-template-rows:auto 1fr auto;padding:3.4cqw 3.6cqw 2.6cqw;gap:1.6cqw;text-shadow:0 0 .8cqw rgba(60,255,140,.6)}
+.lvd-screen{position:absolute;z-index:1;left:13.9%;top:15%;width:72.2%;height:62.4%;border-radius:3.5%;overflow:hidden;container-type:inline-size;background:radial-gradient(ellipse at 50% 45%,#0b2a18,#030c07 75%);color:#6dffa4;font-family:var(--mono);display:grid;grid-template-rows:auto 1fr auto;padding:2.4cqw 2.6cqw 2cqw;gap:1.4cqw;text-shadow:0 0 .8cqw rgba(60,255,140,.6)}
 .lvd-screen::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 .35cqw,transparent .35cqw .8cqw);mix-blend-mode:multiply}
 .lvd-scan{position:absolute;left:0;right:0;height:14%;top:-15%;z-index:3;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(110,255,170,.07),transparent);animation:tvRoll 4.5s linear infinite}
-.lvd-top{display:flex;justify-content:space-between;align-items:baseline;gap:2cqw;font-size:1.9cqw;letter-spacing:.14em;border-bottom:.2cqw solid rgba(109,255,164,.35);padding-bottom:1cqw}
+.lvd-top{display:flex;justify-content:space-between;align-items:baseline;gap:2cqw;font-size:2.4cqw;letter-spacing:.14em;border-bottom:.2cqw solid rgba(109,255,164,.35);padding-bottom:1cqw}
 .lvd-top b{font-weight:800}.lvd-top span{opacity:.7}
-.lvd-main{display:grid;grid-template-columns:40% 1fr;gap:3cqw;min-height:0}
+.lvd-main{display:grid;grid-template-columns:44% 1fr;gap:2.6cqw;min-height:0}
 .lvd-view{display:flex;flex-direction:column;gap:1.4cqw;min-height:0}
 .lvd-stage{flex:1;min-height:0;display:grid;place-items:center;border:.2cqw solid rgba(109,255,164,.35);background:linear-gradient(rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,linear-gradient(90deg,rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,#06180e;animation:lvdOn .35s ease both}
 .lvd-stage .sprite.big{height:96%;max-width:96%;filter:drop-shadow(0 0 1.4cqw rgba(60,255,140,.25))}
 @keyframes lvdOn{0%{opacity:0;transform:scaleY(.04)}60%{opacity:1;transform:scaleY(1.03)}100%{transform:none}}
-.lvd-iso{align-self:flex-start;padding:.6cqw 1.2cqw;border:.2cqw solid rgba(109,255,164,.5);background:transparent;color:inherit;font:700 1.7cqw var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
-.lvd-iso span{opacity:.6}.lvd-iso:hover{background:rgba(109,255,164,.12)}
 .lvd-info{display:flex;flex-direction:column;gap:1cqw;min-height:0}
-.lvd-layer{margin:0;font-size:1.7cqw;letter-spacing:.16em;opacity:.75}
-.lvd-info h2{margin:0;font:400 4.2cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.04em;color:#a8ffc9}
-.lvd-note{margin:0;font-size:1.75cqw;line-height:1.45;opacity:.85;min-height:5cqw}
-.lvd-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.9cqw;margin-top:auto;overflow:auto}
+.lvd-layer{margin:0;font-size:2.3cqw;letter-spacing:.16em;opacity:.75}
+.lvd-info h2{margin:0;font:400 5.6cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.04em;color:#a8ffc9}
+.lvd-note{margin:0;font-size:2.3cqw;line-height:1.4;opacity:.88;min-height:6cqw}
+.lvd-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1cqw;margin-top:auto;overflow:auto}
 .lvd-grid button{padding:.3cqw;border:.2cqw solid rgba(109,255,164,.22);background:#081d11;cursor:pointer;transition:border-color .15s ease,background .15s ease}
 .lvd-grid button:hover{border-color:rgba(109,255,164,.7)}
 .lvd-grid button.on{border-color:#a8ffc9;background:#123a22;box-shadow:0 0 1cqw rgba(109,255,164,.6)}
-.lvd-grid .sprite{width:100%}
+.lvd-grid .sprite,.lvd-grid .tcrop{width:100%}
 .lvd-tabs{display:flex;flex-wrap:wrap;gap:.8cqw;border-top:.2cqw solid rgba(109,255,164,.35);padding-top:1.2cqw}
-.lvd-tabs button{flex:1 1 auto;padding:.8cqw 1cqw;border:.2cqw solid rgba(109,255,164,.35);background:transparent;color:inherit;font:700 1.75cqw var(--mono);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.lvd-tabs button{flex:1 1 auto;padding:1cqw 1cqw;border:.2cqw solid rgba(109,255,164,.35);background:transparent;color:inherit;font:700 2.3cqw var(--mono);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .lvd-tabs button:hover{background:rgba(109,255,164,.1)}
 .lvd-tabs button.on{background:#6dffa4;color:#04140b;text-shadow:none}
 .lv-display.drop .lvd-screen{animation:crtOff .22s ease-in forwards}
 @keyframes crtOff{0%{filter:brightness(1)}40%{filter:brightness(3);transform:scaleY(.04)}100%{filter:brightness(0);transform:scale(0,.02)}}
 @media (prefers-reduced-motion: reduce){.desk-screen::after,.ds-trait .ds-tint,.ds-build.glitch .ds-tint,.lvd-scan,.lvd-stage{animation:none}}
 .sprite img.ghost{opacity:.22;filter:grayscale(1)}
+
+/* new desk (photoroom.webp): see-through screens, cast shadow, cropped single traits, TV views */
+.lab-desk{z-index:1;filter:brightness(.84) saturate(.92)}
+.lab-deskshadow{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.tcrop{position:relative;display:block;aspect-ratio:1;overflow:hidden}
+.tcrop img{position:absolute;max-width:none;height:auto;aspect-ratio:1;image-rendering:pixelated}
+.lvd-stage .tcrop.big{height:90%;max-width:90%;filter:drop-shadow(0 0 1.4cqw rgba(60,255,140,.25))}
+.ds-trait .ds-tint{inset:8% 26% 24%}
+.ds-wave svg{position:absolute;inset:8% 6% 26%;width:88%;height:66%;overflow:visible}
+.ds-wave .wv{fill:none;stroke:#5dff9a;stroke-width:2.2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 3px rgba(60,255,140,.9));stroke-dasharray:420;animation:wvRun 2.4s linear infinite}
+.ds-wave .wv.b{stroke-width:1.4;opacity:.55;animation-duration:3.6s}
+.ds-wave .wv-bars{position:absolute;right:8%;top:10%;display:flex;flex-direction:column;gap:3cqw;width:22%}
+.ds-wave .wv-bars i{height:2.6cqw;background:#5dff9a;opacity:.75;animation:wvBar 1.3s ease-in-out infinite alternate}
+.ds-wave .wv-bars i:nth-child(2){animation-delay:-.3s}.ds-wave .wv-bars i:nth-child(3){animation-delay:-.7s}.ds-wave .wv-bars i:nth-child(4){animation-delay:-.2s}.ds-wave .wv-bars i:nth-child(5){animation-delay:-.9s}.ds-wave .wv-bars i:nth-child(6){animation-delay:-.5s}
+.ds-wave em{position:absolute;left:8%;bottom:7%;font:700 7cqw/1 var(--mono);font-style:normal;color:#5dff9a;text-shadow:0 0 2cqw rgba(60,255,140,.8)}
+@keyframes wvRun{from{stroke-dashoffset:420}to{stroke-dashoffset:0}}
+@keyframes wvBar{from{transform:scaleX(.35)}to{transform:scaleX(1)}}
+.ds-wave .wv-bars i{transform-origin:left}
+.lvd-black{position:absolute;z-index:0;left:13.6%;top:14.6%;width:72.8%;height:63.2%;border-radius:3.5%;background:#020403;box-shadow:inset 0 0 4vh rgba(0,0,0,.9)}
+.lvd-cam{display:block;padding:0}
+.lvd-cam .lab-tv.big{position:absolute;inset:0;width:100%;height:100%;border-radius:0;box-shadow:inset 0 0 8cqw rgba(0,0,0,.85)}
+.lvd-cam .lab-tv.big .tv-art img{height:96%}
+@media (prefers-reduced-motion: reduce){.ds-wave .wv,.ds-wave .wv-bars i{animation:none}}

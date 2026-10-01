@@ -10,6 +10,9 @@ export const LAB_ROOM_IMAGE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutant
 // Trait-scanner front view (blank CRT, transparent screen), pinned to the commit that added it.
 export const BLANK_DISPLAY = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@cb588bd221bcd7b6ecfda0bf2d3b99242619de5c/site/frontend/WEBP_FILES/blankdisplay.webp";
 
+// Lab desk with see-through monitor screens (photoroom.webp), pinned to the commit that added it.
+export const LAB_DESK = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@fe1a8ac3901547f38a74763ad5ae27ea66fe892d/site/frontend/WEBP_FILES/photoroom.webp";
+
 export const sceneImage = (filename: SceneImage) => CDN_BASE + filename;
 
 export type SceneImage =

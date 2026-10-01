@@ -8,11 +8,12 @@ import { ClipboardPrint, ExitPad, LabFx } from "./LabFx";
 import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
 import { loadTraits } from "@/lib/useTraits";
-import { BLANK_DISPLAY } from "@/config/cdn";
+import { BLANK_DISPLAY, LAB_DESK } from "@/config/cdn";
 import { playCrtOn, playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, playTvBreak, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
-type Item = "clipboard" | "flask" | "files" | "display";
-type DeskItem = Exclude<Item, "display">;
+type Item = "clipboard" | "flask" | "files" | "display" | "cam0" | "cam1";
+type DeskItem = Exclude<Item, "display" | "cam0" | "cam1">;
+const isTv = (it: Item | null) => it === "display" || it === "cam0" || it === "cam1";
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
 const FULL: Box = { left: 0, top: 0, width: 100, height: 100 };
@@ -23,13 +24,13 @@ const ITEMS: { id: DeskItem; img: SceneImage; label: string }[] = [
 ];
 
 // Everything the room and its three views need, decoded before the door lets anyone in.
-const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "desk.webp", "clipboard.webp", "flask_black_border.webp",
+const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "clipboard.webp", "flask_black_border.webp",
   "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp", "frame_black_border.webp"];
 let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
-    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadTraits()]).then(() => undefined),
+    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;
@@ -39,19 +40,27 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   const [hover, setHover] = useState<Item | null>(null);
   const [view, setView] = useState<Item | null>(null);
   useEffect(() => { if (!on) { setView(null); setHover(null); } }, [on]);
-  const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (it === "display") playCrtOn(); else playFileArrive(); };
+  const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   return (
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
-        <img className="gate-layer" src={sceneImage("desk.webp")} alt="" style={at(FULL)} draggable={false} />
+        <svg className="lab-deskshadow" viewBox="0 0 3840 1800" preserveAspectRatio="none" aria-hidden="true">
+          <defs><filter id="ldsBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="18" /></filter></defs>
+          <g filter="url(#ldsBlur)">
+            <polygon points={LAB_FX.deskShadow.under} fill="rgba(0,0,0,.6)" />
+            <polygon points={LAB_FX.deskShadow.floor} fill="rgba(0,0,0,.72)" />
+            <polygon points={LAB_FX.deskShadow.wall} fill="rgba(0,0,0,.42)" />
+          </g>
+        </svg>
+        <DeskScreens live={on && !view} hot={hover === "display"} />
+        <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} />
         {LAB_FX.shadows.map((d, i) => (
           <span key={i} className="lab-ao" aria-hidden="true"
             style={{ left: `${(d.x - d.w / 2) / 38.4}%`, top: `${(d.y - d.h / 2) / 18}%`, width: `${d.w / 38.4}%`, height: `${d.h / 18}%` }} />
         ))}
-        <DeskScreens live={on && !view} hot={hover === "display"} />
         <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} />
         {ITEMS.map((it) => (
           <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
@@ -63,6 +72,10 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
             tabIndex={on && !view && i === 1 ? 0 : -1}
             onPointerEnter={(e) => { if (e.pointerType === "mouse") setHover("display"); }} onPointerLeave={() => setHover(null)}
             onFocus={() => setHover("display")} onBlur={() => setHover(null)} onClick={() => open("display")} />
+        ))}
+        {LAB_FX.tvs.map((tv, i) => (
+          <button key={"cam" + i} type="button" className="lab-hit" style={at(tv.hit)} aria-label={`Watch ${tv.label}`}
+            tabIndex={on && !view ? 0 : -1} onClick={() => open(i === 0 ? "cam0" : "cam1")} />
         ))}
         {ITEMS.map((it) => (
           <button key={it.id} type="button" className="lab-hit" style={at(LAB.items[it.id].hit)} aria-label={`Open ${it.id}`}
@@ -99,7 +112,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
   const drop = useCallback(() => {
     if (!item || dropping) return;
     setDropping(true);
-    if (item === "flask") playGlassBreak(0.42); else if (item === "display") playTvBreak(0.42); else playFloorDrop(0.42);
+    if (item === "flask") playGlassBreak(0.42); else if (isTv(item)) playTvBreak(0.42); else playFloorDrop(0.42);
     // clear the content in the same tick so the dropped item never pops back during the fade-out
     window.setTimeout(() => { setShown(null); onClose(); setDropping(false); }, 560);
   }, [item, dropping, onClose]);
@@ -190,6 +203,10 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
         </div>
       )}
       {shown === "display" && <TraitDisplay key={"d" + String(item)} active={item === "display"} dropping={dropping} />}
+      {(shown === "cam0" || shown === "cam1") && (() => {
+        const tv = LAB_FX.tvs[shown === "cam0" ? 0 : 1];
+        return <TraitDisplay key={shown + String(item)} active={item === shown} dropping={dropping} mode={{ kind: "cam", devil: tv.devil, label: tv.label }} />;
+      })()}
       <p className="lv-hint">click outside to put it back</p>
     </div>
   );

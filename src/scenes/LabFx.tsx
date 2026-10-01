@@ -47,7 +47,7 @@ export function ClipboardPrint({ box, hot }: { box: Box; hot: boolean }) {
 }
 
 // ---------------------------------------------------------------- everything alive on the wall
-export function LabFx({ live }: { live: boolean }) {
+export function LabFx({ live, onTag }: { live: boolean; onTag?: (k: string | null) => void }) {
   return (
     <>
       {LAB_FX.tubes.map((t, i) => (
@@ -58,7 +58,7 @@ export function LabFx({ live }: { live: boolean }) {
       ))}
       <Gauges live={live} />
       {LAB_FX.tvs.map((tv, i) => <Tv key={i} box={tv.box} devil={tv.devil} label={tv.label} />)}
-      {LAB_FX.tanks.map((tk, i) => <Tank key={i} hit={tk.hit} valve={tk.valve} />)}
+      {LAB_FX.tanks.map((tk, i) => <Tank key={i} hit={tk.hit} valve={tk.valve} onHover={(h) => onTag?.(h ? "tank" + i : null)} />)}
     </>
   );
 }
@@ -117,7 +117,7 @@ export function Tv({ box, devil, label, big = false }: { box?: Box; devil: 1 | 2
 // ---------------------------------------------------------------- gas cylinders: smoke only while the cursor is on them
 type Puff = { id: number; dx: number; s: number; d: number };
 let puffId = 0;
-function Tank({ hit, valve }: { hit: Box; valve: { x: number; y: number } }) {
+function Tank({ hit, valve, onHover }: { hit: Box; valve: { x: number; y: number }; onHover?: (h: boolean) => void }) {
   const [on, setOn] = useState(false);
   const [puffs, setPuffs] = useState<Puff[]>([]);
   const touch = useRef(0);
@@ -133,8 +133,8 @@ function Tank({ hit, valve }: { hit: Box; valve: { x: number; y: number } }) {
   return (
     <>
       <span className="lab-tank-hit" style={at(hit)} aria-hidden="true"
-        onPointerEnter={(e) => { if (e.pointerType === "mouse") setOn(true); }}
-        onPointerLeave={(e) => { if (e.pointerType === "mouse") setOn(false); }}
+        onPointerEnter={(e) => { if (e.pointerType === "mouse") { setOn(true); onHover?.(true); } }}
+        onPointerLeave={(e) => { if (e.pointerType === "mouse") { setOn(false); onHover?.(false); } }}
         onPointerDown={(e) => {
           if (e.pointerType === "mouse") return;
           setOn(true); window.clearTimeout(touch.current);
@@ -151,13 +151,37 @@ function Tank({ hit, valve }: { hit: Box; valve: { x: number; y: number } }) {
 }
 
 // ---------------------------------------------------------------- wall keypad = EXIT
-export function ExitPad({ tabIndex, onExit }: { tabIndex: number; onExit: () => void }) {
+export function ExitPad({ tabIndex, onExit, onTag }: { tabIndex: number; onExit: () => void; onTag?: (k: string | null) => void }) {
   const p = LAB_FX.exitPad;
   return (
     <>
       <span className="lab-exitpad-screen" style={at(p.screen)} aria-hidden="true"><b>EXIT</b></span>
       <span className="lab-exitpad-key" style={at(p.key)} aria-hidden="true" />
-      <button type="button" className="lab-exitpad" style={at(p.hit)} tabIndex={tabIndex} aria-label="Exit the lab" onClick={onExit} />
+      <button type="button" className="lab-exitpad" style={at(p.hit)} tabIndex={tabIndex} aria-label="Exit the lab" onClick={onExit}
+        onPointerEnter={() => onTag?.("exit")} onPointerLeave={() => onTag?.(null)} onFocus={() => onTag?.("exit")} onBlur={() => onTag?.(null)} />
     </>
+  );
+}
+
+// ---------------------------------------------------------------- dead machine by the gas tanks: OUT OF SERVICE
+export function OutOfService() {
+  const q = LAB_FX.oos;
+  return (
+    <svg className="lab-oos" style={at(q.box)} viewBox="0 0 152 76" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <clipPath id="oosClip"><polygon points={q.poly} /></clipPath>
+        <pattern id="oosScan" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1.2" fill="rgba(0,0,0,.35)" /></pattern>
+      </defs>
+      <g clipPath="url(#oosClip)">
+        <rect width="152" height="76" fill="#140405" />
+        <g className="oos-glow">
+          <circle cx="36" cy="38" r="15" fill="none" stroke="#ff4a3d" strokeWidth="4.2" />
+          <line x1="25.4" y1="27.4" x2="46.6" y2="48.6" stroke="#ff4a3d" strokeWidth="4.2" />
+          <text x="98" y="35" textAnchor="middle" className="oos-t">OUT OF</text>
+          <text x="98" y="54" textAnchor="middle" className="oos-t">SERVICE</text>
+        </g>
+        <rect width="152" height="76" fill="url(#oosScan)" />
+              </g>
+    </svg>
   );
 }

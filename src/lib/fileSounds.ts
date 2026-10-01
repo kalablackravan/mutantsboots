@@ -401,3 +401,59 @@ export function playTvBreak(delay = 0.42) {
     hum.connect(hl); hl.connect(hg); hg.connect(soft); hum.start(t + 0.05); hum.stop(t + 0.85);
   } catch { /* sound is optional */ }
 }
+
+// ---------------------------------------------------------------- the wall phone
+// old bell-style ring: two quick trills (440+480 Hz, warbled) per call
+export function playPhoneRing() {
+  try {
+    const m = master(0.22); if (!m) return;
+    const { c, out } = m; const t = m.t + 0.01;
+    for (const start of [0, 0.55]) {
+      for (let k = 0; k < 8; k++) {
+        const at = t + start + k * 0.05;
+        tone(c, out, at, 440, 0.045, 0.16, "square"); tone(c, out, at, 480, 0.045, 0.14, "square");
+      }
+    }
+  } catch { /* sound is optional */ }
+}
+/** handset off the hook: clunk + a line hiss */
+export function playPickup() {
+  try {
+    const m = master(0.4); if (!m) return;
+    const { c, out, t } = m;
+    thump(c, out, t, 180, 70, 0.12, 0.5);
+    burst(c, out, t + 0.05, 3.2, (x) => 0.35 * (1 - x * 0.4), [{ type: "bandpass", f: 1800, q: 0.6 }], 0.08, [0.8, 1.2], [20, 60]);
+  } catch { /* sound is optional */ }
+}
+/** the line goes dead: three busy beeps */
+export function playHangup() {
+  try {
+    const m = master(0.22); if (!m) return;
+    const { c, out } = m; const t = m.t + 0.01;
+    thump(c, out, t, 140, 60, 0.1, 0.4);
+    for (let k = 0; k < 3; k++) { tone(c, out, t + 0.25 + k * 0.42, 480, 0.24, 0.16, "square"); tone(c, out, t + 0.25 + k * 0.42, 620, 0.24, 0.12, "square"); }
+  } catch { /* sound is optional */ }
+}
+/** a low, slow, distorted voice over the line; calls done() when it has finished (or after a fallback delay) */
+export function playVoice(text: string, done?: () => void) {
+  let finished = false;
+  const end = () => { if (!finished) { finished = true; done?.(); } };
+  try {
+    const m = master(0.18);
+    if (m) {   // a low drone under the voice so it sounds like a bad line
+      const { c, out, t } = m;
+      tone(c, out, t, 55, 2.4, 0.3, "sawtooth"); tone(c, out, t, 58, 2.4, 0.2, "sawtooth");
+    }
+    const s = typeof window !== "undefined" ? window.speechSynthesis : undefined;
+    if (s) {
+      s.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.pitch = 0.05; u.rate = 0.62; u.volume = 1;
+      const en = s.getVoices().find((v) => /en[-_](US|GB)/i.test(v.lang) && /male|david|daniel|fred|alex/i.test(v.name)) ?? s.getVoices().find((v) => /^en/i.test(v.lang));
+      if (en) u.voice = en;
+      u.onend = end; u.onerror = end;
+      s.speak(u);
+    }
+  } catch { /* voice is optional */ }
+  window.setTimeout(end, 4200);
+}

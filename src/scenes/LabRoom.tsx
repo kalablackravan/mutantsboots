@@ -4,7 +4,9 @@ import { FILE_LAYOUT as F, LAB, LAB_FX } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
-import { ClipboardPrint, ExitPad, LabFx } from "./LabFx";
+import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
+import { LabPhone } from "./LabPhone";
+import { FLASK_CLIP, FLASK_CUT } from "@/lib/deskArt";
 import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
 import { loadTraits } from "@/lib/useTraits";
@@ -23,6 +25,16 @@ const ITEMS: { id: DeskItem; img: SceneImage; label: string }[] = [
   { id: "files", img: "files_black_border.webp", label: "▸ files" },
 ];
 
+// hover labels for the things on the wall, styled like the desk ones
+const WALL_TAGS: { id: string; text: string; box: Box }[] = [
+  { id: "cam0", text: "▸ cam 02 · dark sovereign", box: LAB_FX.tvs[0].hit },
+  { id: "cam1", text: "▸ cam 01 · hellspawn", box: LAB_FX.tvs[1].hit },
+  { id: "exit", text: "▸ exit lab", box: LAB_FX.exitPad.hit },
+  { id: "tank0", text: "▸ toxic gas", box: LAB_FX.tanks[0].hit },
+  { id: "tank1", text: "▸ toxic gas", box: { ...LAB_FX.tanks[1].hit, left: LAB_FX.tanks[1].hit.left - 3 } },
+  { id: "phone", text: "▸ phone call", box: LAB_FX.phone.hit },
+];
+
 // Everything the room and its three views need, decoded before the door lets anyone in.
 const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "clipboard.webp", "flask_black_border.webp",
   "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp", "frame_black_border.webp"];
@@ -39,32 +51,28 @@ export function preloadLab(timeoutMs = 8000): Promise<void> {
 export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "zoom-from"; onExit: () => void }) {
   const [hover, setHover] = useState<Item | null>(null);
   const [view, setView] = useState<Item | null>(null);
-  useEffect(() => { if (!on) { setView(null); setHover(null); } }, [on]);
+  const [tag, setTag] = useState<string | null>(null);        // hover labels for the wall things (TVs, exit, tanks, phone)
+  useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); } }, [on]);
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   return (
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
-        <svg className="lab-deskshadow" viewBox="0 0 3840 1800" preserveAspectRatio="none" aria-hidden="true">
-          <defs><filter id="ldsBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="18" /></filter></defs>
-          <g filter="url(#ldsBlur)">
-            <polygon points={LAB_FX.deskShadow.under} fill="rgba(0,0,0,.6)" />
-            <polygon points={LAB_FX.deskShadow.floor} fill="rgba(0,0,0,.72)" />
-            <polygon points={LAB_FX.deskShadow.wall} fill="rgba(0,0,0,.42)" />
-          </g>
-        </svg>
         <DeskScreens live={on && !view} hot={hover === "display"} />
         <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
-        <LabFx live={on && !view} />
+        <LabFx live={on && !view} onTag={setTag} />
+        <OutOfService />
+        <LabPhone on={on} paused={!!view} tabIndex={on && !view ? 0 : -1} onTag={setTag} />
         {LAB_FX.shadows.map((d, i) => (
           <span key={i} className="lab-ao" aria-hidden="true"
             style={{ left: `${(d.x - d.w / 2) / 38.4}%`, top: `${(d.y - d.h / 2) / 18}%`, width: `${d.w / 38.4}%`, height: `${d.h / 18}%` }} />
         ))}
-        <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} />
+        <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} onTag={setTag} />
         {ITEMS.map((it) => (
-          <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
-            style={at(LAB.items[it.id].img)} draggable={false} />
+          <img key={it.id} className={"gate-layer lab-item" + (it.id === "flask" ? " lab-flask-cut" : "") + (hover === it.id ? " hot" : "")}
+            src={it.id === "flask" ? FLASK_CUT : sceneImage(it.img)} alt=""
+            style={it.id === "flask" ? { ...at(LAB.items.flask.img), clipPath: FLASK_CLIP } : at(LAB.items[it.id].img)} draggable={false} />
         ))}
         <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
         {LAB_FX.screens.map((sc, i) => (
@@ -75,7 +83,8 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         ))}
         {LAB_FX.tvs.map((tv, i) => (
           <button key={"cam" + i} type="button" className="lab-hit" style={at(tv.hit)} aria-label={`Watch ${tv.label}`}
-            tabIndex={on && !view ? 0 : -1} onClick={() => open(i === 0 ? "cam0" : "cam1")} />
+            tabIndex={on && !view ? 0 : -1} onClick={() => open(i === 0 ? "cam0" : "cam1")}
+            onPointerEnter={() => setTag("cam" + i)} onPointerLeave={() => setTag(null)} onFocus={() => setTag("cam" + i)} onBlur={() => setTag(null)} />
         ))}
         {ITEMS.map((it) => (
           <button key={it.id} type="button" className="lab-hit" style={at(LAB.items[it.id].hit)} aria-label={`Open ${it.id}`}
@@ -92,6 +101,10 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         ))}
         <span className={"gate-tag clone-tag lab-tag" + (hover === "display" && !view ? " on" : "")}
           style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>
+        {WALL_TAGS.map((w) => (
+          <span key={w.id} className={"gate-tag clone-tag lab-tag" + (tag === w.id && !view ? " on" : "")}
+            style={{ left: `${w.box.left + w.box.width / 2}%`, top: `${w.box.top}%` }}>{w.text}</span>
+        ))}
       </div>
       <button type="button" className="lab-room-exit lab-exit" tabIndex={on && !view ? 0 : -1} onClick={onExit}>EXIT</button>
       <LabView item={view} onClose={close} />

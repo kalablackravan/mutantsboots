@@ -133,7 +133,7 @@ export const CHAMBER = {
 export const LAB = {
   items: {
     clipboard: { img: { left: 1673 / 38.4, top: 1159.4 / 18, width: 232 / 38.4, height: 173.2 / 18 }, hit: { left: 1688 / 38.4, top: 1178 / 18, width: 204 / 38.4, height: 136 / 18 } },
-    flask: { img: { left: 2285.9 / 38.4, top: 1152.3 / 18, width: 113 / 38.4, height: 119.4 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
+    flask: { img: { left: 2308 / 38.4, top: 1146 / 18, width: 92 / 38.4, height: 120 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
     files: { img: { left: 2387.7 / 38.4, top: 1141.9 / 18, width: 191.5 / 38.4, height: 143.8 / 18 }, hit: { left: 2392 / 38.4, top: 1160 / 18, width: 185 / 38.4, height: 125 / 18 } },
   },
 } as const;
@@ -165,6 +165,10 @@ export const LAB_FX = {
     { cx: 2006, cy: 136, r: 45, kind: "build" as const },
     { cx: 2184, cy: 89, r: 41, kind: "wander" as const },
   ],
+  // the dead machine by the gas tanks: its slanted screen (box) and the screen shape inside it (box units 152x76)
+  oos: { box: lb(3460, 1072, 152, 76), poly: "3,2 140,2 150,74 16,74" },
+  // wall phone (left keypad with the cord) + the panel next to it: rings, picks up, threatens
+  phone: { hit: lb(1262, 772, 232, 232), rings: lb(1352, 790, 70, 70), led: { x: 1332 / 38.4, y: 942 / 18 } },
   // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT
   exitPad: { hit: lb(3258, 800, 106, 154), screen: lb(3288, 824, 60, 35), key: lb(3334, 872, 17, 44) },
   // the three green desk monitors (screen glass): text log, live specimen build, single trait
@@ -183,12 +187,6 @@ export const LAB_FX = {
     { x: 2486, y: 1282, w: 200, h: 22 },  // files stack
     { x: 1792, y: 1312, w: 220, h: 24 },  // clipboard
   ],
-  // cast shadow of the desk on the floor and the wall behind it (canvas px polygons, blurred)
-  deskShadow: {
-    floor: "1490,1530 2600,1510 2820,1600 2760,1640 1470,1635",
-    under: "1560,1340 2560,1335 2560,1560 1560,1565",
-    wall: "2590,1240 2650,1250 2780,1590 2600,1590",
-  },
   // gas cylinders: hover box + valve (smoke origin)
   tanks: [
     { hit: lb(3648, 880, 135, 630), valve: { x: 3712 / 38.4, y: 898 / 18 } },

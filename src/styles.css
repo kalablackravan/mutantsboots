@@ -725,14 +725,14 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lvd-top b{font-weight:800}.lvd-top span{opacity:.7}
 .lvd-main{display:grid;grid-template-columns:44% 1fr;gap:2.6cqw;min-height:0}
 .lvd-view{display:flex;flex-direction:column;gap:1.4cqw;min-height:0}
-.lvd-stage{flex:1;min-height:0;display:grid;place-items:center;border:.2cqw solid rgba(109,255,164,.35);background:linear-gradient(rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,linear-gradient(90deg,rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,#06180e;animation:lvdOn .35s ease both}
+.lvd-stage{flex:1;min-height:0;display:grid;place-items:center;border:.2cqw solid rgba(109,255,164,.35);background:linear-gradient(rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,linear-gradient(90deg,rgba(109,255,164,.07) .12cqw,transparent .12cqw) 0 0/4cqw 4cqw,#06180e;animation:lvdSwap .18s ease-out both}
 .lvd-stage .sprite.big{height:96%;max-width:96%;filter:drop-shadow(0 0 1.4cqw rgba(60,255,140,.25))}
 @keyframes lvdOn{0%{opacity:0;transform:scaleY(.04)}60%{opacity:1;transform:scaleY(1.03)}100%{transform:none}}
 .lvd-info{display:flex;flex-direction:column;gap:1cqw;min-height:0}
 .lvd-layer{margin:0;font-size:2.3cqw;letter-spacing:.16em;opacity:.75}
 .lvd-info h2{margin:0;font:400 5.6cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.04em;color:#a8ffc9}
 .lvd-note{margin:0;font-size:2.3cqw;line-height:1.4;opacity:.88;min-height:6cqw}
-.lvd-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1cqw;margin-top:auto;overflow:auto}
+.lvd-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.9cqw;margin-top:auto;overflow:hidden}
 .lvd-grid button{padding:.3cqw;border:.2cqw solid rgba(109,255,164,.22);background:#081d11;cursor:pointer;transition:border-color .15s ease,background .15s ease}
 .lvd-grid button:hover{border-color:rgba(109,255,164,.7)}
 .lvd-grid button.on{border-color:#a8ffc9;background:#123a22;box-shadow:0 0 1cqw rgba(109,255,164,.6)}
@@ -747,10 +747,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .sprite img.ghost{opacity:.22;filter:grayscale(1)}
 
 /* new desk (photoroom.webp): see-through screens, cast shadow, cropped single traits, TV views */
-.lab-desk{z-index:1;filter:brightness(.84) saturate(.92)}
-.lab-deskshadow{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;mix-blend-mode:multiply}
-.tcrop{position:relative;display:block;aspect-ratio:1;overflow:hidden}
-.tcrop img{position:absolute;max-width:none;height:auto;aspect-ratio:1;image-rendering:pixelated}
+.lab-desk{z-index:1;filter:saturate(1.8) brightness(.82)}
+.tcrop{position:relative;display:block;aspect-ratio:1;overflow:hidden;contain:paint;pointer-events:none}
+.tcrop img{position:absolute;max-width:none;height:auto;aspect-ratio:1;image-rendering:pixelated;pointer-events:none}
 .lvd-stage .tcrop.big{height:90%;max-width:90%;filter:drop-shadow(0 0 1.4cqw rgba(60,255,140,.25))}
 .ds-trait .ds-tint{inset:8% 26% 24%}
 .ds-wave svg{position:absolute;inset:8% 6% 26%;width:88%;height:66%;overflow:visible}
@@ -768,3 +767,31 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lvd-cam .lab-tv.big{position:absolute;inset:0;width:100%;height:100%;border-radius:0;box-shadow:inset 0 0 8cqw rgba(0,0,0,.85)}
 .lvd-cam .lab-tv.big .tv-art img{height:96%}
 @media (prefers-reduced-motion: reduce){.ds-wave .wv,.ds-wave .wv-bars i{animation:none}}
+
+@keyframes lvdSwap{from{opacity:.25}}
+.lvd-grid button{touch-action:manipulation}
+/* flask cut out of the new desk art: same grade as the desk, lifts on hover */
+.lab-item.lab-flask-cut{filter:saturate(1.8) brightness(.82)}
+.lab-item.lab-flask-cut.hot{filter:saturate(1.9) brightness(1.05)}
+
+/* dead machine screen */
+.lab-oos{position:absolute;z-index:1;pointer-events:none;overflow:visible}
+.lab-oos .oos-t{font:400 15px 'Black Ops One',var(--mono);fill:#ff4a3d;letter-spacing:.5px}
+.lab-oos .oos-glow{filter:drop-shadow(0 0 2px rgba(255,74,61,.9));animation:oosFlick 5s steps(1,end) infinite}
+@keyframes oosFlick{0%,100%{opacity:1}61%{opacity:.35}62%{opacity:1}64%{opacity:.5}65%{opacity:1}}
+
+/* wall phone: ring arcs (no background), led, hit area */
+.lab-rings{position:absolute;z-index:2;pointer-events:none;overflow:visible;opacity:0;transition:opacity .3s ease}
+.lab-rings.on{opacity:1}
+.lab-rings circle{fill:#5dff9a}
+.lab-rings path{fill:none;stroke:#5dff9a;stroke-width:5.5;stroke-linecap:round;opacity:.15;filter:drop-shadow(0 0 2px rgba(93,255,154,.9))}
+.lab-rings.on path{animation:ringArc 1s ease-in-out infinite}
+.lab-rings.on path:nth-of-type(2){animation-delay:.18s}.lab-rings.on path:nth-of-type(3){animation-delay:.36s}
+.lab-rings.on circle{animation:ringDot 1s ease-in-out infinite}
+@keyframes ringArc{0%,100%{opacity:.12}35%{opacity:1}}
+@keyframes ringDot{0%,100%{opacity:.6}50%{opacity:1}}
+.lab-phone-led{position:absolute;z-index:2;width:.55%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,80,60,.95),rgba(255,40,30,0) 70%);opacity:0}
+.lab-phone-led.on{animation:tvRec .5s steps(1) infinite}
+.lab-phone{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion: reduce){.lab-rings.on path,.lab-rings.on circle,.lab-oos .oos-glow{animation:none}.lab-rings path{opacity:.8}}
+.sprite,.sprite img{pointer-events:none}

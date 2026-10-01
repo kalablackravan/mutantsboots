@@ -3,7 +3,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F, LAB } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { INK_HEAVY } from "@/lib/fileArt";
-import { playFileArrive, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type Item = "clipboard" | "flask" | "files";
 type Box = { left: number; top: number; width: number; height: number };
@@ -66,23 +66,34 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
 // ---------------------------------------------------------------- the three close-up views
 function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) {
   const [shown, setShown] = useState<Item | null>(null);      // keeps the content while it fades out
+  const [dropping, setDropping] = useState(false);
+  // put it back = let it fall: clipboard and files thud on the floor, the flask shatters
+  const drop = useCallback(() => {
+    if (!item || dropping) return;
+    setDropping(true);
+    if (item === "flask") playGlassBreak(0.42); else playFloorDrop(0.42);
+    window.setTimeout(() => { onClose(); setDropping(false); }, 560);
+  }, [item, dropping, onClose]);
   useEffect(() => {
     if (item) { setShown(item); return; }
     const t = setTimeout(() => setShown(null), 320); return () => clearTimeout(t);
   }, [item]);
   useEffect(() => {
     if (!item) return;
-    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") drop(); };
     addEventListener("keydown", k);
-    const stopBubbles = item === "flask" ? startSubmergedBubbleLoop() : undefined;
-    return () => { removeEventListener("keydown", k); stopBubbles?.(); };
-  }, [item, onClose]);
-  const outside = (e: MouseEvent) => { if (e.target === e.currentTarget) onClose(); };
+    return () => removeEventListener("keydown", k);
+  }, [item, drop]);
+  useEffect(() => {
+    if (item !== "flask" || dropping) return;
+    return startSubmergedBubbleLoop();
+  }, [item, dropping]);
+  const outside = (e: MouseEvent) => { if (e.target === e.currentTarget) drop(); };
   return (
-    <div className={"lab-view" + (item ? " on" : "")} role="dialog" aria-modal="true" aria-hidden={!item} inert={!item}
+    <div className={"lab-view" + (item ? " on" : "") + (dropping ? " dropping" : "")} role="dialog" aria-modal="true" aria-hidden={!item} inert={!item}
       aria-label={shown ?? "lab item"} onClick={outside} style={{ "--ink-heavy": `url(${INK_HEAVY})` } as CSSProperties}>
       {shown === "clipboard" && (
-        <div className="lv-clipboard" key={"c" + String(item)}>
+        <div className={"lv-clipboard" + (dropping ? " drop" : "")} key={"c" + String(item)}>
           <img src={sceneImage("clipboard_black_border_thin.webp")} alt="" draggable={false} />
           <div className="lv-clip-paper">
             <h3>SERUM M1 · BATCH CHECK</h3>
@@ -100,7 +111,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
         </div>
       )}
       {shown === "flask" && (
-        <div className="lv-flask" key={"f" + String(item)}>
+        <div className={"lv-flask" + (dropping ? " drop" : "")} key={"f" + String(item)}>
           <FlaskSpin active={item === "flask"} />
           <article className="lv-serum">
             <p className="lv-kicker">specimen agent · batch M1-606</p>
@@ -118,7 +129,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
         </div>
       )}
       {shown === "files" && (
-        <div className="lv-files" key={"p" + String(item)}>
+        <div className={"lv-files" + (dropping ? " drop" : "")} key={"p" + String(item)}>
           <div className="lv-paper" style={{
             backgroundImage: `url(${sceneImage("bestspread.webp")})`,
             backgroundSize: `${(3840 / (F.src.paper[2] - F.src.paper[0])) * 100}% ${(1800 / (F.src.paper[3] - F.src.paper[1])) * 100}%`,

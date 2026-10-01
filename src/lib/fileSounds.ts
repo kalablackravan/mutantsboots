@@ -226,3 +226,25 @@ export function startAlertLoop(period = 1.1): () => void {
     };
   } catch { return () => undefined; }
 }
+
+/** The Serum M1 flask hitting the floor: a crack, a spray of glass shards and a small splash. */
+export function playGlassBreak(delay = 0.42) {
+  try {
+    const m = master(0.5); if (!m) return; const { c, out } = m; const t = m.t + delay;
+    const soft = c.createBiquadFilter(); soft.type = "lowpass"; soft.frequency.value = 7000; soft.connect(out);
+    burst(c, soft, t, 0.06, (x) => Math.pow(1 - x, 3), [{ type: "highpass", f: 1400 }], 1.0, [1, 1]);           // crack
+    thump(c, soft, t, 190, 110, 0.07, 0.35);                                                                 // glass on floor
+    for (let i = 0; i < 26; i++) {                                                                          // shards scattering
+      const at = t + 0.01 + Math.pow(Math.random(), 1.8) * 0.55;
+      const f = 2100 + Math.random() * 3000, dur = 0.04 + Math.random() * 0.09;
+      const lvl = Math.max(0.004, (0.05 + Math.random() * 0.1) * (1 - (at - t) / 0.7));
+      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(lvl, at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      o.connect(g); g.connect(soft); o.start(at); o.stop(at + dur + 0.02);
+    }
+    burst(c, soft, t + 0.02, 0.35, (x) => Math.pow(1 - x, 2.5), [{ type: "bandpass", f: 3400, q: 0.8 }], 0.3, [0.3, 1.7], [5, 18]);
+    burst(c, soft, t + 0.03, 0.32, (x) => Math.sin(Math.PI * Math.min(1, x * 2.2)) * Math.pow(1 - x, 1.5),   // serum splash
+      [{ type: "bandpass", f: 900, q: 0.9, to: [[500, 0.3]] }], 0.45, [0.6, 1.4], [10, 30]);
+  } catch { /* sound is optional */ }
+}

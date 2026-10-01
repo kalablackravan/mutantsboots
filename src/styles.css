@@ -423,6 +423,8 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #lab-stage.viewing{filter:blur(9px) brightness(.62) saturate(.9)}
 .lab-item{filter:brightness(.86) saturate(.95);transition:filter .25s ease,transform .25s ease}
 .lab-item.hot{filter:brightness(1.05) saturate(1.05) drop-shadow(0 0 .35vw rgba(140,255,170,.55));transform:translateY(-.35%)}
+.lab-clipboard-print{position:absolute;z-index:2;pointer-events:none;container-type:inline-size}
+.lab-clipboard-print b{position:absolute;left:29%;top:34%;width:53%;transform:rotate(29deg) skewX(-4deg);transform-origin:center;color:var(--gate-black);font:400 7.2cqw/.96 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;text-wrap:balance;opacity:.9;text-shadow:0 .25cqw 0 color-mix(in srgb,var(--paper) 35%,transparent)}
 .lab-hit{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lab-shade{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 55%,transparent 55%,rgba(0,0,0,.55))}
 #lab-ui{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * 32 / 15));height:max(100vh,calc(100vw * 15 / 32));z-index:2;pointer-events:none}

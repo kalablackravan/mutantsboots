@@ -312,7 +312,7 @@ export function gaugeSound(period = 4.2): { pulse: () => void; stop: () => void 
   const none = { pulse: () => undefined, stop: () => undefined };
   try {
     const c = audio(); if (!c) return none;
-    const out = c.createGain(); out.gain.value = 0.5; out.connect(c.destination);
+    const out = c.createGain(); out.gain.value = 0.26; out.connect(c.destination);
     let stopped = false;
     const pulse = () => {
       if (stopped) return;
@@ -345,4 +345,59 @@ export function gaugeSound(period = 4.2): { pulse: () => void; stop: () => void 
   } catch {
     return none;
   }
+}
+
+/** CRT power-on: relay clunk, degauss thrum and the thin high whine settling in. */
+export function playCrtOn() {
+  try {
+    const m = master(0.55); if (!m) return; const { c, out, t } = m;
+    thump(c, out, t, 120, 60, 0.12, 0.6);
+    burst(c, out, t, 0.05, (x) => Math.pow(1 - x, 2), [{ type: "bandpass", f: 1800, q: 1.2 }], 0.5);
+    const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(48, t); o.frequency.linearRampToValueAtTime(62, t + 0.45);
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 260;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    o.connect(lp); lp.connect(g); g.connect(out); o.start(t); o.stop(t + 0.55);
+    const w = c.createOscillator(); w.type = "sine"; w.frequency.setValueAtTime(9000, t + 0.05); w.frequency.exponentialRampToValueAtTime(15600, t + 0.4);
+    const wg = c.createGain(); wg.gain.setValueAtTime(0.0001, t + 0.05); wg.gain.exponentialRampToValueAtTime(0.025, t + 0.15); wg.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+    w.connect(wg); wg.connect(out); w.start(t + 0.05); w.stop(t + 0.95);
+  } catch { /* sound is optional */ }
+}
+
+/** Short terminal blip for the scanner buttons. */
+export function playBlip(up = true) {
+  try {
+    const m = master(0.35); if (!m) return; const { c, out, t } = m;
+    tone(c, out, t, up ? 1320 : 990, 0.06, 0.12, "square");
+    tone(c, out, t + 0.05, up ? 1760 : 1320, 0.07, 0.08, "square");
+  } catch { /* sound is optional */ }
+}
+
+/** CRT smashing on the floor: tube implodes (deep boom + suck), glass bursts, sparks fizz and die. */
+export function playTvBreak(delay = 0.42) {
+  try {
+    const m = master(0.5); if (!m) return; const { c, out } = m; const t = m.t + delay;
+    const soft = c.createBiquadFilter(); soft.type = "lowpass"; soft.frequency.value = 8000; soft.connect(out);
+    thump(c, soft, t, 70, 32, 0.4, 1.0);                                                                      // heavy body hits
+    thump(c, soft, t + 0.01, 160, 80, 0.12, 0.5);
+    burst(c, soft, t, 0.18, (x) => (x < 0.05 ? x / 0.05 : Math.pow(1 - x, 2)), [{ type: "lowpass", f: 1200, to: [[300, 0.18]] }], 1.0, [0.8, 1.2]); // implosion
+    burst(c, soft, t + 0.02, 0.08, (x) => Math.pow(1 - x, 3), [{ type: "highpass", f: 1600 }], 0.9, [1, 1]);  // glass crack
+    for (let i = 0; i < 22; i++) {                                                                            // glass shards
+      const at = t + 0.03 + Math.pow(Math.random(), 1.6) * 0.6;
+      const f = 1800 + Math.random() * 3200, dur = 0.04 + Math.random() * 0.08;
+      const lvl = Math.max(0.004, (0.04 + Math.random() * 0.08) * (1 - (at - t) / 0.75));
+      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(lvl, at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      o.connect(g); g.connect(soft); o.start(at); o.stop(at + dur + 0.02);
+    }
+    // electrical sparks: crackly buzz bursts that fade out
+    for (let i = 0; i < 6; i++) {
+      const at = t + 0.12 + i * 0.09 + Math.random() * 0.05;
+      burst(c, soft, at, 0.06 + Math.random() * 0.05, (x) => Math.pow(1 - x, 1.5), [{ type: "bandpass", f: 3500 + Math.random() * 2000, q: 2 }], 0.35 * (1 - i / 7), [0.1, 2], [1, 4]);
+    }
+    const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.value = 50;
+    const hl = c.createBiquadFilter(); hl.type = "lowpass"; hl.frequency.value = 400;
+    const hg = c.createGain(); hg.gain.setValueAtTime(0.0001, t + 0.05); hg.gain.exponentialRampToValueAtTime(0.12, t + 0.1); hg.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+    hum.connect(hl); hl.connect(hg); hg.connect(soft); hum.start(t + 0.05); hum.stop(t + 0.85);
+  } catch { /* sound is optional */ }
 }

@@ -167,6 +167,23 @@ export const LAB_FX = {
   ],
   // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT
   exitPad: { hit: lb(3258, 800, 106, 154), screen: lb(3288, 824, 60, 35), key: lb(3334, 872, 17, 44) },
+  // the three green desk monitors (screen glass): text log, live specimen build, single trait
+  screens: [
+    { box: lb(1668, 952, 150, 144), kind: "text" as const },
+    { box: lb(1901, 934, 195, 150), kind: "build" as const },
+    { box: lb(2162, 1012, 146, 117), kind: "trait" as const },
+  ],
+  // soft contact shadows on the desk / floor: centre x, y, width, height (canvas px)
+  shadows: [
+    { x: 2020, y: 1238, w: 300, h: 26 },  // keyboard
+    { x: 2192, y: 1214, w: 70, h: 18 },   // mouse
+    { x: 1712, y: 1132, w: 190, h: 22 },  // left monitor
+    { x: 2002, y: 1124, w: 170, h: 20 },  // centre monitor
+    { x: 2262, y: 1150, w: 160, h: 18 },  // right monitors
+    { x: 2282, y: 1226, w: 90, h: 16 },   // flask
+    { x: 2402, y: 1236, w: 200, h: 24 },  // files stack
+    { x: 1786, y: 1228, w: 220, h: 26 },  // clipboard
+  ],
   // gas cylinders: hover box + valve (smoke origin)
   tanks: [
     { hit: lb(3648, 880, 135, 630), valve: { x: 3712 / 38.4, y: 898 / 18 } },

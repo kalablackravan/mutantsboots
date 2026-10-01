@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { sceneImage, type SceneImage } from "@/config/cdn";
-import { FILE_LAYOUT as F, LAB } from "./config";
+import { FILE_LAYOUT as F, LAB, LAB_FX } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
 import { ClipboardPrint, ExitPad, LabFx } from "./LabFx";
-import { FILE_SPECIMENS, RARITY_LABEL } from "@/lib/specimens";
-import { playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
+import { DeskScreens, TraitDisplay } from "./LabDisplays";
+import { loadTraits } from "@/lib/useTraits";
+import { BLANK_DISPLAY } from "@/config/cdn";
+import { playCrtOn, playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, playTvBreak, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
-type Item = "clipboard" | "flask" | "files";
+type Item = "clipboard" | "flask" | "files" | "display";
+type DeskItem = Exclude<Item, "display">;
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
 const FULL: Box = { left: 0, top: 0, width: 100, height: 100 };
-const ITEMS: { id: Item; img: SceneImage; label: string }[] = [
+const ITEMS: { id: DeskItem; img: SceneImage; label: string }[] = [
   { id: "clipboard", img: "clipboard.webp", label: "▸ wl injection" },
   { id: "flask", img: "flask_black_border.webp", label: "▸ serum m1" },
   { id: "files", img: "files_black_border.webp", label: "▸ files" },
@@ -25,7 +29,7 @@ let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
-    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2)]).then(() => undefined),
+    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadTraits()]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;
@@ -35,7 +39,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   const [hover, setHover] = useState<Item | null>(null);
   const [view, setView] = useState<Item | null>(null);
   useEffect(() => { if (!on) { setView(null); setHover(null); } }, [on]);
-  const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else playFileArrive(); };
+  const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (it === "display") playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   return (
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
@@ -43,12 +47,23 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
         <img className="gate-layer" src={sceneImage("desk.webp")} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} />
+        {LAB_FX.shadows.map((d, i) => (
+          <span key={i} className="lab-ao" aria-hidden="true"
+            style={{ left: `${(d.x - d.w / 2) / 38.4}%`, top: `${(d.y - d.h / 2) / 18}%`, width: `${d.w / 38.4}%`, height: `${d.h / 18}%` }} />
+        ))}
+        <DeskScreens live={on && !view} hot={hover === "display"} />
         <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} />
         {ITEMS.map((it) => (
           <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
             style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
         <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
+        {LAB_FX.screens.map((sc, i) => (
+          <button key={"scr" + i} type="button" className="lab-hit" style={at(sc.box)} aria-label="Open trait scanner"
+            tabIndex={on && !view && i === 1 ? 0 : -1}
+            onPointerEnter={(e) => { if (e.pointerType === "mouse") setHover("display"); }} onPointerLeave={() => setHover(null)}
+            onFocus={() => setHover("display")} onBlur={() => setHover(null)} onClick={() => open("display")} />
+        ))}
         {ITEMS.map((it) => (
           <button key={it.id} type="button" className="lab-hit" style={at(LAB.items[it.id].hit)} aria-label={`Open ${it.id}`}
             tabIndex={on && !view ? 0 : -1}
@@ -62,6 +77,8 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
           <span key={it.id} className={"gate-tag clone-tag lab-tag" + (hover === it.id && !view ? " on" : "")}
             style={{ left: `${LAB.items[it.id].hit.left + LAB.items[it.id].hit.width / 2}%`, top: `${LAB.items[it.id].hit.top}%` }}>{it.label}</span>
         ))}
+        <span className={"gate-tag clone-tag lab-tag" + (hover === "display" && !view ? " on" : "")}
+          style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>
       </div>
       <button type="button" className="lab-room-exit lab-exit" tabIndex={on && !view ? 0 : -1} onClick={onExit}>EXIT</button>
       <LabView item={view} onClose={close} />
@@ -74,14 +91,15 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
   const [shown, setShown] = useState<Item | null>(null);      // keeps the content while it fades out
   const [dropping, setDropping] = useState(false);
   const [page, setPage] = useState(0);                        // files: 0 = transfer log, then one specimen per page
+  const [order, setOrder] = useState<Specimen[]>(FILE_SPECIMENS);   // shuffled every time the files are opened
   const pages = FILE_SPECIMENS.length + 1;
   const turn = useCallback((d: number) => { setPage((p) => (p + d + pages) % pages); playPageTurn(); }, [pages]);
-  useEffect(() => { if (item === "files") setPage(0); }, [item]);
+  useEffect(() => { if (item === "files") { setPage(0); setOrder(shuffle(FILE_SPECIMENS)); } }, [item]);
   // put it back = let it fall: clipboard and files thud on the floor, the flask shatters
   const drop = useCallback(() => {
     if (!item || dropping) return;
     setDropping(true);
-    if (item === "flask") playGlassBreak(0.42); else playFloorDrop(0.42);
+    if (item === "flask") playGlassBreak(0.42); else if (item === "display") playTvBreak(0.42); else playFloorDrop(0.42);
     // clear the content in the same tick so the dropped item never pops back during the fade-out
     window.setTimeout(() => { setShown(null); onClose(); setDropping(false); }, 560);
   }, [item, dropping, onClose]);
@@ -165,20 +183,26 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
             </table>
             <p className="lv-note">Headcount at 03:14: <b>606</b>. Headcount at 03:15: <b>2</b>.</p>
             <p className="lv-more">recovered specimen files ›</p>
-          </div> : <SpecimenPage key={page} n={page} of={pages - 1} />}
+          </div> : <SpecimenPage key={page} sp={order[page - 1]} n={page} of={pages - 1} />}
           <button type="button" className="lv-arrow prev" aria-label="Previous page" onClick={() => turn(-1)} />
           <button type="button" className="lv-arrow next" aria-label="Next page" onClick={() => turn(1)} />
           <span className="lv-pageno">{page === 0 ? "LOG" : `${page} / ${pages - 1}`}</span>
         </div>
       )}
+      {shown === "display" && <TraitDisplay key={"d" + String(item)} active={item === "display"} dropping={dropping} />}
       <p className="lv-hint">click outside to put it back</p>
     </div>
   );
 }
 
 // ---------------------------------------------------------------- one recovered specimen per page
-function SpecimenPage({ n, of }: { n: number; of: number }) {
-  const sp = FILE_SPECIMENS[n - 1]; if (!sp) return null;
+function shuffle<T>(a: T[]): T[] {
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j] as T, b[i] as T]; }
+  return b;
+}
+function SpecimenPage({ sp, n, of }: { sp: Specimen | undefined; n: number; of: number }) {
+  if (!sp) return null;
   return (
     <div className={"lv-page lv-spec r-" + sp.rarity}>
       <p className="lv-sub">Recovered specimen · file {String(n).padStart(2, "0")} of {of}</p>

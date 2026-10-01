@@ -7,6 +7,9 @@ export const SITE_ASSETS = CDN_BASE.replace("/frontend/WEBP_FILES/", "/assets/")
 // Pinned to the commit that introduced this room so every deployment keeps it.
 export const LAB_ROOM_IMAGE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@a6518976e76b03bb081162bd6564d48817dffc7d/site/frontend/WEBP_FILES/2ndbg.webp";
 
+// Trait-scanner front view (blank CRT, transparent screen), pinned to the commit that added it.
+export const BLANK_DISPLAY = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@cb588bd221bcd7b6ecfda0bf2d3b99242619de5c/site/frontend/WEBP_FILES/blankdisplay.webp";
+
 export const sceneImage = (filename: SceneImage) => CDN_BASE + filename;
 
 export type SceneImage =

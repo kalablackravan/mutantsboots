@@ -649,3 +649,45 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @media (prefers-reduced-motion: reduce){
   .lab-tube b,.lab-tube i,.lab-tv .tv-art,.lab-tv .tv-noise,.lab-tv .tv-roll,.lab-tv .tv-cut,.lab-tv .tv-rec i{animation:none}
 }
+
+/* wall keypad = EXIT (corner EXIT stays only on narrow screens where the pad is cropped off) */
+.lab-exitpad-screen{position:absolute;z-index:2;pointer-events:none;container-type:inline-size;display:grid;place-items:center;border-radius:8%;background:rgba(40,255,190,.18);box-shadow:0 0 1.2cqw rgba(90,255,200,.35)}
+.lab-exitpad-screen b{font:400 34cqw/1 'Black Ops One',var(--mono);letter-spacing:.06em;color:#063d2c;text-shadow:0 0 6cqw rgba(160,255,220,.9);animation:padBlink 1.4s steps(1,end) infinite}
+.lab-exitpad-key{position:absolute;z-index:2;pointer-events:none;border-radius:20%;background:rgba(255,60,50,0);transition:background .2s ease,box-shadow .2s ease}
+.lab-exitpad{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lab-exitpad:focus-visible{outline:2px solid rgba(120,255,200,.6);outline-offset:2px;border-radius:6%}
+#lab-stage:has(.lab-exitpad:hover) .lab-exitpad-key,#lab-stage:has(.lab-exitpad:focus-visible) .lab-exitpad-key{background:rgba(255,60,50,.55);box-shadow:0 0 1.4cqw rgba(255,60,50,.9)}
+#lab-stage:has(.lab-exitpad:hover) .lab-exitpad-screen{background:rgba(80,255,200,.4)}
+@keyframes padBlink{0%,70%{opacity:1}71%,100%{opacity:.35}}
+@media (min-aspect-ratio: 33/20){.lab-room-exit{display:none}}
+
+/* files: arrows + one specimen per page */
+.lv-arrow{position:absolute;top:50%;width:7cqw;height:12cqw;transform:translateY(-50%);padding:0;border:0;background:transparent;cursor:pointer;filter:drop-shadow(0 .4cqw .6cqw rgba(0,0,0,.7));transition:transform .2s ease}
+.lv-arrow::before{content:"";position:absolute;inset:0;background:#efe8da;clip-path:polygon(100% 0,0 50%,100% 100%,78% 50%)}
+.lv-arrow.prev{left:-12cqw}.lv-arrow.next{right:-12cqw}.lv-arrow.next::before{transform:scaleX(-1)}
+.lv-arrow:hover,.lv-arrow:focus-visible{transform:translateY(-50%) scale(1.12)}
+.lv-arrow:hover::before{background:#fff}
+.lv-pageno{position:absolute;left:50%;bottom:3.2%;transform:translateX(-50%);font:700 2.4cqw var(--mono);letter-spacing:.2em;color:rgba(46,38,33,.6)}
+.lv-more{margin-top:3cqw;font:700 2.6cqw var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8e1a1a;text-align:right}
+.lv-spec{animation:lvSpecIn .35s ease both}
+@keyframes lvSpecIn{from{opacity:0;transform:translateX(2%)}}
+.lv-spec .lv-sub{margin:0 0 1.2cqw}
+.lv-spec h3{font-size:6.4cqw;line-height:1.05}
+.lv-spec-tags{display:flex;align-items:center;gap:2cqw;margin:2cqw 0}
+.lv-spec-rar{font:400 2.8cqw/1 'Black Ops One',var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:.8cqw 1.6cqw;border:.35cqw solid currentColor;transform:rotate(-3deg);mix-blend-mode:multiply}
+.lv-spec-id{font:700 2.6cqw var(--mono);letter-spacing:.12em;opacity:.7}
+.lv-spec-photo{margin:0 auto;width:44%;padding:1.6cqw 1.6cqw 4.6cqw;background:#f7f2e8;box-shadow:0 .5cqw 1.4cqw rgba(0,0,0,.35);transform:rotate(-2deg);position:relative}
+.lv-spec-photo img{display:block;width:100%;aspect-ratio:1;image-rendering:pixelated;background:#111}
+.lv-spec-photo.sil img{background:#3a0508;filter:brightness(.9)}
+.lv-spec-photo figcaption{position:absolute;left:0;right:0;bottom:1.2cqw;text-align:center;font:700 2.2cqw var(--mono);letter-spacing:.1em;color:#5a5048;text-transform:uppercase}
+.lv-spec-photo::before{content:"";position:absolute;left:38%;top:-1.6cqw;width:24%;height:3.2cqw;background:rgba(230,220,190,.75);transform:rotate(3deg)}
+.lv-spec table{margin-top:3cqw}
+.lv-spec th{width:34%}
+.lv-spec td{font-weight:700}
+.lv-spec.r-uncommon .lv-spec-rar,.lv-spec.r-uncommon td.rar{color:#3d6b2f}
+.lv-spec.r-rare .lv-spec-rar,.lv-spec.r-rare td.rar{color:#1f4f8c}
+.lv-spec.r-ultra .lv-spec-rar,.lv-spec.r-ultra td.rar{color:#6b2a8c}
+.lv-spec.r-epic .lv-spec-rar,.lv-spec.r-epic td.rar{color:#b4471a}
+.lv-spec.r-legend .lv-spec-rar,.lv-spec.r-legend td.rar{color:#8e1a1a}
+@media (max-width:760px){.lv-arrow.prev{left:-9cqw}.lv-arrow.next{right:-9cqw}.lv-arrow{width:6cqw;height:10cqw}}
+@media (prefers-reduced-motion: reduce){.lab-exitpad-screen b,.lv-spec{animation:none}}

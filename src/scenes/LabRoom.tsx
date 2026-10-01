@@ -4,7 +4,8 @@ import { FILE_LAYOUT as F, LAB } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
-import { ClipboardPrint, LabFx } from "./LabFx";
+import { ClipboardPrint, ExitPad, LabFx } from "./LabFx";
+import { FILE_SPECIMENS, RARITY_LABEL } from "@/lib/specimens";
 import { playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 
 type Item = "clipboard" | "flask" | "files";
@@ -42,6 +43,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
         <img className="gate-layer" src={sceneImage("desk.webp")} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} />
+        <ExitPad tabIndex={on && !view ? 0 : -1} onExit={onExit} />
         {ITEMS.map((it) => (
           <img key={it.id} className={"gate-layer lab-item" + (hover === it.id ? " hot" : "")} src={sceneImage(it.img)} alt=""
             style={at(LAB.items[it.id].img)} draggable={false} />
@@ -71,6 +73,10 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
 function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) {
   const [shown, setShown] = useState<Item | null>(null);      // keeps the content while it fades out
   const [dropping, setDropping] = useState(false);
+  const [page, setPage] = useState(0);                        // files: 0 = transfer log, then one specimen per page
+  const pages = FILE_SPECIMENS.length + 1;
+  const turn = useCallback((d: number) => { setPage((p) => (p + d + pages) % pages); playPageTurn(); }, [pages]);
+  useEffect(() => { if (item === "files") setPage(0); }, [item]);
   // put it back = let it fall: clipboard and files thud on the floor, the flask shatters
   const drop = useCallback(() => {
     if (!item || dropping) return;
@@ -85,10 +91,13 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
   }, [item]);
   useEffect(() => {
     if (!item) return;
-    const k = (e: KeyboardEvent) => { if (e.key === "Escape") drop(); };
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "Escape") drop();
+      else if (item === "files" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) turn(e.key === "ArrowLeft" ? -1 : 1);
+    };
     addEventListener("keydown", k);
     return () => removeEventListener("keydown", k);
-  }, [item, drop]);
+  }, [item, drop, turn]);
   useEffect(() => {
     if (item !== "flask" || dropping) return;
     return startSubmergedBubbleLoop();
@@ -140,7 +149,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
             backgroundPosition: `${(F.src.paper[0] / (3840 - (F.src.paper[2] - F.src.paper[0]))) * 100}% ${(F.src.paper[1] / (1800 - (F.src.paper[3] - F.src.paper[1]))) * 100}%`,
             clipPath: F.paperClip,
           }} />
-          <div className="lv-page">
+          {page === 0 ? <div className="lv-page">
             <h3>SPECIMEN TRANSFER LOG</h3>
             <p className="lv-sub">Archive copy · do not remove from Lab 7</p>
             <table>
@@ -155,10 +164,40 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
               </tbody>
             </table>
             <p className="lv-note">Headcount at 03:14: <b>606</b>. Headcount at 03:15: <b>2</b>.</p>
-          </div>
+            <p className="lv-more">recovered specimen files ›</p>
+          </div> : <SpecimenPage key={page} n={page} of={pages - 1} />}
+          <button type="button" className="lv-arrow prev" aria-label="Previous page" onClick={() => turn(-1)} />
+          <button type="button" className="lv-arrow next" aria-label="Next page" onClick={() => turn(1)} />
+          <span className="lv-pageno">{page === 0 ? "LOG" : `${page} / ${pages - 1}`}</span>
         </div>
       )}
       <p className="lv-hint">click outside to put it back</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- one recovered specimen per page
+function SpecimenPage({ n, of }: { n: number; of: number }) {
+  const sp = FILE_SPECIMENS[n - 1]; if (!sp) return null;
+  return (
+    <div className={"lv-page lv-spec r-" + sp.rarity}>
+      <p className="lv-sub">Recovered specimen · file {String(n).padStart(2, "0")} of {of}</p>
+      <h3>{sp.name.toUpperCase()}</h3>
+      <div className="lv-spec-tags"><span className="lv-spec-rar">{RARITY_LABEL[sp.rarity]}</span><span className="lv-spec-id">{sp.id}</span></div>
+      <figure className={"lv-spec-photo" + (sp.silhouette ? " sil" : "")}>
+        <img src={sp.img} alt={sp.silhouette ? "Dark Sovereign, silhouette only" : sp.name} draggable={false} />
+        <figcaption>{sp.silhouette ? "never photographed" : "cam still · lab 7"}</figcaption>
+      </figure>
+      <table>
+        <tbody>
+          <tr><th>Rarity</th><td className="rar">{RARITY_LABEL[sp.rarity]}</td></tr>
+          <tr><th>Mutation</th><td>{sp.mutation}</td></tr>
+          <tr><th>Class</th><td>{sp.cls}</td></tr>
+          <tr><th>Serum</th><td>M1</td></tr>
+          <tr><th>Supply</th><td>606</td></tr>
+          <tr><th>Medium</th><td>Zcash, shielded</td></tr>
+        </tbody>
+      </table>
     </div>
   );
 }

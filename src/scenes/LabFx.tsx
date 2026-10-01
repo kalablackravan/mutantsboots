@@ -149,3 +149,15 @@ function Tank({ hit, valve }: { hit: Box; valve: { x: number; y: number } }) {
     </>
   );
 }
+
+// ---------------------------------------------------------------- wall keypad = EXIT
+export function ExitPad({ tabIndex, onExit }: { tabIndex: number; onExit: () => void }) {
+  const p = LAB_FX.exitPad;
+  return (
+    <>
+      <span className="lab-exitpad-screen" style={at(p.screen)} aria-hidden="true"><b>EXIT</b></span>
+      <span className="lab-exitpad-key" style={at(p.key)} aria-hidden="true" />
+      <button type="button" className="lab-exitpad" style={at(p.hit)} tabIndex={tabIndex} aria-label="Exit the lab" onClick={onExit} />
+    </>
+  );
+}

@@ -165,6 +165,8 @@ export const LAB_FX = {
     { cx: 2006, cy: 136, r: 45, kind: "build" as const },
     { cx: 2184, cy: 89, r: 41, kind: "wander" as const },
   ],
+  // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT
+  exitPad: { hit: lb(3258, 800, 106, 154), screen: lb(3288, 824, 60, 35), key: lb(3334, 872, 17, 44) },
   // gas cylinders: hover box + valve (smoke origin)
   tanks: [
     { hit: lb(3648, 880, 135, 630), valve: { x: 3712 / 38.4, y: 898 / 18 } },

@@ -4,7 +4,8 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playDoorOpen, startAlertLoop, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorOpen, startAlertLoop, startGaugeDings, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { GatePipes, SignLogo } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void };
@@ -58,6 +59,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
     if (!on || !cloneHover || fileOpen) return;
     return startSubmergedBubbleLoop();
   }, [on, cloneHover, fileOpen]);
+  useEffect(() => {                                   // the gauges ding at the top of every sweep while the cursor is on the vessel
+    if (!on || !cloneHover || fileOpen) return;
+    const big = CLONE.gauges[1];                       // the big top gauge: same timing as its needle (peak at 62% of the sweep)
+    return startGaugeDings(big.delay + big.dur * 0.62, big.dur);
+  }, [on, cloneHover, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
     if (!on || !lockHover || fileOpen) return;
     return startAlertLoop();
@@ -83,8 +89,10 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
             "--lc": l.color, "--lp": `${l.period}s`, "--ld": `${l.delay}s`,
           } as CSSProperties}><i /></span>
         ))}
+        <GatePipes />
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
+        <SignLogo />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />

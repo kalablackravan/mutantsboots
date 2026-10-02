@@ -494,3 +494,28 @@ export function startCamStatic(firstCut: number, cutEvery: number, jolts: number
     return () => undefined;
   }
 }
+
+// elevator-style ding (same voice as the lab gauge)
+function ding(c: AudioContext, out: AudioNode, at: number) {
+  tone(c, out, at, 1318.5, 1.9, 0.2); tone(c, out, at, 2637, 0.9, 0.05);
+  tone(c, out, at, 3639, 0.35, 0.025); tone(c, out, at + 0.004, 1321, 1.6, 0.06);
+}
+/** Cloning vessel gauges: a ding the first time the needle tops out (`first` s from now), then every `every` s. */
+export function startGaugeDings(first: number, every: number): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.value = 0.26; out.connect(c.destination);
+    const timers: number[] = [];
+    const hit = () => { try { ding(c, out, c.currentTime + 0.01); } catch { /* optional */ } };
+    timers.push(window.setTimeout(() => { hit(); timers.push(window.setInterval(hit, every * 1000)); }, first * 1000));
+    return () => {
+      timers.forEach((id) => { window.clearTimeout(id); window.clearInterval(id); });
+      const t = c.currentTime;
+      out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      window.setTimeout(() => { try { out.disconnect(); } catch { /* gone */ } }, 320);
+    };
+  } catch {
+    return () => undefined;
+  }
+}

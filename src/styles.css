@@ -799,3 +799,5 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-blackout{position:fixed;inset:0;z-index:60;background:#000;opacity:0;pointer-events:none;transition:opacity 1.1s ease}
 .lab-blackout.on{opacity:1;pointer-events:auto;cursor:none}
 .lock-tag{color:#ff6a5c;border-color:rgba(255,80,60,.55)}
+.gate-props{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.gate-sign-logo{pointer-events:none}

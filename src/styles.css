@@ -855,3 +855,33 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 /* cork on the desk flask */
 .lab-cork{position:absolute;z-index:1;pointer-events:none;overflow:visible;filter:brightness(.86) saturate(.95);transition:transform .25s ease,filter .25s ease}
 .lab-cork.hot{transform:translateY(-.35%);filter:brightness(1.05)}
+
+/* slime dripping off the doors: a droplet swells at the tip, drops, splashes */
+.gate-drips{position:absolute;inset:0;pointer-events:none}
+.gate-drip{position:absolute;width:0;height:0}
+.gate-drip i{position:absolute;left:0;top:0;width:.36cqw;height:.5cqw;margin-left:-.18cqw;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 35% 30%,#d9ffc9 0 18%,#6dff5c 35%,#2fc63a 80%);box-shadow:0 0 .35cqw rgba(90,255,110,.55);transform-origin:50% 0;animation:dripFall linear infinite}
+.gate-drip b{position:absolute;left:0;top:var(--fall);width:1cqw;height:.28cqw;margin-left:-.5cqw;border-radius:50%;border:.08cqw solid rgba(150,255,140,.8);opacity:0;animation:dripSplash linear infinite}
+@keyframes dripFall{
+  0%{transform:translateY(0) scale(0);opacity:0}
+  8%{opacity:1}
+  62%{transform:translateY(.1cqw) scale(1,1.15)}
+  70%{transform:translateY(.25cqw) scale(.9,1.3);animation-timing-function:cubic-bezier(.5,0,1,.6)}
+  86%{transform:translateY(var(--fall)) scale(.8,1.5);opacity:1}
+  87%,100%{transform:translateY(var(--fall)) scale(0);opacity:0}
+}
+@keyframes dripSplash{0%,85%{opacity:0;transform:scale(.2)}87%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
+
+/* the lab, glimpsed through the open restricted door */
+.door-peek{overflow:hidden;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.door-peek-room{position:absolute}
+.door-peek-room img{position:absolute;inset:0;width:100%;height:100%}
+.door-peek-screen{position:absolute;background:radial-gradient(ellipse at center,#1d6b3a,#06200f 80%);box-shadow:0 0 1.2cqw rgba(60,255,140,.35)}
+.door-peek-fog{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.1) 30%,rgba(0,0,0,.1) 70%,rgba(0,0,0,.65)),linear-gradient(180deg,rgba(0,8,6,.35),rgba(20,60,40,.15) 60%,rgba(0,0,0,.5));mix-blend-mode:multiply}
+@media (prefers-reduced-motion: reduce){.gate-drip i,.gate-drip b{animation:none;opacity:0}}
+
+/* the devil laughing at the camera: the picture shakes, the eyes flare */
+.lab-tv.laughing .tv-art{animation:tvLaugh .19s steps(2,end) infinite}
+.lab-tv.night.laughing .tv-art{animation-duration:.26s}
+.lab-tv.laughing .tv-art img{filter:contrast(1.25) saturate(1.1) brightness(1.08) drop-shadow(0 0 1.2cqw rgba(255,40,40,.55))}
+@keyframes tvLaugh{0%{transform:translate(0,0) scale(1.01)}50%{transform:translate(.6%,-1.2%) scale(1.03)}100%{transform:translate(-.5%,.8%) scale(1.02)}}
+@media (prefers-reduced-motion: reduce){.lab-tv.laughing .tv-art{animation:none}}

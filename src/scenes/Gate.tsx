@@ -5,7 +5,7 @@ import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorOpen, startAlertLoop, startGaugeDings, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { Faucet, FirstAidKit, GateBackdrop, SignLogo } from "./GateProps";
+import { DoorPeek, Faucet, FirstAidKit, GateBackdrop, SignLogo, SlimeDrips } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void };
@@ -97,6 +97,8 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
         <SignLogo />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
+        <DoorPeek />
+        <SlimeDrips />
         <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
         <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}

@@ -102,9 +102,9 @@ function Gauges({ live }: { live: boolean }) {
 }
 
 // ---------------------------------------------------------------- CCTV feed in a TV screen
-export function Tv({ box, devil, label, big = false }: { box?: Box; devil: 1 | 2; label: string; big?: boolean }) {
+export function Tv({ box, devil, label, big = false, laughing = false }: { box?: Box; devil: 1 | 2; label: string; big?: boolean; laughing?: boolean }) {
   return (
-    <div className={"lab-tv" + (devil === 2 ? " night" : "") + (big ? " big" : "")} style={box ? at(box) : undefined} aria-hidden="true">
+    <div className={"lab-tv" + (devil === 2 ? " night" : "") + (big ? " big" : "") + (laughing ? " laughing" : "")} style={box ? at(box) : undefined} aria-hidden="true">
       <div className="tv-art"><img src={devil === 1 ? DEVIL_1 : DEVIL_2} alt="" draggable={false} /></div>
       <i className="tv-scan" /><i className="tv-noise" /><i className="tv-roll" />
       <span className="tv-rec"><i />REC</span><span className="tv-id">{label}</span>

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { playValveTurn, startPour } from "@/lib/fileSounds";
+import { LAB_DESK, sceneImage } from "@/config/cdn";
+import { LAB_FX } from "./config";
 
 // Gate scene additions drawn over the art (all coordinates in the 3840x1800 canvas):
 // devil-silhouette logo on the lab sign, wall first-aid kit, the new background's live
@@ -154,5 +156,65 @@ export function Faucet({ tabIndex, onTag }: { tabIndex: number; onTag?: (on: boo
         aria-label={open ? "Close the valve" : "Open the valve"} onClick={toggle}
         onPointerEnter={() => onTag?.(true)} onPointerLeave={() => onTag?.(false)} onFocus={() => onTag?.(true)} onBlur={() => onTag?.(false)} />
     </>
+  );
+}
+
+// ---------------------------------------------------------------- slime dripping off the doors
+// Tips are the drawn drip ends (found in the door art). Each one slowly swells a droplet, lets it
+// fall to the floor and splash, on its own random rhythm.
+type Tip = [number, number];
+const LOCK_TIPS: Tip[] = [[1782, 656], [2174, 626], [2396, 754], [1858, 771], [1736, 957], [2159, 996], [2290, 1034], [1972, 1239], [2158, 1279], [1767, 1320]];
+const CLOSED_TIPS: Tip[] = [[2959, 888], [2850, 985], [2927, 1137], [2884, 1298], [3194, 1070], [3210, 1260], [3281, 968], [3047, 1365], [2730, 854]];
+const OPEN_TIPS: Tip[] = [[2959, 888], [2840, 984], [2895, 1136], [2865, 1298], [3214, 1070], [3280, 966], [3223, 1247], [2730, 853]];
+const FLOOR = 1592;
+const rnd = (i: number, k: number) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
+function DripSet({ tips, className, seed }: { tips: Tip[]; className?: string; seed: number }) {
+  return (
+    <div className={"gate-drips " + (className ?? "")} aria-hidden="true">
+      {tips.map(([x, y], i) => {
+        const dur = 3.2 + rnd(i, seed) * 4.5, delay = -rnd(i, seed + 1) * dur;
+        const floor = FLOOR + (rnd(i, seed + 2) - 0.5) * 24;
+        const st = { left: `${x / 38.4}%`, top: `${y / 18}%`, "--fall": `${(floor - y) / 38.4}cqw`, animationDuration: `${dur}s`, animationDelay: `${delay}s` } as CSSProperties;
+        return (
+          <span key={i} className="gate-drip" style={st}>
+            <i style={{ animationDuration: `${dur}s`, animationDelay: `${delay}s` }} />
+            <b style={{ animationDuration: `${dur}s`, animationDelay: `${delay}s` }} />
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+export function SlimeDrips() {
+  return (
+    <>
+      <DripSet tips={LOCK_TIPS} seed={1} />
+      <DripSet tips={CLOSED_TIPS} className="slime-closed" seed={7} />
+      <DripSet tips={OPEN_TIPS} className="slime-open-layer" seed={13} />
+    </>
+  );
+}
+
+// ---------------------------------------------------------------- the lab, seen through the open restricted door
+// The gap between the parted doors (canvas 2998,712 · 110x748) shows the lab room deeper inside,
+// masked so the vines and slime hanging across the gap stay in front of it.
+const GAP_MASK = "url(data:image/png;base64,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)";
+const LAB_SCALE = 0.456, LAB_LEFT = 3053 - 2050 * LAB_SCALE, LAB_TOP = 1450 - 1600 * LAB_SCALE;
+const ROOM: CSSProperties = {
+  left: `${((LAB_LEFT - 2998) / 110) * 100}%`, top: `${((LAB_TOP - 712) / 748) * 100}%`,
+  width: `${((3840 * LAB_SCALE) / 110) * 100}%`, height: `${((1800 * LAB_SCALE) / 748) * 100}%`,
+};
+export function DoorPeek() {
+  return (
+    <div className="gate-layer slime-open-layer door-peek" style={{ ...box(2998, 712, 110, 748), maskImage: GAP_MASK, WebkitMaskImage: GAP_MASK }} aria-hidden="true">
+      <div className="door-peek-room" style={ROOM}>
+        <img src={sceneImage("2ndbg.webp")} alt="" draggable={false} />
+        {LAB_FX.screens.map((sc, i) => (
+          <i key={i} className="door-peek-screen" style={{ left: `${sc.box.left}%`, top: `${sc.box.top}%`, width: `${sc.box.width}%`, height: `${sc.box.height}%` }} />
+        ))}
+        <img src={LAB_DESK} alt="" draggable={false} />
+      </div>
+      <i className="door-peek-fog" />
+    </div>
   );
 }

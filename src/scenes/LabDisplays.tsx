@@ -3,7 +3,7 @@ import { LAB_FX } from "./config";
 import { Tv } from "./LabFx";
 import { BLANK_DISPLAY } from "@/config/cdn";
 import { useTraits } from "@/lib/useTraits";
-import { playBlip, startCamStatic } from "@/lib/fileSounds";
+import { playBlip, playDevilLaugh, startCamStatic } from "@/lib/fileSounds";
 import type { Build, Trait, TraitCat } from "@/lib/traits";
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -178,13 +178,38 @@ function CamSound({ devil, live }: { devil: 1 | 2; live: boolean }) {
   }, [devil, live]);
   return null;
 }
+// The feed plus the devil laughing at you through it: first laugh ~1.3 s in, then every 8-12 s,
+// and the picture shakes with the laugh.
+function CamView({ devil, label, live }: { devil: 1 | 2; label: string; live: boolean }) {
+  const [laughing, setLaughing] = useState(false);
+  useEffect(() => {
+    if (!live) { setLaughing(false); return; }
+    const timers: number[] = [];
+    let current: { stop: () => void } | null = null;
+    const laugh = () => {
+      const { len, stop } = playDevilLaugh(devil); current = { stop };
+      setLaughing(true);
+      timers.push(window.setTimeout(() => setLaughing(false), Math.max(1.2, len) * 1000));
+      timers.push(window.setTimeout(laugh, (8 + Math.random() * 4) * 1000));
+    };
+    timers.push(window.setTimeout(laugh, 1300));
+    return () => { timers.forEach((id) => window.clearTimeout(id)); current?.stop(); };
+  }, [devil, live]);
+  return (
+    <div className="lvd-screen lvd-cam">
+      <Tv devil={devil} label={label} big laughing={laughing} />
+      <CamSound devil={devil} live={live} />
+    </div>
+  );
+}
+
 export function TraitDisplay({ active, dropping, mode = { kind: "traits" } }: { active: boolean; dropping: boolean; mode?: DisplayMode }) {
   return (
     <div className={"lv-display" + (dropping ? " drop" : "")}>
       <i className="lvd-black" aria-hidden="true" />
       {mode.kind === "traits"
         ? <TraitScanner active={active} />
-        : <div className="lvd-screen lvd-cam"><Tv devil={mode.devil} label={mode.label} big /><CamSound devil={mode.devil} live={active && !dropping} /></div>}
+        : <CamView devil={mode.devil} label={mode.label} live={active && !dropping} />}
       <img className="lvd-bezel" src={BLANK_DISPLAY} alt="" draggable={false} />
     </div>
   );

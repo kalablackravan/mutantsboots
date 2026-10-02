@@ -564,3 +564,61 @@ export function startPour(): () => void {
     return () => undefined;
   }
 }
+
+// ---------------------------------------------------------------- the devils laughing at you through the CCTV
+// Formant-synthesised "HA-HA-HA": a buzzy glottal tone pushed through vowel formants, an
+// octave-down growl under it, a little distortion and a slapback echo like a cheap camera mic.
+function laughSyllable(c: AudioContext, out: AudioNode, at: number, f0: number, f1: number, dur: number, gain: number) {
+  const src = c.createOscillator(); src.type = "sawtooth";
+  src.frequency.setValueAtTime(f0, at); src.frequency.exponentialRampToValueAtTime(f1, at + dur);
+  const sub = c.createOscillator(); sub.type = "square";
+  sub.frequency.setValueAtTime(f0 / 2, at); sub.frequency.exponentialRampToValueAtTime(f1 / 2, at + dur);
+  const vib = c.createOscillator(); vib.frequency.value = 7; const vibG = c.createGain(); vibG.gain.value = f0 * 0.04;
+  vib.connect(vibG); vibG.connect(src.frequency);
+  const mix = c.createGain(); mix.gain.value = 1; src.connect(mix);
+  const subG = c.createGain(); subG.gain.value = 0.45; sub.connect(subG); subG.connect(mix);
+  const env = c.createGain(); env.gain.setValueAtTime(0.0001, at);
+  env.gain.exponentialRampToValueAtTime(gain, at + 0.03); env.gain.setValueAtTime(gain, at + dur * 0.55);
+  env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  // "a" vowel formants
+  for (const [f, q, g] of [[720, 7, 1], [1150, 9, 0.6], [2550, 12, 0.25]] as const) {
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f; bp.Q.value = q;
+    const fg = c.createGain(); fg.gain.value = g; mix.connect(bp); bp.connect(fg); fg.connect(env);
+  }
+  env.connect(out);
+  // breathy "h" at the start of each syllable
+  burst(c, out, at, 0.07, (x) => 1 - x, [{ type: "bandpass", f: 1600, q: 0.8 }], gain * 0.8, [0.6, 1.4], [6, 20]);
+  for (const o of [src, sub, vib]) { o.start(at); o.stop(at + dur + 0.05); }
+}
+/** devil 2 (Dark Sovereign) = deep and slow, devil 1 (Hellspawn) = higher and manic */
+export function playDevilLaugh(devil: 1 | 2): { len: number; stop: () => void } {
+  const none = { len: 0, stop: () => undefined };
+  try {
+    const c = audio(); if (!c) return none;
+    const out = c.createGain(); out.gain.value = 0.55;
+    const shaper = c.createWaveShaper(); const curve = new Float32Array(256);
+    for (let i = 0; i < 256; i++) { const x = (i / 255) * 2 - 1; curve[i] = Math.tanh(x * 2.4); }
+    shaper.curve = curve;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 3200;
+    const dly = c.createDelay(1); dly.delayTime.value = 0.23; const fb = c.createGain(); fb.gain.value = 0.32;
+    out.connect(shaper); shaper.connect(lp); lp.connect(c.destination);
+    lp.connect(dly); dly.connect(fb); fb.connect(dly); fb.connect(c.destination);
+    const t = c.currentTime + 0.05;
+    const deep = devil === 2;
+    const n = deep ? 6 : 8, step = deep ? 0.26 : 0.17, len = deep ? 0.19 : 0.12;
+    let base = deep ? 96 : 175;
+    for (let i = 0; i < n; i++) {
+      const at = t + i * step;
+      laughSyllable(c, out, at, base, base * 0.86, len, 0.22);
+      base *= deep ? 0.95 : 0.965;
+    }
+    const tail = t + n * step + 0.05;
+    laughSyllable(c, out, tail, base * 1.08, base * 0.62, deep ? 0.9 : 0.6, 0.24);   // long final "HAAA"
+    const total = n * step + (deep ? 1.0 : 0.7);
+    const cut = () => { try { out.disconnect(); fb.disconnect(); lp.disconnect(); } catch { /* gone */ } };
+    const timer = window.setTimeout(cut, (total + 1.6) * 1000);
+    return { len: total, stop: () => { window.clearTimeout(timer); cut(); } };
+  } catch {
+    return none;
+  }
+}

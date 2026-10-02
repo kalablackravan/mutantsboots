@@ -36,7 +36,7 @@ const WALL_TAGS: { id: string; text: string; box: Box }[] = [
 ];
 
 // Everything the room and its three views need, decoded before the door lets anyone in.
-const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "clipboard.webp", "flask_black_border.webp",
+const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "bgsilhouette.webp", "clipboard.webp", "flask_black_border.webp",
   "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp", "frame_black_border.webp"];
 let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
@@ -77,6 +77,8 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
             style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
         <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
+        {/* same dark foreground silhouette as the gate scene */}
+        <img className="gate-layer lab-silhouette" src={sceneImage("bgsilhouette.webp")} alt="" style={at(FULL)} draggable={false} />
         {LAB_FX.screens.map((sc, i) => (
           <button key={"scr" + i} type="button" className="lab-hit" style={at(sc.box)} aria-label="Open trait scanner"
             tabIndex={on && !view && i === 1 ? 0 : -1}

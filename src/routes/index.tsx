@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFrame } from "@/hooks/useFrame";
 import { homepageArt } from "@/lib/homepageAsset";
+import { IntroArt } from "@/scenes/IntroArt";
 import { SCENE_IMAGES, sceneImage } from "@/config/cdn";
 import { preloadScene } from "@/lib/scenePreload";
 import { CFG } from "@/scenes/config";
@@ -133,7 +134,7 @@ function Office() {
     <main className="office">
       <h1 className="sr-only">mutatedfoots</h1>
       <section id="intro" className={"scene" + (scene === "intro" ? " on" : "")} aria-hidden={scene !== "intro"}>
-        <img className="intro-art" src={homepageArt} alt="" draggable={false} />
+        <IntroArt />
         <div className="intro-overlay" aria-hidden="true" />
         <button type="button" id="intro-enter" onClick={enter} aria-busy={entering} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
           <span className="intro-title">mutatedfoots</span>

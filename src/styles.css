@@ -801,3 +801,39 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lock-tag{color:#ff6a5c;border-color:rgba(255,80,60,.55)}
 .gate-props{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .gate-sign-logo{pointer-events:none}
+
+/* gate background: live dials + serum flowing in the pipes */
+.gb-dial{position:absolute;pointer-events:none}
+.gb-dial img{position:absolute;inset:0;width:100%;height:100%}
+.gb-dial svg{position:absolute;overflow:visible}
+.gb-needle{transform-box:view-box;transform-origin:0 0}
+.gb-needle.a{animation:gbA 3.6s ease-in-out infinite}
+.gb-needle.b{animation:gbB 2.7s ease-in-out infinite}
+.gb-needle.c{animation:gbC 1.9s ease-in-out infinite}
+@keyframes gbA{0%,100%{transform:rotate(-110deg)}45%{transform:rotate(70deg)}52%{transform:rotate(58deg)}58%{transform:rotate(80deg)}64%{transform:rotate(66deg)}80%{transform:rotate(-40deg)}}
+@keyframes gbB{0%,100%{transform:rotate(-60deg)}30%{transform:rotate(20deg)}38%{transform:rotate(8deg)}60%{transform:rotate(95deg)}66%{transform:rotate(84deg)}72%{transform:rotate(100deg)}}
+@keyframes gbC{0%,100%{transform:rotate(30deg)}25%{transform:rotate(48deg)}50%{transform:rotate(22deg)}75%{transform:rotate(55deg)}}
+.gb-flow{mix-blend-mode:screen}
+.gb-stream{fill:none;stroke:#9dffb8;stroke-width:5;stroke-linecap:round;stroke-dasharray:26 140;opacity:.6;filter:drop-shadow(0 0 6px rgba(80,255,140,.9));animation:gbFlow linear infinite}
+@keyframes gbFlow{to{stroke-dashoffset:-166}}
+.gb-glow{fill:rgba(120,255,150,.0);animation:gbGlow 2.4s ease-in-out infinite}
+@keyframes gbGlow{50%{fill:rgba(120,255,150,.22)}}
+.gb-bubble{fill:rgba(210,255,220,.85);animation:gbBubble 2s linear infinite}
+@keyframes gbBubble{from{transform:translateY(0);opacity:0}15%{opacity:.9}to{transform:translateY(var(--rise));opacity:0}}
+
+/* the faucet by the restricted door */
+.gate-faucet,.gate-faucet-wheel{pointer-events:none}
+.gate-faucet-wheel.turn{animation:wheelTurn .55s ease-in-out}
+@keyframes wheelTurn{0%,100%{transform:scaleX(1)}25%{transform:scaleX(.2)}50%{transform:scaleX(-1)}75%{transform:scaleX(.2)}}
+.gate-pour{z-index:2;mix-blend-mode:normal}
+.gate-pour .pour-stream,.gate-pour .pour-core{fill:none;stroke-linecap:round;opacity:0;transition:opacity .25s ease}
+.gate-pour .pour-stream{stroke:rgba(90,255,130,.75);stroke-width:16;filter:drop-shadow(0 0 8px rgba(80,255,140,.8))}
+.gate-pour .pour-core{stroke:#d6ffe0;stroke-width:5;stroke-dasharray:18 22;animation:gbFlow .5s linear infinite}
+.gate-pour.on .pour-stream,.gate-pour.on .pour-core{opacity:1}
+.gate-pour .pour-pool{fill:#4dff86;filter:drop-shadow(0 0 10px rgba(80,255,140,.85));transition:rx .1s linear,ry .1s linear}
+.gate-smoke{position:absolute;z-index:2;width:0;height:0;pointer-events:none}
+.gate-smoke i{position:absolute;left:0;top:0;width:calc(2.4cqw * var(--ps));aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,rgba(205,255,220,.9),rgba(170,230,195,.4) 55%,rgba(170,230,195,0));filter:blur(.2cqw);opacity:0;animation:gateSmoke 2.4s ease-out forwards}
+@keyframes gateSmoke{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}12%{opacity:1}55%{opacity:.6}100%{transform:translate(calc(-50% + var(--dx) * 4cqw),calc(-50% - 12cqw)) scale(3);opacity:0}}
+.faucet-hit{position:absolute;z-index:4;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion: reduce){.gb-needle,.gb-stream,.gb-glow,.gb-bubble{animation:none}}
+#gate-stage{container-type:inline-size}

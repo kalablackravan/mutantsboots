@@ -519,3 +519,48 @@ export function startGaugeDings(first: number, every: number): () => void {
     return () => undefined;
   }
 }
+
+// ---------------------------------------------------------------- gate faucet
+/** a rusty valve wheel being turned: a squeal over a couple of metal clicks */
+export function playValveTurn() {
+  try {
+    const m = master(0.28); if (!m) return;
+    const { c, out, t } = m;
+    const o = c.createOscillator(); o.type = "sawtooth";
+    o.frequency.setValueAtTime(620, t); o.frequency.linearRampToValueAtTime(900, t + 0.18); o.frequency.linearRampToValueAtTime(700, t + 0.42);
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1500; bp.Q.value = 3;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    o.connect(bp); bp.connect(g); g.connect(out); o.start(t); o.stop(t + 0.5);
+    thump(c, out, t + 0.02, 260, 140, 0.06, 0.25); thump(c, out, t + 0.3, 240, 120, 0.06, 0.2);
+  } catch { /* sound is optional */ }
+}
+/** liquid pouring onto the floor (loop) with a fizz as it boils off; returns stop() */
+export function startPour(): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.value = 0.0001; out.connect(c.destination);
+    const t = c.currentTime;
+    out.gain.exponentialRampToValueAtTime(0.3, t + 0.3);
+    let alive = true; const timers: number[] = [];
+    const splash = () => {
+      if (!alive) return;
+      try {
+        burst(c, out, c.currentTime + 0.01, 0.5, (x) => 0.6 + 0.4 * Math.sin(x * 9), [{ type: "bandpass", f: 700 + Math.random() * 500, q: 1.2 }], 0.22, [0.5, 1.5], [8, 30]);
+        burst(c, out, c.currentTime + 0.05, 0.4, (x) => 1 - x, [{ type: "highpass", f: 3500 }], 0.05, [0.3, 1.6], [3, 12]);
+      } catch { /* optional */ }
+      timers.push(window.setTimeout(splash, 380));
+    };
+    splash();
+    return () => {
+      alive = false; timers.forEach((id) => window.clearTimeout(id));
+      const n = c.currentTime;
+      out.gain.cancelScheduledValues(n); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), n);
+      out.gain.exponentialRampToValueAtTime(0.0001, n + 0.4);
+      // last fizz as the puddle boils away
+      try { burst(c, c.destination, n + 0.1, 1.6, (x) => (1 - x) * (1 - x), [{ type: "highpass", f: 2500 }], 0.05, [0.4, 1.6], [4, 16]); } catch { /* optional */ }
+      window.setTimeout(() => { try { out.disconnect(); } catch { /* gone */ } }, 500);
+    };
+  } catch {
+    return () => undefined;
+  }
+}

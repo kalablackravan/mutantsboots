@@ -5,7 +5,7 @@ import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorOpen, startAlertLoop, startGaugeDings, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { GatePipes, SignLogo } from "./GateProps";
+import { Faucet, FirstAidKit, GateBackdrop, SignLogo } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void };
@@ -50,6 +50,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
   const [lockHover, setLockHover] = useState(false);
+  const [faucetHover, setFaucetHover] = useState(false);
   const lastDoorSound = useRef(0);
   const doorSound = () => { const now = performance.now(); if (now - lastDoorSound.current > 1200) { lastDoorSound.current = now; playDoorOpen(); } };
   const [fileOpen, setFileOpen] = useState(false);
@@ -78,6 +79,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
       <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
+        <GateBackdrop />
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="clonebase.webp" box={SCENE_LAYERS.full} className="clone-body" />
         {CLONE.gauges.map((g, i) => <Gauge key={i} {...g} active={cloneHover && !fileOpen} />)}
@@ -89,12 +91,13 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
             "--lc": l.color, "--lp": `${l.period}s`, "--ld": `${l.delay}s`,
           } as CSSProperties}><i /></span>
         ))}
-        <GatePipes />
+        <FirstAidKit />
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SignLogo />
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
+        <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
         <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}
           aria-label="Open the classified file" tabIndex={on ? 0 : -1}
@@ -126,6 +129,8 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
           style={{ left: `${SCENE_LAYERS.lockHit.left + SCENE_LAYERS.lockHit.width / 2}%`, top: `${SCENE_LAYERS.lockHit.top}%` }}>
           ⛔ no access
         </span>
+        <span className={"gate-tag clone-tag" + (faucetHover && !fileOpen ? " on" : "")}
+          style={{ left: `${3275 / 38.4}%`, top: `${1286 / 18}%` }}>▸ open the valve</span>
         <span className={"gate-tag clone-tag" + (cloneHover || fileBusy ? " on" : "")}
           style={{ left: `${SCENE_LAYERS.cloneHit.left + SCENE_LAYERS.cloneHit.width / 2}%`, top: `${SCENE_LAYERS.cloneHit.top}%` }}>
           {fileBusy ? "opening file…" : "▸ click to open file"}

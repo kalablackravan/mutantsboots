@@ -13,7 +13,11 @@ export const BLANK_DISPLAY = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantb
 // Lab desk with see-through monitor screens and an empty top (photoroompfp.webp), pinned to the commit that added it.
 export const LAB_DESK = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@7c7a2d6f4959beb5e7f0ba87cc1fb4b65f7be18a/site/frontend/WEBP_FILES/photoroompfp.webp";
 
-export const sceneImage = (filename: SceneImage) => CDN_BASE + filename;
+// New gate background (pipes run to a faucet by the restricted door), pinned to the commit that added it.
+export const GATE_BG = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@19869e1011a0d3f13382e929d43cc8afe6ffef92/site/frontend/WEBP_FILES/background_3840x1800.webp";
+const SCENE_OVERRIDES: Partial<Record<SceneImage, string>> = { "bg.webp": GATE_BG };
+
+export const sceneImage = (filename: SceneImage) => SCENE_OVERRIDES[filename] ?? CDN_BASE + filename;
 
 export type SceneImage =
   | "bg.webp"

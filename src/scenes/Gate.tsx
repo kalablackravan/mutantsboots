@@ -96,7 +96,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
         <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
           aria-label="Open lab lockdown room" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
-          onPointerLeave={() => setLockHover(false)} onClick={onLab} />
+          onPointerLeave={() => setLockHover(false)} onFocus={() => setLockHover(true)} onBlur={() => setLockHover(false)} onClick={onLab} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); doorSound(); } }}
@@ -106,14 +106,18 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
       <div className="gate-overlay" aria-hidden="true" />
       {/* UI above the pulsing overlay, same frame as the stage, so the hint stays readable */}
       <div id="gate-ui" aria-hidden="true">
+        {/* lockdown door: only the two warning lamps blink while the cursor is on it (no sweeping beams, no red wash) */}
         <div className={"alarm" + (lockHover && !fileOpen ? " on" : "")}>
-          <i className="alarm-wash" />
           {LOCK.beacons.map((b, i) => (
             <span key={i} className="beacon" style={{ left: `${b.x}%`, top: `${b.y}%`, "--bd": `${i * -0.55}s` } as CSSProperties}>
-              <i className="beacon-beam" /><i className="beacon-lamp" />
+              <i className="beacon-lamp" />
             </span>
           ))}
         </div>
+        <span className={"gate-tag clone-tag lock-tag" + (lockHover && !fileOpen ? " on" : "")}
+          style={{ left: `${SCENE_LAYERS.lockHit.left + SCENE_LAYERS.lockHit.width / 2}%`, top: `${SCENE_LAYERS.lockHit.top}%` }}>
+          ⛔ no access
+        </span>
         <span className={"gate-tag clone-tag" + (cloneHover || fileBusy ? " on" : "")}
           style={{ left: `${SCENE_LAYERS.cloneHit.left + SCENE_LAYERS.cloneHit.width / 2}%`, top: `${SCENE_LAYERS.cloneHit.top}%` }}>
           {fileBusy ? "opening file…" : "▸ click to open file"}

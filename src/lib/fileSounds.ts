@@ -296,17 +296,7 @@ export function playScan() {
   } catch { /* sound is optional */ }
 }
 
-// one dry needle "tick" (ratchet of a pressure gauge)
-function tick(c: AudioContext, out: AudioNode, at: number, gain: number) {
-  const o = c.createOscillator(); o.type = "square"; o.frequency.value = 1300 + Math.random() * 600;
-  const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2600; bp.Q.value = 2.2;
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(gain, at + 0.002);
-  g.gain.exponentialRampToValueAtTime(0.0001, at + 0.018);
-  o.connect(bp); bp.connect(g); g.connect(out); o.start(at); o.stop(at + 0.03);
-}
-
-/** Lab pressure gauge: pulse() plays one cycle (pressure builds, needle chatters, valve vents),
+/** Lab pressure gauge: pulse() plays one cycle (an elevator-style ding when the needle tops out),
  *  timed to the 4.2s "build" needle animation. stop() fades it out. */
 export function gaugeSound(period = 4.2): { pulse: () => void; stop: () => void } {
   const none = { pulse: () => undefined, stop: () => undefined };
@@ -317,20 +307,12 @@ export function gaugeSound(period = 4.2): { pulse: () => void; stop: () => void 
     const pulse = () => {
       if (stopped) return;
       try {
-        const t = c.currentTime + 0.02;
-        // pressure building: a low rumble that climbs with the needle
-        burst(c, out, t, 2.4, (x) => x * x, [{ type: "lowpass", f: 160, q: 0.7, to: [[620, 2.3]] }], 0.12, [0.85, 1.15], [30, 80]);
-        // needle ratchet: ticks speed up as it climbs, chatter at the top
-        let when = t + 0.25, gap = 0.24;
-        while (when < t + period * 0.75) {
-          tick(c, out, when, when > t + period * 0.55 ? 0.07 : 0.04);
-          gap = Math.max(0.06, gap * 0.9); when += gap + Math.random() * 0.02;
-        }
-        // release valve: sharp steam hiss that fades + a soft knock in the pipe
-        const vent = t + period * 0.78;
-        burst(c, out, vent, 0.8, (x) => (x < 0.04 ? x / 0.04 : Math.pow(1 - x, 1.8)),
-          [{ type: "highpass", f: 900 }, { type: "bandpass", f: 3200, q: 0.9, to: [[1500, 0.8]] }], 0.42, [0.9, 1.1], [6, 14]);
-        thump(c, out, vent, 95, 52, 0.2, 0.18);
+        // elevator-style "ding" the moment the needle hits the top of the dial (55% of the cycle)
+        const at = c.currentTime + 0.02 + period * 0.55;
+        tone(c, out, at, 1318.5, 1.9, 0.2);          // E6 strike, long ring
+        tone(c, out, at, 2637, 0.9, 0.05);           // octave shimmer
+        tone(c, out, at, 3639, 0.35, 0.025);         // bell partial (x2.76)
+        tone(c, out, at + 0.004, 1321, 1.6, 0.06);   // slight beat, like a real chime
       } catch { /* sound is optional */ }
     };
     const stop = () => {
@@ -437,7 +419,12 @@ export function playHangup() {
 /** a low, slow, distorted voice over the line; calls done() when it has finished (or after a fallback delay) */
 export function playVoice(text: string, done?: () => void) {
   let finished = false;
-  const end = () => { if (!finished) { finished = true; done?.(); } };
+  const t0 = performance.now();
+  // never shorter than ~2.2 s, so the on-screen line stays up even where the browser has no voice
+  const end = () => {
+    if (finished) return; finished = true;
+    window.setTimeout(() => done?.(), Math.max(0, 2200 - (performance.now() - t0)));
+  };
   try {
     const m = master(0.18);
     if (m) {   // a low drone under the voice so it sounds like a bad line
@@ -456,4 +443,54 @@ export function playVoice(text: string, done?: () => void) {
     }
   } catch { /* voice is optional */ }
   window.setTimeout(end, 4200);
+}
+
+// ---------------------------------------------------------------- CCTV feed: the line hums, crackles, and cuts out ("zzzt… zzzt")
+function zap(c: AudioContext, out: AudioNode, at: number, dur: number, lvl: number) {
+  // electrical buzz chopped by a fast square LFO, over crackly noise
+  const o = c.createOscillator(); o.type = "square"; o.frequency.value = 96 + Math.random() * 30;
+  const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.7;
+  const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(lvl, at + 0.01); g.gain.setValueAtTime(lvl, at + dur * 0.8); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  const lfo = c.createOscillator(); lfo.type = "square"; lfo.frequency.value = 20 + Math.random() * 12;
+  const depth = c.createGain(); depth.gain.value = lvl * 0.9; lfo.connect(depth); depth.connect(g.gain);
+  o.connect(bp); bp.connect(g); g.connect(out);
+  o.start(at); o.stop(at + dur + 0.02); lfo.start(at); lfo.stop(at + dur + 0.02);
+  burst(c, out, at, dur, (x) => (x < 0.05 ? x / 0.05 : 1 - x * 0.5), [{ type: "highpass", f: 1500 }], lvl * 1.4, [0.1, 1.8], [6, 30]);
+}
+/** Loop for an open CCTV feed: low mains hum + random crackle, a hard "cut" every `cutEvery` s
+ *  (first one `firstCut` s in, matching the picture's own cut), small ticks on the picture jolts. */
+export function startCamStatic(firstCut: number, cutEvery: number, jolts: number[], joltEvery: number): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.value = 0.32; out.connect(c.destination);
+    const t0 = c.currentTime + 0.05;
+    const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.value = 60;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 320;
+    const hg = c.createGain(); hg.gain.setValueAtTime(0.0001, t0); hg.gain.exponentialRampToValueAtTime(0.05, t0 + 0.4);
+    hum.connect(lp); lp.connect(hg); hg.connect(out); hum.start(t0);
+    const timers: number[] = [];
+    let alive = true;
+    const crackle = () => {
+      if (!alive) return;
+      try { burst(c, out, c.currentTime + 0.01, 0.03 + Math.random() * 0.1, (x) => 1 - x, [{ type: "bandpass", f: 2500 + Math.random() * 2500, q: 0.8 }], 0.12 + Math.random() * 0.15, [0.1, 1.9], [3, 14]); } catch { /* optional */ }
+      timers.push(window.setTimeout(crackle, 280 + Math.random() * 1100));
+    };
+    crackle();
+    const cut = () => { if (alive) try { zap(c, out, c.currentTime + 0.01, 0.42, 0.22); } catch { /* optional */ } };
+    timers.push(window.setTimeout(() => { cut(); timers.push(window.setInterval(cut, cutEvery * 1000)); }, firstCut * 1000));
+    for (const j of jolts) {
+      const tickJolt = () => { if (alive) try { zap(c, out, c.currentTime + 0.01, 0.1, 0.12); } catch { /* optional */ } };
+      timers.push(window.setTimeout(() => { tickJolt(); timers.push(window.setInterval(tickJolt, joltEvery * 1000)); }, j * 1000));
+    }
+    return () => {
+      alive = false; timers.forEach((id) => { window.clearTimeout(id); window.clearInterval(id); });
+      const t = c.currentTime;
+      out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      window.setTimeout(() => { try { hum.stop(); out.disconnect(); } catch { /* gone */ } }, 220);
+    };
+  } catch {
+    return () => undefined;
+  }
 }

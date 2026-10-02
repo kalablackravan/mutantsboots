@@ -132,9 +132,9 @@ export const CHAMBER = {
 // objects sit over the drawn ones (image box = whole file incl. padding, hit = the object).
 export const LAB = {
   items: {
-    clipboard: { img: { left: 1673 / 38.4, top: 1159.4 / 18, width: 232 / 38.4, height: 173.2 / 18 }, hit: { left: 1688 / 38.4, top: 1178 / 18, width: 204 / 38.4, height: 136 / 18 } },
-    flask: { img: { left: 2285.9 / 38.4, top: 1152.3 / 18, width: 113 / 38.4, height: 119.4 / 18 }, hit: { left: 2318 / 38.4, top: 1150 / 18, width: 72 / 38.4, height: 110 / 18 } },
-    files: { img: { left: 2387.7 / 38.4, top: 1141.9 / 18, width: 191.5 / 38.4, height: 143.8 / 18 }, hit: { left: 2392 / 38.4, top: 1160 / 18, width: 185 / 38.4, height: 125 / 18 } },
+    clipboard: { img: { left: 1655 / 38.4, top: 1150 / 18, width: 220 / 38.4, height: 164.3 / 18 }, hit: { left: 1665 / 38.4, top: 1165 / 18, width: 195 / 38.4, height: 130 / 18 } },
+    flask: { img: { left: 2372.4 / 38.4, top: 1162.3 / 18, width: 112 / 38.4, height: 118.2 / 18 }, hit: { left: 2398 / 38.4, top: 1160 / 18, width: 84 / 38.4, height: 110 / 18 } },
+    files: { img: { left: 2466.2 / 38.4, top: 1158.1 / 18, width: 170.8 / 38.4, height: 128.3 / 18 }, hit: { left: 2474 / 38.4, top: 1165 / 18, width: 160 / 38.4, height: 118 / 18 } },
   },
 } as const;
 
@@ -174,18 +174,18 @@ export const LAB_FX = {
   // the three green desk monitors (screen glass): text log, live specimen build, single trait
   // desk monitors (photoroom.webp has see-through screens; these sit behind the bezels)
   screens: [
-    { box: lb(1678, 971, 180, 164), kind: "text" as const },
-    { box: lb(1941, 954, 227, 160), kind: "build" as const },
-    { box: lb(2228, 1044, 176, 127), kind: "trait" as const },
-    { box: lb(2228, 881, 159, 122), kind: "wave" as const },
+    { box: lb(1640, 964, 189, 177), kind: "text" as const },
+    { box: lb(1913, 933, 251, 178), kind: "build" as const },
+    { box: lb(2241, 1045, 183, 127), kind: "trait" as const },
+    { box: lb(2238, 863, 180, 129), kind: "wave" as const },
   ],
   // soft contact shadows on the desk / floor: centre x, y, width, height (canvas px)
   shadows: [
-    { x: 2037, y: 1246, w: 260, h: 24 },  // keyboard
-    { x: 2212, y: 1240, w: 64, h: 16 },   // mouse
-    { x: 2356, y: 1258, w: 86, h: 16 },   // flask
-    { x: 2486, y: 1282, w: 200, h: 22 },  // files stack
-    { x: 1792, y: 1312, w: 220, h: 24 },  // clipboard
+    { x: 2037, y: 1262, w: 270, h: 22 },  // keyboard
+    { x: 2288, y: 1258, w: 60, h: 14 },   // mouse
+    { x: 2440, y: 1268, w: 86, h: 16 },   // flask
+    { x: 2552, y: 1285, w: 170, h: 20 },  // files stack
+    { x: 1765, y: 1300, w: 210, h: 22 },  // clipboard
   ],
   // gas cylinders: hover box + valve (smoke origin)
   tanks: [

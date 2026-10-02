@@ -52,7 +52,10 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   const [hover, setHover] = useState<Item | null>(null);
   const [view, setView] = useState<Item | null>(null);
   const [tag, setTag] = useState<string | null>(null);        // hover labels for the wall things (TVs, exit, tanks, phone)
-  useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); } }, [on]);
+  const [say, setSay] = useState<string | null>(null);        // what the phone voice is saying, shown in the phone's label
+  const [black, setBlack] = useState(false);                  // second call: the room blacks out before you are thrown out
+  const blackout = useCallback(() => setBlack(true), []);
+  useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); setSay(null); } }, [on]);
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   return (
@@ -63,7 +66,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} onTag={setTag} />
         <OutOfService onTag={setTag} />
-        <LabPhone on={on} paused={!!view} tabIndex={on && !view ? 0 : -1} onTag={setTag} />
+        <LabPhone on={on} paused={!!view} tabIndex={on && !view ? 0 : -1} onTag={setTag} onSay={setSay} onBlackout={blackout} />
         {LAB_FX.shadows.map((d, i) => (
           <span key={i} className="lab-ao" aria-hidden="true"
             style={{ left: `${(d.x - d.w / 2) / 38.4}%`, top: `${(d.y - d.h / 2) / 18}%`, width: `${d.w / 38.4}%`, height: `${d.h / 18}%` }} />
@@ -100,13 +103,17 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
         ))}
         <span className={"gate-tag clone-tag lab-tag" + (hover === "display" && !view ? " on" : "")}
           style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>
-        {WALL_TAGS.map((w) => (
-          <span key={w.id} className={"gate-tag clone-tag lab-tag" + (tag === w.id && !view ? " on" : "")}
-            style={{ left: `${w.box.left + w.box.width / 2}%`, top: `${w.box.top}%` }}>{w.text}</span>
-        ))}
+        {WALL_TAGS.map((w) => {
+          const line = w.id === "phone" ? say : null;          // the phone label speaks the voice line while it talks
+          return (
+            <span key={w.id} className={"gate-tag clone-tag lab-tag" + (line ? " lab-say" : "") + (((tag === w.id && !view) || line) ? " on" : "")}
+              style={{ left: `${w.box.left + w.box.width / 2}%`, top: `${w.box.top}%` }}>{line ?? w.text}</span>
+          );
+        })}
       </div>
       <button type="button" className="lab-room-exit lab-exit" tabIndex={on && !view ? 0 : -1} onClick={onExit}>EXIT</button>
       <LabView item={view} onClose={close} />
+      <div className={"lab-blackout" + (black ? " on" : "")} aria-hidden="true" />
     </section>
   );
 }

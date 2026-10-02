@@ -3,7 +3,7 @@ import { LAB_FX } from "./config";
 import { Tv } from "./LabFx";
 import { BLANK_DISPLAY } from "@/config/cdn";
 import { useTraits } from "@/lib/useTraits";
-import { playBlip } from "@/lib/fileSounds";
+import { playBlip, startCamStatic } from "@/lib/fileSounds";
 import type { Build, Trait, TraitCat } from "@/lib/traits";
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -164,13 +164,27 @@ export function TraitScanner({ active }: { active: boolean }) {
 }
 
 export type DisplayMode = { kind: "traits" } | { kind: "cam"; devil: 1 | 2; label: string };
+
+// The feed's own picture cuts/jolts are CSS loops that start when this view mounts, so the sound
+// is scheduled on the same clock: tv-cut 9 s (cut at 62%), tv-art jolts at 46% and 83% of its loop.
+function CamSound({ devil, live }: { devil: 1 | 2; live: boolean }) {
+  useEffect(() => {
+    if (!live) return;
+    const night = devil === 2;
+    const cutPhase = night ? 4.5 : 0, joltLen = night ? 5.7 : 4.3, joltPhase = night ? 2 : 0;
+    const firstCut = (((0.62 * 9 - cutPhase) % 9) + 9) % 9;
+    const jolts = [0.46, 0.83].map((f) => (((f * joltLen - joltPhase) % joltLen) + joltLen) % joltLen);
+    return startCamStatic(firstCut, 9, jolts, joltLen);
+  }, [devil, live]);
+  return null;
+}
 export function TraitDisplay({ active, dropping, mode = { kind: "traits" } }: { active: boolean; dropping: boolean; mode?: DisplayMode }) {
   return (
     <div className={"lv-display" + (dropping ? " drop" : "")}>
       <i className="lvd-black" aria-hidden="true" />
       {mode.kind === "traits"
         ? <TraitScanner active={active} />
-        : <div className="lvd-screen lvd-cam"><Tv devil={mode.devil} label={mode.label} big /></div>}
+        : <div className="lvd-screen lvd-cam"><Tv devil={mode.devil} label={mode.label} big /><CamSound devil={mode.devil} live={active && !dropping} /></div>}
       <img className="lvd-bezel" src={BLANK_DISPLAY} alt="" draggable={false} />
     </div>
   );

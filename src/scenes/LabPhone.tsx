@@ -11,7 +11,10 @@ type Phase = "wait" | "ring1" | "talk1" | "quiet" | "ring2" | "talk2";
 const FIRST_RING_MS = 3500;
 const SECOND_RING_MS = 20000;
 
-export function LabPhone({ on, paused, tabIndex, onTag }: { on: boolean; paused: boolean; tabIndex: number; onTag: (k: string | null) => void }) {
+export function LabPhone({ on, paused, tabIndex, onTag, onSay, onBlackout }: {
+  on: boolean; paused: boolean; tabIndex: number; onTag: (k: string | null) => void;
+  onSay: (line: string | null) => void; onBlackout: () => void;
+}) {
   const [phase, setPhase] = useState<Phase>("wait");
   const timer = useRef(0);
   const ringing = phase === "ring1" || phase === "ring2";
@@ -33,20 +36,33 @@ export function LabPhone({ on, paused, tabIndex, onTag }: { on: boolean; paused:
     return () => window.clearInterval(id);
   }, [on, ringing, paused]);
 
+  // one click only: once it is picked up nothing else registers until the voice has finished
+  const busy = useRef(false);
   const pick = () => {
-    if (!ringing) return;
+    if (!ringing || busy.current) return;
+    busy.current = true;
     playPickup();
     if (phase === "ring1") {
       setPhase("talk1");
-      window.setTimeout(() => playVoice("Leave... or die.", () => { playHangup(); setPhase("quiet"); }), 700);
+      window.setTimeout(() => {
+        onSay("LEAVE… OR DIE.");
+        playVoice("Leave... or die.", () => {
+          onSay(null); playHangup(); setPhase("quiet");
+          window.setTimeout(() => { busy.current = false; }, 900);
+        });
+      }, 600);
     } else {
       setPhase("talk2");
-      window.setTimeout(() => playVoice("You are finished.", () => {
-        playHangup();
-        window.setTimeout(() => window.location.assign("/"), 1300);
-      }), 700);
+      window.setTimeout(() => {
+        onSay("YOU ARE FINISHED.");
+        playVoice("You are finished.", () => {
+          playHangup(); onBlackout();
+          window.setTimeout(() => window.location.assign("/"), 1700);
+        });
+      }, 600);
     }
   };
+  useEffect(() => { if (!on) { busy.current = false; onSay(null); } }, [on, onSay]);
 
   const p = LAB_FX.phone;
   return (
@@ -59,6 +75,7 @@ export function LabPhone({ on, paused, tabIndex, onTag }: { on: boolean; paused:
       </svg>
       <span className={"lab-phone-led" + (ringing ? " on" : "")} style={{ left: `${p.led.x}%`, top: `${p.led.y}%` }} aria-hidden="true" />
       <button type="button" className={"lab-phone" + (ringing ? " ringing" : "") + (phase.startsWith("talk") ? " talking" : "")}
+        aria-disabled={!ringing}
         style={at(p.hit)} tabIndex={tabIndex} aria-label={ringing ? "Answer the ringing phone" : "Wall phone"}
         onPointerEnter={() => onTag("phone")} onPointerLeave={() => onTag(null)} onFocus={() => onTag("phone")} onBlur={() => onTag(null)}
         onClick={pick} />

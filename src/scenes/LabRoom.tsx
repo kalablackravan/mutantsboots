@@ -6,6 +6,7 @@ import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
 import { LabPhone } from "./LabPhone";
+import { MutatedFlask3D } from "./MutatedFlask3D";
 import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
 import { loadTraits } from "@/lib/useTraits";
@@ -77,6 +78,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
             style={at(LAB.items[it.id].img)} draggable={false} />
         ))}
         <ClipboardPrint box={LAB.items.clipboard.img} hot={hover === "clipboard"} />
+        <DeskCork box={LAB.items.flask.img} hot={hover === "flask"} />
         {/* same dark foreground silhouette as the gate scene */}
         <img className="gate-layer lab-silhouette" src={sceneImage("bgsilhouette.webp")} alt="" style={at(FULL)} draggable={false} />
         {LAB_FX.screens.map((sc, i) => (
@@ -168,7 +170,11 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
       )}
       {shown === "flask" && (
         <div className={"lv-flask" + (dropping ? " drop" : "")} key={"f" + String(item)}>
-          <FlaskSpin active={item === "flask"} />
+          <div className="lv-flask-stage">
+            <MutatedFlask3D active={item === "flask"} />
+            <i className="lv-flask-shadow" />
+            <span className="lv-flask-hint">drag to turn</span>
+          </div>
           <article className="lv-mint">
             <img src={sceneImage("frame_black_border.webp")} alt="" draggable={false} />
             <div className="lv-mint-in">
@@ -233,6 +239,25 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
   );
 }
 
+// ---------------------------------------------------------------- cork for the 2D desk flask
+// Drawn in flask_black_border.webp pixel space (1236x1305) right over its mouth, same ink style.
+function DeskCork({ box, hot }: { box: Box; hot: boolean }) {
+  return (
+    <svg className={"lab-cork" + (hot ? " hot" : "")} style={at(box)} viewBox="0 0 1236 1305" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M512 160 L490 66 Q614 22 738 66 L716 160 Q614 190 512 160 Z" fill="#8c5a2c" stroke="#0b0705" strokeWidth="10" strokeLinejoin="round" />
+      <path d="M520 150 L503 74 Q540 64 566 62 L572 166 Q540 162 520 150 Z" fill="#b07a45" opacity=".85" />
+      <path d="M690 156 L705 80 Q716 84 724 88 L708 152 Z" fill="#5e3a1a" opacity=".7" />
+      <ellipse cx="614" cy="66" rx="124" ry="34" fill="#c99158" stroke="#0b0705" strokeWidth="10" />
+      <ellipse cx="614" cy="66" rx="88" ry="20" fill="none" stroke="#9c6a37" strokeWidth="6" opacity=".7" />
+      <g fill="#5e3a1a" opacity=".55">
+        <circle cx="560" cy="60" r="5" /><circle cx="650" cy="74" r="4" /><circle cx="600" cy="78" r="3.5" /><circle cx="676" cy="58" r="3.5" />
+        <circle cx="540" cy="110" r="4" /><circle cx="600" cy="128" r="5" /><circle cx="660" cy="104" r="4" /><circle cx="690" cy="136" r="3.5" />
+      </g>
+      <path d="M540 52 Q580 40 620 42" fill="none" stroke="#f0c48c" strokeWidth="7" strokeLinecap="round" opacity=".8" />
+    </svg>
+  );
+}
+
 // ---------------------------------------------------------------- one recovered specimen per page
 function shuffle<T>(a: T[]): T[] {
   const b = a.slice();
@@ -264,69 +289,3 @@ function SpecimenPage({ sp, n, of }: { sp: Specimen | undefined; n: number; of: 
   );
 }
 
-// ---------------------------------------------------------------- Serum M1 turntable
-// The flask is round, so a true 3D spin keeps its outline and turns what is inside it.
-// Every frame, each row inside the glass is mapped onto a cylinder and rotated; the
-// black outline and glass rim stay put. One flat image, a real-looking 3D turn.
-const FLASK_BOX = [264, 110, 958, 1166] as const; // content of flask_black_border.webp (1236x1305)
-function FlaskSpin({ active }: { active: boolean }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const [flat, setFlat] = useState(false);
-  useEffect(() => {
-    if (!active) return;
-    const cv = ref.current; if (!cv) return;
-    let raf = 0, stopped = false;
-    const img = new Image(); img.crossOrigin = "anonymous"; img.src = sceneImage("flask_black_border.webp");
-    img.decode().then(() => {
-      if (stopped) return;
-      const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const W = Math.max(8, Math.round(r.width * dpr)), H = Math.max(8, Math.round(r.height * dpr));
-      cv.width = W; cv.height = H;
-      const ctx = cv.getContext("2d", { willReadFrequently: true }); if (!ctx) throw new Error("no 2d");
-      const [x0, y0, x1, y1] = FLASK_BOX;
-      ctx.drawImage(img, x0, y0, x1 - x0, y1 - y0, 0, 0, W, H);
-      const src = ctx.getImageData(0, 0, W, H);                 // throws if the CDN ever drops CORS -> flat fallback
-      const out = new ImageData(new Uint8ClampedArray(src.data), W, H);
-      const N = 2048, SIN = new Float32Array(N);
-      for (let k = 0; k < N; k++) SIN[k] = Math.sin((2 * Math.PI * k) / N);
-      const dst: number[] = [], phi: number[] = [], row: number[] = [];
-      const rowCx = new Float32Array(H), rowRi = new Float32Array(H);
-      const edge = Math.max(2, W * 0.018);
-      for (let y = 0; y < H; y++) {
-        let L = -1, R = -1;
-        for (let x = 0; x < W; x++) if ((src.data[(y * W + x) * 4 + 3] ?? 0) > 40) { if (L < 0) L = x; R = x; }
-        if (L < 0) continue;
-        const cx = (L + R) / 2, rad = (R - L) / 2, ri = rad - Math.max(rad * 0.14, edge);
-        if (ri < 2) continue;
-        rowCx[y] = cx; rowRi[y] = ri;
-        for (let x = Math.ceil(cx - ri); x <= Math.floor(cx + ri); x++) {
-          const s = Math.max(-1, Math.min(1, (x - cx) / ri));
-          dst.push((y * W + x) * 4); phi.push(Math.round((Math.asin(s) / (2 * Math.PI)) * N + N) % N); row.push(y);
-        }
-      }
-      const D = Int32Array.from(dst), P = Int32Array.from(phi), Y = Int32Array.from(row), sd = src.data, od = out.data;
-      const t0 = performance.now(), period = 6000;
-      const frame = (now: number) => {
-        if (stopped) return;
-        const t = Math.floor((((now - t0) % period) / period) * N);
-        for (let i = 0; i < D.length; i++) {
-          const y = Y[i]!, u = (P[i]! + t) & (N - 1);
-          const sx = Math.round(rowCx[y]! + SIN[u]! * rowRi[y]!), so = (y * W + sx) * 4, o = D[i]!;
-          od[o] = sd[so]!; od[o + 1] = sd[so + 1]!; od[o + 2] = sd[so + 2]!; od[o + 3] = sd[so + 3]!;
-        }
-        ctx.putImageData(out, 0, 0);
-        raf = requestAnimationFrame(frame);
-      };
-      raf = requestAnimationFrame(frame);
-    }).catch(() => setFlat(true));
-    return () => { stopped = true; cancelAnimationFrame(raf); };
-  }, [active]);
-  return (
-    <div className="lv-flask-stage">
-      {flat
-        ? <img className="lv-flask-canvas wobble" src={sceneImage("flask_black_border.webp")} alt="Serum M1 flask" draggable={false} />
-        : <canvas ref={ref} className="lv-flask-canvas" role="img" aria-label="Serum M1 flask, turning" />}
-      <i className="lv-flask-shadow" />
-    </div>
-  );
-}

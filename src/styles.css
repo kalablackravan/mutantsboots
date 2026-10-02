@@ -844,3 +844,12 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .intro-rubble{-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .intro-scene{position:absolute;container-type:inline-size}
 .lab-silhouette{z-index:2;pointer-events:none}
+
+/* Serum M1: real 3D flask (three.js) */
+.lv-flask-3d{touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
+.lv-flask-3d.grabbing{cursor:grabbing}
+.lv-flask-hint{position:absolute;left:50%;bottom:-9%;transform:translateX(-50%);font:700 clamp(10px,.8vw,13px) var(--mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(160,255,190,.55);white-space:nowrap;pointer-events:none}
+.lv-flask.drop .lv-flask-hint{opacity:0}
+/* cork on the desk flask */
+.lab-cork{position:absolute;z-index:1;pointer-events:none;overflow:visible;filter:brightness(.86) saturate(.95);transition:transform .25s ease,filter .25s ease}
+.lab-cork.hot{transform:translateY(-.35%);filter:brightness(1.05)}

@@ -172,7 +172,7 @@ function DripSet({ tips, className, seed }: { tips: Tip[]; className?: string; s
   return (
     <div className={"gate-drips " + (className ?? "")} aria-hidden="true">
       {tips.map(([x, y], i) => {
-        const dur = 3.2 + rnd(i, seed) * 4.5, delay = -rnd(i, seed + 1) * dur;
+        const dur = 7 + rnd(i, seed) * 7, delay = -rnd(i, seed + 1) * dur;   // one drop every 7-14 s per tip
         const floor = FLOOR + (rnd(i, seed + 2) - 0.5) * 24;
         const st = { left: `${x / 38.4}%`, top: `${y / 18}%`, "--fall": `${(floor - y) / 38.4}cqw`, animationDuration: `${dur}s`, animationDelay: `${delay}s` } as CSSProperties;
         return (

@@ -863,13 +863,13 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .gate-drip b{position:absolute;left:0;top:var(--fall);width:1cqw;height:.28cqw;margin-left:-.5cqw;border-radius:50%;border:.08cqw solid rgba(150,255,140,.8);opacity:0;animation:dripSplash linear infinite}
 @keyframes dripFall{
   0%{transform:translateY(0) scale(0);opacity:0}
-  8%{opacity:1}
-  62%{transform:translateY(.1cqw) scale(1,1.15)}
-  70%{transform:translateY(.25cqw) scale(.9,1.3);animation-timing-function:cubic-bezier(.5,0,1,.6)}
-  86%{transform:translateY(var(--fall)) scale(.8,1.5);opacity:1}
-  87%,100%{transform:translateY(var(--fall)) scale(0);opacity:0}
+  10%{opacity:1}
+  70%{transform:translateY(.12cqw) scale(1,1.15)}
+  76%{transform:translateY(.3cqw) scale(.9,1.3);animation-timing-function:cubic-bezier(.45,0,.9,.6)}
+  91%{transform:translateY(var(--fall)) scale(.8,1.45);opacity:1}
+  92%,100%{transform:translateY(var(--fall)) scale(0);opacity:0}
 }
-@keyframes dripSplash{0%,85%{opacity:0;transform:scale(.2)}87%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes dripSplash{0%,90%{opacity:0;transform:scale(.2)}92%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
 
 /* the lab, glimpsed through the open restricted door */
 .door-peek{overflow:hidden;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}

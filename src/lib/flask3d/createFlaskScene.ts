@@ -33,6 +33,7 @@ const INNER: [number, number][] = [
   [0.3, 0.04], [0.286, 0.032], [0.25, 0.03], [0, 0.03],
 ];
 const FILL_Y = 0.33;                       // liquid level at rest (matches the art)
+const FIT_RADIUS = 0.58;                   // bounding sphere of glass + cork + ink outline around the pivot
 const MOUTH_Y = 0.86;                      // liquid volume ends at the cork
 
 // inner radius at height y (the cavity), used for bubbles and the surface rim highlight
@@ -427,8 +428,11 @@ export function createFlaskScene(canvas: HTMLCanvasElement, opts: { still?: bool
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, w < 500 ? 1.5 : 1.75));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    // keep the whole flask (cork included) in frame at any aspect
-    camera.fov = w / h < 0.62 ? 26 * (0.62 / (w / h)) : 26;
+    // Fit the flask's bounding sphere (around the pivot it turns on), not its upright outline,
+    // so no orientation can poke out of the canvas: lying sideways, upside down, mid-spin.
+    const dist = camera.position.distanceTo(pivot);
+    const t = Math.tan(Math.asin(Math.min(0.95, FIT_RADIUS / dist))) / Math.min(1, w / h);
+    camera.fov = (2 * Math.atan(t) * 180) / Math.PI;
     camera.updateProjectionMatrix();
   };
   const ro = new ResizeObserver(resize); ro.observe(canvas); resize();

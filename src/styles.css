@@ -846,7 +846,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-silhouette{z-index:2;pointer-events:none}
 
 /* Serum M1: real 3D flask (three.js) */
-.lv-flask-3d{touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
+/* square canvas centred on the stage and wider than it: room for the flask at any rotation */
+.lv-flask-3d{position:absolute;z-index:1;top:0;left:50%;width:auto;height:100%;aspect-ratio:1;transform:translateX(-50%);touch-action:none;cursor:grab;-webkit-tap-highlight-color:transparent}
+.lv-flask .lv-mint{z-index:2}
 .lv-flask-3d.grabbing{cursor:grabbing}
 .lv-flask-hint{position:absolute;left:50%;bottom:-9%;transform:translateX(-50%);font:700 clamp(10px,.8vw,13px) var(--mono);letter-spacing:.2em;text-transform:uppercase;color:rgba(160,255,190,.55);white-space:nowrap;pointer-events:none}
 .lv-flask.drop .lv-flask-hint{opacity:0}

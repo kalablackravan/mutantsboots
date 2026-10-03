@@ -356,31 +356,39 @@ export function playBlip(up = true) {
 
 /** CRT smashing on the floor: tube implodes (deep boom + suck), glass bursts, sparks fizz and die. */
 export function playTvBreak(delay = 0.42) {
+  // A CRT dying, not glass shattering (that is the flask): the picture collapses with a falling
+  // "peeew" + static, the tube implodes with a dull pop, the set hits the floor, then electric
+  // arcs crackle out and the mains hum dies. Only a few low, crunchy glass bits, no tinkling.
   try {
-    const m = master(0.5); if (!m) return; const { c, out } = m; const t = m.t + delay;
-    const soft = c.createBiquadFilter(); soft.type = "lowpass"; soft.frequency.value = 8000; soft.connect(out);
-    thump(c, soft, t, 70, 32, 0.4, 1.0);                                                                      // heavy body hits
-    thump(c, soft, t + 0.01, 160, 80, 0.12, 0.5);
-    burst(c, soft, t, 0.18, (x) => (x < 0.05 ? x / 0.05 : Math.pow(1 - x, 2)), [{ type: "lowpass", f: 1200, to: [[300, 0.18]] }], 1.0, [0.8, 1.2]); // implosion
-    burst(c, soft, t + 0.02, 0.08, (x) => Math.pow(1 - x, 3), [{ type: "highpass", f: 1600 }], 0.9, [1, 1]);  // glass crack
-    for (let i = 0; i < 22; i++) {                                                                            // glass shards
-      const at = t + 0.03 + Math.pow(Math.random(), 1.6) * 0.6;
-      const f = 1800 + Math.random() * 3200, dur = 0.04 + Math.random() * 0.08;
-      const lvl = Math.max(0.004, (0.04 + Math.random() * 0.08) * (1 - (at - t) / 0.75));
-      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
-      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
-      g.gain.exponentialRampToValueAtTime(lvl, at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-      o.connect(g); g.connect(soft); o.start(at); o.stop(at + dur + 0.02);
+    const m = master(0.5); if (!m) return; const { c, out } = m; const t0 = m.t;
+    const soft = c.createBiquadFilter(); soft.type = "lowpass"; soft.frequency.value = 7000; soft.connect(out);
+    // picture collapsing as it falls (starts right away)
+    const pw = c.createOscillator(); pw.type = "sine";
+    pw.frequency.setValueAtTime(7200, t0); pw.frequency.exponentialRampToValueAtTime(900, t0 + delay * 0.9);
+    const pg = c.createGain(); pg.gain.setValueAtTime(0.0001, t0); pg.gain.exponentialRampToValueAtTime(0.05, t0 + 0.03);
+    pg.gain.exponentialRampToValueAtTime(0.0001, t0 + delay * 0.95);
+    pw.connect(pg); pg.connect(soft); pw.start(t0); pw.stop(t0 + delay + 0.05);
+    burst(c, soft, t0, delay * 0.9, (x) => 0.6 * (1 - x), [{ type: "bandpass", f: 4200, q: 0.6, to: [[1800, delay * 0.9]] }], 0.22, [0.2, 1.8], [2, 9]);
+    const t = t0 + delay;
+    // tube implosion: dull low "whoomp-pop"
+    burst(c, soft, t, 0.16, (x) => (x < 0.04 ? x / 0.04 : Math.pow(1 - x, 2.2)), [{ type: "lowpass", f: 2200, to: [[180, 0.14]] }], 1.0, [0.9, 1.1]);
+    thump(c, soft, t, 95, 40, 0.22, 0.8);
+    // the heavy plastic/metal set landing
+    thump(c, soft, t + 0.05, 58, 26, 0.5, 1.0);
+    thump(c, soft, t + 0.06, 240, 120, 0.09, 0.45);
+    // a few crunchy glass bits (noise, low, no ringing)
+    for (let i = 0; i < 5; i++) {
+      burst(c, soft, t + 0.04 + i * 0.05 + Math.random() * 0.04, 0.04 + Math.random() * 0.04, (x) => Math.pow(1 - x, 2), [{ type: "bandpass", f: 1600 + Math.random() * 1400, q: 1.1 }], 0.35 * (1 - i / 6), [0.3, 1.7], [2, 8]);
     }
-    // electrical sparks: crackly buzz bursts that fade out
-    for (let i = 0; i < 6; i++) {
-      const at = t + 0.12 + i * 0.09 + Math.random() * 0.05;
-      burst(c, soft, at, 0.06 + Math.random() * 0.05, (x) => Math.pow(1 - x, 1.5), [{ type: "bandpass", f: 3500 + Math.random() * 2000, q: 2 }], 0.35 * (1 - i / 7), [0.1, 2], [1, 4]);
-    }
-    const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.value = 50;
-    const hl = c.createBiquadFilter(); hl.type = "lowpass"; hl.frequency.value = 400;
-    const hg = c.createGain(); hg.gain.setValueAtTime(0.0001, t + 0.05); hg.gain.exponentialRampToValueAtTime(0.12, t + 0.1); hg.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
-    hum.connect(hl); hl.connect(hg); hg.connect(soft); hum.start(t + 0.05); hum.stop(t + 0.85);
+    // electric arcs "zzzt" fading out
+    zap(c, soft, t + 0.22, 0.32, 0.22);
+    zap(c, soft, t + 0.62, 0.18, 0.14);
+    zap(c, soft, t + 0.9, 0.1, 0.08);
+    // mains hum dying
+    const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.setValueAtTime(60, t + 0.1); hum.frequency.exponentialRampToValueAtTime(35, t + 1.3);
+    const hl = c.createBiquadFilter(); hl.type = "lowpass"; hl.frequency.value = 380;
+    const hg = c.createGain(); hg.gain.setValueAtTime(0.0001, t + 0.1); hg.gain.exponentialRampToValueAtTime(0.1, t + 0.18); hg.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+    hum.connect(hl); hl.connect(hg); hg.connect(soft); hum.start(t + 0.1); hum.stop(t + 1.35);
   } catch { /* sound is optional */ }
 }
 

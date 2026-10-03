@@ -228,7 +228,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .cf-face.back{transform:rotateY(180deg)}
 .cf-art{position:absolute;inset:0;background-repeat:no-repeat}
 .cf-baked{position:absolute;top:0;height:100%}
-.cf-baked img{display:block;width:100%;height:100%;max-width:none;-webkit-user-drag:none}
+.cf-baked img{display:block;width:100%;height:100%;max-width:none;-webkit-user-drag:none;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .cf-baked::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:linear-gradient(to right,rgba(0,0,0,.55),rgba(0,0,0,.15));-webkit-mask-image:var(--baked);mask-image:var(--baked);-webkit-mask-size:100% 100%;mask-size:100% 100%}
 .cf-art::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:linear-gradient(to right,rgba(0,0,0,.55),rgba(0,0,0,.15))}
 .cf-leaf.moving.fwd>.front>.cf-art::after,.cf-leaf.moving.rev>.back>.cf-art::after,.cf-leaf.moving.fwd>.front>.cf-baked::after,.cf-leaf.moving.rev>.back>.cf-baked::after{animation:cfAway 1.1s ease-in forwards}
@@ -871,12 +871,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 }
 @keyframes dripSplash{0%,90%{opacity:0;transform:scale(.2)}92%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
 
-/* the lab, glimpsed through the open restricted door */
-.door-peek{overflow:hidden;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-.door-peek-room{position:absolute}
-.door-peek-room img{position:absolute;inset:0;width:100%;height:100%}
-.door-peek-screen{position:absolute;background:radial-gradient(ellipse at center,#1d6b3a,#06200f 80%);box-shadow:0 0 1.2cqw rgba(60,255,140,.35)}
-.door-peek-fog{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.1) 30%,rgba(0,0,0,.1) 70%,rgba(0,0,0,.65)),linear-gradient(180deg,rgba(0,8,6,.35),rgba(20,60,40,.15) 60%,rgba(0,0,0,.5));mix-blend-mode:multiply}
 @media (prefers-reduced-motion: reduce){.gate-drip i,.gate-drip b{animation:none;opacity:0}}
 
 /* the devil laughing at the camera: the picture shakes, the eyes flare */

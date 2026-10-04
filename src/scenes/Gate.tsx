@@ -5,10 +5,10 @@ import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorOpen, startAlertLoop, startGaugeDings, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { Faucet, FirstAidKit, GateBackdrop, SignLogo, SlimeDrips } from "./GateProps";
+import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
-type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void };
+type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void; onHome?: () => void };
 
 const position = (box: LayerBox): CSSProperties => ({
   left: `${box.left}%`, top: `${box.top}%`, width: `${box.width}%`, height: `${box.height}%`,
@@ -45,12 +45,13 @@ function Gauge({ cx, cy, r, dur, delay, active }: { cx: number; cy: number; r: n
   );
 }
 
-export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
+export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Props) {
   const [open, setOpen] = useState(false);
   const [openReady, setOpenReady] = useState(false);
   const [cloneHover, setCloneHover] = useState(false);
   const [lockHover, setLockHover] = useState(false);
   const [faucetHover, setFaucetHover] = useState(false);
+  const [homeHover, setHomeHover] = useState(false);
   const lastDoorSound = useRef(0);
   const doorSound = () => { const now = performance.now(); if (now - lastDoorSound.current > 1200) { lastDoorSound.current = now; playDoorOpen(); } };
   const [fileOpen, setFileOpen] = useState(false);
@@ -98,6 +99,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
         <SlimeDrips />
+        <HomePad tabIndex={on ? 0 : -1} onHome={() => onHome?.()} onTag={setHomeHover} />
         <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
         <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}
@@ -130,6 +132,8 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab }: Props) {
           style={{ left: `${SCENE_LAYERS.lockHit.left + SCENE_LAYERS.lockHit.width / 2}%`, top: `${SCENE_LAYERS.lockHit.top}%` }}>
           ⛔ no access
         </span>
+        <span className={"gate-tag clone-tag" + (homeHover && !fileOpen ? " on" : "")}
+          style={{ left: `${1224 / 38.4}%`, top: `${855 / 18}%` }}>▸ exit to home</span>
         <span className={"gate-tag clone-tag" + (faucetHover && !fileOpen ? " on" : "")}
           style={{ left: `${3275 / 38.4}%`, top: `${1286 / 18}%` }}>▸ open the valve</span>
         <span className={"gate-tag clone-tag" + (cloneHover || fileBusy ? " on" : "")}

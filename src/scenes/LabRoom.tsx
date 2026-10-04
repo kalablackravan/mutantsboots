@@ -99,6 +99,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
             onFocus={() => setHover(it.id)} onBlur={() => setHover(null)} onClick={() => open(it.id)} />
         ))}
       </div>
+      <div className="lab-overlay" aria-hidden="true" />
       <div className="lab-shade" aria-hidden="true" />
       <div id="lab-ui" aria-hidden="true">
         {ITEMS.map((it) => (
@@ -181,7 +182,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
               <h2>MINT DETAILS</h2>
               <dl>
                 <div><dt>Mint time</dt><dd>TBA</dd></div>
-                <div><dt>Price</dt><dd>FREE MINT</dd></div>
+                <div><dt>Price</dt><dd>0.004 ZEC</dd></div>
                 <div><dt>Network</dt><dd>Zcash</dd></div>
                 <div><dt>Supply</dt><dd>606</dd></div>
                 <div><dt>Marketplace</dt><dd>TBA</dd></div>

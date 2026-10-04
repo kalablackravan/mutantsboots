@@ -345,13 +345,14 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 #intro{display:grid;place-items:center;z-index:5;background:var(--ink)}
 .intro-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none}
 #intro::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 54%,rgba(0,0,0,.18) 78%,rgba(0,0,0,.72));pointer-events:none}
-.intro-overlay,.gate-overlay{position:fixed;inset:0;background:#000;pointer-events:none;z-index:1;opacity:.5;animation:overlayPulse 4s ease-in-out infinite}
+.intro-overlay,.gate-overlay,.lab-overlay{position:fixed;inset:0;background:#000;pointer-events:none;z-index:1;opacity:.5;animation:overlayPulse 4s ease-in-out infinite}
 @keyframes overlayPulse{0%,100%{opacity:.5}50%{opacity:.7}}
 @media (prefers-reduced-motion: reduce){
-  .gauge-needle.run,.cap-light i,.cap-light::after,.beacon-beam,.beacon-lamp,.alarm-wash{animation:none}.intro-overlay,.gate-overlay{animation:none;opacity:.6}}
+  .gauge-needle.run,.cap-light i,.cap-light::after,.beacon-beam,.beacon-lamp,.alarm-wash{animation:none}.intro-overlay,.gate-overlay,.lab-overlay{animation:none;opacity:.6}}
 #intro-enter{position:absolute;z-index:2;left:50%;bottom:max(5vh,env(safe-area-inset-bottom));transform:translateX(-50%);background:none;border:0;cursor:pointer;display:grid;justify-items:center;gap:3px;text-align:center;white-space:nowrap;max-width:calc(100vw - 24px);padding:8px 18px;color:var(--paper) !important;text-shadow:0 2px 12px #000,0 1px 3px #000}
-#intro-enter .intro-title{font-family:var(--display);font-size:clamp(32px,5vw,74px);line-height:1.05}
-#intro-enter .intro-prompt{font-family:var(--mono);font-size:clamp(16px,2vw,23px);font-weight:700;text-transform:uppercase;animation:bellPulse 2.4s ease-in-out infinite}
+#intro-enter .intro-title{font-family:'Rubik Wet Paint',var(--display);font-weight:400;font-size:clamp(32px,5vw,74px);line-height:1.05;padding-bottom:.28em;margin-bottom:-.12em;letter-spacing:.01em;text-shadow:0 0 22px rgba(77,255,134,.35),0 3px 0 #000,0 2px 12px #000}
+#intro-enter .intro-prompt{font-family:var(--mono);font-size:clamp(16px,2vw,23px);font-weight:700;text-transform:uppercase;position:relative;letter-spacing:.18em;animation:bellPulse 2.4s ease-in-out infinite}
+#intro-enter .intro-arrow{position:absolute;left:100%;margin-left:.3em;letter-spacing:0}
 #intro-enter:hover .intro-prompt,#intro-enter:focus-visible .intro-prompt{color:var(--butter)}
 /* the clerk's bubble */
 .bub{position:fixed;z-index:10;transform:translateX(-50%);background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:18px;padding:14px 18px;font-size:clamp(14px,1.15vw,18px);line-height:1.35;box-shadow:0 4px 0 var(--ink)}
@@ -879,3 +880,12 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-tv.laughing .tv-art img{filter:contrast(1.25) saturate(1.1) brightness(1.08) drop-shadow(0 0 1.2cqw rgba(255,40,40,.55))}
 @keyframes tvLaugh{0%{transform:translate(0,0) scale(1.01)}50%{transform:translate(.6%,-1.2%) scale(1.03)}100%{transform:translate(-.5%,.8%) scale(1.02)}}
 @media (prefers-reduced-motion: reduce){.lab-tv.laughing .tv-art{animation:none}}
+
+/* intro sound toggle */
+.intro-sound{position:absolute;z-index:3;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));background:rgba(0,0,0,.45);border:1px solid rgba(160,255,190,.35);color:rgba(190,255,210,.85);font:700 clamp(10px,.8vw,13px) var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:.55em .9em;border-radius:4px;cursor:pointer}
+.intro-sound:hover{color:#fff;border-color:rgba(160,255,190,.8)}
+/* gate: keypad beside the cloning vessel = EXIT (home) */
+.gate-homepad-screen{position:absolute;z-index:2;pointer-events:none;container-type:inline-size;display:grid;place-items:center;overflow:hidden}
+.gate-homepad-screen b{font:400 38cqw/1 'Black Ops One',var(--mono);letter-spacing:.06em;color:#0a3a18;animation:padBlink 1.4s steps(1,end) infinite}
+.gate-homepad{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gate-homepad:focus-visible{outline:2px solid rgba(120,255,200,.7);outline-offset:2px}

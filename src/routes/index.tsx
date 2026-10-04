@@ -11,14 +11,14 @@ import { Room, type RoomState } from "@/scenes/Room";
 import { IV, LINES, CLASSES, classify } from "@/scenes/content";
 import { Gallery, Notices, Tasks, Folder, Disclaimer, Menu, Socials } from "@/overlays/Panels";
 import { LabRoom, preloadLab } from "@/scenes/LabRoom";
-import { primeSceneAudio } from "@/lib/fileSounds";
+import { primeSceneAudio, startCreepyMusic, playBlip } from "@/lib/fileSounds";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "mutatedfoots — enter the lab" },
+      { title: "mutatedfoots" },
       { name: "description", content: "Enter the mutatedfoots lab and explore what lies beyond the doors." },
-      { property: "og:title", content: "mutatedfoots — enter the lab" },
+      { property: "og:title", content: "mutatedfoots" },
       { property: "og:description", content: "Enter the mutatedfoots lab and explore what lies beyond the doors." },
       { property: "og:image", content: homepageArt },
       { property: "og:type", content: "website" },
@@ -49,11 +49,25 @@ function Office() {
   const [gateZoom, setGateZoom] = useState<"" | "zoom-from">("");
   const [labZoom, setLabZoom] = useState<"" | "zoom-from">("");
   useEffect(() => { void preloadScene(); }, []); // start fetching + decoding the scene while the visitor is still on the intro
+  // intro: slow creepy ambience. Browsers only allow sound after a click/key/touch, so it starts silent
+  // and the first gesture anywhere on the page lets it through; the speaker button mutes it.
+  const [soundReady, setSoundReady] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const music = useRef<ReturnType<typeof startCreepyMusic> | null>(null);
+  useEffect(() => {
+    if (scene !== "intro") return;
+    const m = startCreepyMusic(); music.current = m;
+    const unlock = () => { primeSceneAudio(); setSoundReady(true); };
+    const evs = ["pointerdown", "keydown", "touchstart"] as const;
+    evs.forEach((e) => window.addEventListener(e, unlock, { once: true, passive: true }));
+    return () => { evs.forEach((e) => window.removeEventListener(e, unlock)); m.stop(1.4); music.current = null; };
+  }, [scene]);
+  useEffect(() => { music.current?.setMuted(muted); }, [muted, scene]);
   useEffect(() => { if (scene === "gate") void preloadLab(); }, [scene]); // lab room ready before the door is clicked
   const close = useCallback(() => setOv(null), []);
 
   // walking through the department door: black falls, the scene changes under it, black lifts as the room zooms in
-  const travel = async (to: "room" | "gate" | "lab") => {
+  const travel = async (to: "room" | "gate" | "lab" | "intro") => {
     if (busy.current) return; busy.current = true;
     if (to === "lab") await preloadLab(); // the lab room is decoded before the door lets anyone in
     const t = reduced() ? 0 : 1;
@@ -62,6 +76,7 @@ function Office() {
     setBeat(null);
     if (to === "room") setSt((s) => ({ ...s, zoom: "zoom-from" }));
     if (to === "lab") setLabZoom("zoom-from");
+    if (to === "intro") setEntering(false);
     setScene(to); await wait(40);
     setBlack("lift"); setSt((s) => ({ ...s, zoom: "" })); setLabZoom("");
     await wait(900 * t); setBlack("");
@@ -136,12 +151,15 @@ function Office() {
       <section id="intro" className={"scene" + (scene === "intro" ? " on" : "")} aria-hidden={scene !== "intro"}>
         <IntroArt />
         <div className="intro-overlay" aria-hidden="true" />
-        <button type="button" id="intro-enter" onClick={enter} aria-busy={entering} aria-label="mutatedfoots enter" tabIndex={scene === "intro" ? 0 : -1}>
+        <button type="button" id="intro-enter" onClick={enter} aria-busy={entering} aria-label="mutatedfoots break in" tabIndex={scene === "intro" ? 0 : -1}>
           <span className="intro-title">mutatedfoots</span>
-          <span className="intro-prompt">{entering ? "loading…" : <>enter <span aria-hidden="true">↗</span></>}</span>
+          <span className="intro-prompt">{entering ? "loading…" : <>break in<span className="intro-arrow" aria-hidden="true">↗</span></>}</span>
+        </button>
+        <button type="button" className="intro-sound" onClick={() => { primeSceneAudio(); setSoundReady(true); if (soundReady) setMuted((m) => !m); }} aria-label={muted ? "turn the sound on" : "turn the sound off"} tabIndex={scene === "intro" ? 0 : -1}>
+          {!soundReady ? "♪ tap for sound" : muted ? "🔇 sound off" : "🔊 sound on"}
         </button>
       </section>
-       <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("lab")} />
+       <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("lab")} onHome={() => { playBlip(false); void travel("intro"); }} />
       <LabRoom on={scene === "lab"} zoom={labZoom} onExit={() => travel("gate")} />
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (

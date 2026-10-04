@@ -630,3 +630,115 @@ export function playDevilLaugh(devil: 1 | 2): { len: number; stop: () => void } 
     return none;
   }
 }
+
+// ---------------------------------------------------------------- intro: slow creepy ambience
+// A cold drone (two detuned saws + a sub + a throbbing minor second) breathing through a slow
+// filter, a faint double heartbeat, ghostly phrygian pads that bloom and fade, and rare glassy
+// "drips" far away in a long reverb. All synthesised, no files. Starts silent, fades in, and stop()
+// fades it out. If the browser has not allowed sound yet it simply waits (resume happens on the
+// first click/key/touch, see primeSceneAudio).
+export function startCreepyMusic(): { stop: (fade?: number) => void; setMuted: (m: boolean) => void } {
+  const none = { stop: () => undefined, setMuted: () => undefined };
+  try {
+    const c = audio(); if (!c) return none;
+    const master = c.createGain(); master.gain.value = 0.0001; master.connect(c.destination);
+    const user = c.createGain(); user.gain.value = 1; user.connect(master);
+    // long dark reverb (generated impulse: noise with a slow exponential tail, darker over time)
+    const len = Math.floor(c.sampleRate * 3.6), imp = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = imp.getChannelData(ch); let lp = 0;
+      for (let i = 0; i < len; i++) { const k = 1 - i / len; lp += (Math.random() * 2 - 1 - lp) * (0.08 + 0.5 * k); d[i] = lp * Math.pow(k, 2.4); }
+    }
+    const verb = c.createConvolver(); verb.buffer = imp;
+    const wet = c.createGain(); wet.gain.value = 0.7; verb.connect(wet); wet.connect(user);
+    const dry = c.createGain(); dry.gain.value = 0.55; dry.connect(user);
+    const bus = c.createGain(); bus.gain.value = 1; bus.connect(dry); bus.connect(verb);
+
+    const nodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
+    const osc = (type: OscillatorType, f: number, g: number, dest: AudioNode = bus, detune = 0) => {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = f; o.detune.value = detune;
+      const gn = c.createGain(); gn.gain.value = g; o.connect(gn); gn.connect(dest); o.start(); nodes.push(o); return { o, gn };
+    };
+    // drone
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 230; lp.Q.value = 3; lp.connect(bus);
+    osc("sawtooth", 55, 0.1, lp); osc("sawtooth", 55, 0.08, lp, 9); osc("sine", 27.5, 0.22);
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.045; const lfoG = c.createGain(); lfoG.gain.value = 110;
+    lfo.connect(lfoG); lfoG.connect(lp.frequency); lfo.start(); nodes.push(lfo);            // the filter slowly breathes
+    const minor = osc("sine", 58.27, 0.0001);                                               // Bb against A: the uneasy beat
+    const trem = c.createOscillator(); trem.frequency.value = 0.07; const tremG = c.createGain(); tremG.gain.value = 0.06;
+    trem.connect(tremG); tremG.connect(minor.gn.gain); trem.start(); nodes.push(trem);
+    osc("sine", 110.0, 0.0001); // placeholder octave pad, kept silent so the graph stays simple
+
+    const timers: number[] = []; let alive = true; let muted = false;
+    const running = () => alive && c.state === "running";
+    const tone2 = (f: number, at: number, dur: number, peak: number, type: OscillatorType = "sine", vib = 0) => {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = f;
+      if (vib) { const v = c.createOscillator(); v.frequency.value = 4.2 + Math.random(); const vg = c.createGain(); vg.gain.value = f * vib; v.connect(vg); vg.connect(o.frequency); v.start(at); v.stop(at + dur + 0.1); }
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(peak, at + dur * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      o.connect(g); g.connect(bus); o.start(at); o.stop(at + dur + 0.1);
+    };
+    // heartbeat: a very quiet double thump about every 2.2 s
+    const beat = () => {
+      if (running()) {
+        const t = c.currentTime + 0.02;
+        for (const [dt, pk] of [[0, 0.5], [0.34, 0.32]] as const) {
+          const o = c.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(70, t + dt); o.frequency.exponentialRampToValueAtTime(34, t + dt + 0.22);
+          const g = c.createGain(); g.gain.setValueAtTime(0.0001, t + dt); g.gain.exponentialRampToValueAtTime(pk * 0.5, t + dt + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.3);
+          o.connect(g); g.connect(dry); o.start(t + dt); o.stop(t + dt + 0.35);
+        }
+      }
+      timers.push(window.setTimeout(beat, 2200));
+    };
+    // ghostly pads: two or three phrygian notes that swell for ~7 s
+    const NOTES = [164.81, 174.61, 220.0, 246.94, 329.63, 349.23, 440.0];
+    const pad = () => {
+      if (running()) {
+        const t = c.currentTime + 0.05; const n = 2 + Math.floor(Math.random() * 2);
+        for (let i = 0; i < n; i++) tone2(NOTES[Math.floor(Math.random() * NOTES.length)]! * (Math.random() < 0.2 ? 2 : 1), t + i * 0.9, 6 + Math.random() * 3, 0.05, "triangle", 0.004);
+      }
+      timers.push(window.setTimeout(pad, 8000 + Math.random() * 5000));
+    };
+    // far-away glassy drips
+    const drip = () => {
+      if (running()) {
+        const t = c.currentTime + 0.02; const f = 1500 + Math.random() * 1400;
+        const o = c.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.6, t + 0.25);
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.045, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+        o.connect(g); g.connect(verb); g.connect(dry); o.start(t); o.stop(t + 0.4);
+      }
+      timers.push(window.setTimeout(drip, 3500 + Math.random() * 6000));
+    };
+    // a rare low metallic groan (filtered noise sweeping down)
+    const groan = () => {
+      if (running()) {
+        const t = c.currentTime + 0.05, d = 4.5;
+        const b = c.createBuffer(1, Math.floor(c.sampleRate * d), c.sampleRate), ch = b.getChannelData(0);
+        for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+        const src = c.createBufferSource(); src.buffer = b;
+        const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 14;
+        bp.frequency.setValueAtTime(260, t); bp.frequency.exponentialRampToValueAtTime(95, t + d);
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + d * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        src.connect(bp); bp.connect(g); g.connect(bus); src.start(t); nodes.push(src);
+      }
+      timers.push(window.setTimeout(groan, 20000 + Math.random() * 15000));
+    };
+    timers.push(window.setTimeout(beat, 1500), window.setTimeout(pad, 2500), window.setTimeout(drip, 4000), window.setTimeout(groan, 14000));
+
+    master.gain.setValueAtTime(0.0001, c.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.5, c.currentTime + 5);                       // slow fade in
+    return {
+      setMuted: (m: boolean) => { muted = m; user.gain.cancelScheduledValues(c.currentTime); user.gain.setTargetAtTime(m ? 0.0001 : 1, c.currentTime, 0.25); },
+      stop: (fade = 1.2) => {
+        if (!alive) return; alive = false; timers.forEach((id) => window.clearTimeout(id));
+        const t = c.currentTime;
+        master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(Math.max(master.gain.value, 0.0001), t);
+        master.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+        window.setTimeout(() => { for (const n of nodes) { try { n.stop(); } catch { /* already stopped */ } } try { master.disconnect(); } catch { /* gone */ } }, fade * 1000 + 200);
+        void muted;
+      },
+    };
+  } catch {
+    return none;
+  }
+}

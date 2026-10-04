@@ -192,3 +192,14 @@ export function SlimeDrips() {
     </>
   );
 }
+
+// ---------------------------------------------------------------- the keypad beside the cloning vessel = EXIT (back to the home page)
+export function HomePad({ tabIndex, onHome, onTag }: { tabIndex: number; onHome: () => void; onTag?: (on: boolean) => void }) {
+  return (
+    <>
+      <span className="gate-homepad-screen" style={box(1188, 870, 63, 30)} aria-hidden="true"><b>EXIT</b></span>
+      <button type="button" className="gate-homepad" style={box(1172, 855, 104, 126)} tabIndex={tabIndex} aria-label="Exit to the home page" onClick={onHome}
+        onPointerEnter={() => onTag?.(true)} onPointerLeave={() => onTag?.(false)} onFocus={() => onTag?.(true)} onBlur={() => onTag?.(false)} />
+    </>
+  );
+}

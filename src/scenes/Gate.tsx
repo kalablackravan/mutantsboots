@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playDoorOpen, startAlertLoop, startGaugeDings, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorBurst, playDoorOpen, playVesselBlip, startAlertLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -52,6 +52,16 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const [lockHover, setLockHover] = useState(false);
   const [faucetHover, setFaucetHover] = useState(false);
   const [homeHover, setHomeHover] = useState(false);
+  // lockdown door: click it and something on the other side throws itself at it
+  const [burst, setBurst] = useState(false);
+  const burstTimer = useRef(0);
+  const slam = () => {
+    if (burst || fileOpen) return;
+    setBurst(true); playDoorBurst();
+    burstTimer.current = window.setTimeout(() => setBurst(false), 1700);
+  };
+  useEffect(() => () => window.clearTimeout(burstTimer.current), []);
+  const born = useRef(performance.now());              // CSS loops (vessel lights, drips) run from mount: sounds use the same clock
   const lastDoorSound = useRef(0);
   const doorSound = () => { const now = performance.now(); if (now - lastDoorSound.current > 1200) { lastDoorSound.current = now; playDoorOpen(); } };
   const [fileOpen, setFileOpen] = useState(false);
@@ -66,6 +76,25 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
     const big = CLONE.gauges[1];                       // the big top gauge: same timing as its needle (peak at 62% of the sweep)
     return startGaugeDings(big.delay + big.dur * 0.62, big.dur);
   }, [on, cloneHover, fileOpen]);
+  useEffect(() => {                                   // liquid flowing through the pipes, always, quietly
+    if (!on || fileOpen) return;
+    return startPipeFlow();
+  }, [on, fileOpen]);
+  useEffect(() => {                                   // vessel status lights: a tick each time a light comes on (capGlow: on at 0% of its loop)
+    if (!on || fileOpen) return;
+    const timers: number[] = [];
+    CLONE.lights.forEach((l, i) => {
+      const red = i === CLONE.lights.length - 1;
+      const next = () => {
+        const now = (performance.now() - born.current) / 1000;
+        const phase = ((((now - l.delay) % l.period) + l.period) % l.period) / l.period;
+        const dt = ((1 - phase) % 1) * l.period || l.period;
+        timers.push(window.setTimeout(() => { playVesselBlip(red); next(); }, dt * 1000));
+      };
+      next();
+    });
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [on, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
     if (!on || !lockHover || fileOpen) return;
     return startAlertLoop();
@@ -78,7 +107,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const closeFile = useCallback(() => setFileOpen(false), []);
   return (
     <section id="s-gate" className={"scene" + (on ? " on" : warm ? " warm" : "") + (zoom ? " " + zoom : "")} aria-hidden={!on}>
-      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : ""].filter(Boolean).join(" ")}>
+      <div id="gate-stage" inert={fileOpen} className={[open && openReady ? "slime-open" : "", cloneHover ? "clone-hover" : "", fileOpen ? "file-open" : "", burst ? "lock-burst" : ""].filter(Boolean).join(" ")}>
         <SceneLayer name="bg.webp" box={SCENE_LAYERS.full} className="gate-background" />
         <GateBackdrop />
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
@@ -96,9 +125,16 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SignLogo />
+        {/* the two door leaves pulled apart a few px against the chains (only drawn while it happens) */}
+        <div className={"lock-split" + (burst ? " on" : "")} aria-hidden="true">
+          <i className="lock-gap" />
+          <div className="lock-leaf l"><SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-leaf-img" /><SignLogo /></div>
+          <div className="lock-leaf r"><SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-leaf-img" /></div>
+          <i className="lock-glow" />
+        </div>
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
-        <SlimeDrips />
+        <SlimeDrips live={on && !fileOpen} doorOpen={open && openReady} />
         <HomePad tabIndex={on ? 0 : -1} onHome={() => onHome?.()} onTag={setHomeHover} />
         <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
@@ -110,7 +146,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <button type="button" className="lock-hit" style={position(SCENE_LAYERS.lockHit)}
           aria-label="Open lab lockdown room" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") setLockHover(true); }}
-          onPointerLeave={() => setLockHover(false)} onFocus={() => setLockHover(true)} onBlur={() => setLockHover(false)} onClick={onLab} />
+          onPointerLeave={() => setLockHover(false)} onFocus={() => setLockHover(true)} onBlur={() => setLockHover(false)} onClick={() => { slam(); onLab?.(); }} />
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); doorSound(); } }}
@@ -121,7 +157,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
       {/* UI above the pulsing overlay, same frame as the stage, so the hint stays readable */}
       <div id="gate-ui" aria-hidden="true">
         {/* lockdown door: only the two warning lamps blink while the cursor is on it (no sweeping beams, no red wash) */}
-        <div className={"alarm" + (lockHover && !fileOpen ? " on" : "")}>
+        <div className={"alarm" + ((lockHover || burst) && !fileOpen ? " on" : "")}>
           {LOCK.beacons.map((b, i) => (
             <span key={i} className="beacon" style={{ left: `${b.x}%`, top: `${b.y}%`, "--bd": `${i * -0.55}s` } as CSSProperties}>
               <i className="beacon-lamp" />

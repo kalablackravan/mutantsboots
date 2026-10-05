@@ -742,3 +742,196 @@ export function startCreepyMusic(): { stop: (fade?: number) => void; setMuted: (
     return none;
   }
 }
+
+// ---------------------------------------------------------------- recorded voice clips (public/sfx)
+// Phone voice + the two devils' laughs are pre-rendered (neural TTS / processed, see public/sfx).
+// Decoded once into the shared AudioContext; play() returns the clip length and a stop().
+const clipCache = new Map<string, Promise<AudioBuffer | null>>();
+export function loadClip(url: string): Promise<AudioBuffer | null> {
+  let p = clipCache.get(url);
+  if (!p) {
+    p = (async () => {
+      try {
+        const c = audio(); if (!c) return null;
+        const res = await fetch(url); if (!res.ok) return null;
+        return await c.decodeAudioData(await res.arrayBuffer());
+      } catch { return null; }
+    })();
+    clipCache.set(url, p);
+  }
+  return p;
+}
+export const SFX = {
+  phoneLeave: "/sfx/phone-leave.mp3", phoneFinished: "/sfx/phone-finished.mp3",
+  laughSovereign: "/sfx/laugh-sovereign.mp3", laughHellspawn: "/sfx/laugh-hellspawn.mp3",
+} as const;
+export function preloadVoices() { Object.values(SFX).forEach((u) => { void loadClip(u); }); }
+/** Plays a clip; resolves `done` when it ends (or right away if it could not play). */
+export function playClip(url: string, volume = 1): { stop: () => void; done: Promise<number> } {
+  let src: AudioBufferSourceNode | null = null, g: GainNode | null = null, stopped = false;
+  const done = loadClip(url).then((buf) => new Promise<number>((resolve) => {
+    const c = audio();
+    if (!buf || !c || stopped) { resolve(0); return; }
+    src = c.createBufferSource(); src.buffer = buf;
+    g = c.createGain(); g.gain.value = volume; src.connect(g); g.connect(c.destination);
+    src.onended = () => resolve(buf.duration);
+    src.start();
+  }));
+  return {
+    done,
+    stop: () => {
+      stopped = true;
+      try {
+        const c = audio();
+        if (g && c) { g.gain.setTargetAtTime(0.0001, c.currentTime, 0.06); window.setTimeout(() => { try { src?.stop(); } catch { /* ended */ } }, 300); }
+      } catch { /* gone */ }
+    },
+  };
+}
+
+// ---------------------------------------------------------------- gate ambience
+/** Pipes: a low rushing flow with bubbles gurgling through it. */
+export function startPipeFlow(): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.value = 0.0001; out.connect(c.destination);
+    out.gain.exponentialRampToValueAtTime(0.2, c.currentTime + 1.5);
+    const len = c.sampleRate * 4, b = c.createBuffer(1, len, c.sampleRate), d = b.getChannelData(0);
+    let lp = 0; for (let i = 0; i < len; i++) { lp += ((Math.random() * 2 - 1) - lp) * 0.06; d[i] = lp * 3; }
+    const rush = c.createBufferSource(); rush.buffer = b; rush.loop = true;
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 420; bp.Q.value = 0.9;
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.13; const lg = c.createGain(); lg.gain.value = 160;
+    lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
+    const rg = c.createGain(); rg.gain.value = 0.35; rush.connect(bp); bp.connect(rg); rg.connect(out); rush.start();
+    let alive = true; const timers: number[] = [];
+    const bubble = () => {
+      if (!alive) return;
+      if (c.state === "running") {
+        const t = c.currentTime + 0.01, f = 220 + Math.random() * 260, n = 1 + Math.floor(Math.random() * 3);
+        for (let k = 0; k < n; k++) {
+          const o = c.createOscillator(); o.type = "sine"; const at = t + k * 0.07;
+          o.frequency.setValueAtTime(f, at); o.frequency.exponentialRampToValueAtTime(f * 2.4, at + 0.06);
+          const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.18, at + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.08);
+          o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.1);
+        }
+      }
+      timers.push(window.setTimeout(bubble, 260 + Math.random() * 900));
+    };
+    bubble();
+    return () => {
+      alive = false; timers.forEach((id) => window.clearTimeout(id));
+      const t = c.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+      window.setTimeout(() => { try { rush.stop(); lfo.stop(); out.disconnect(); } catch { /* gone */ } }, 700);
+    };
+  } catch { return () => undefined; }
+}
+/** One slime drop landing: a wet plink, panned to where it fell (-1 left .. 1 right). */
+export function playDrip(pan = 0, size = 1) {
+  try {
+    const m = master(0.11 * size); if (!m) return; const { c, out, t } = m;
+    const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
+    const f = 900 + Math.random() * 700;
+    const o = c.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 2.2, t + 0.045);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.9, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.14);
+    burst(c, out, t, 0.05, (x) => 1 - x, [{ type: "bandpass", f: 3200, q: 1 }], 0.25);
+  } catch { /* sound is optional */ }
+}
+/** Cloning vessel status lights: blue = soft tick, red = monitor beep. */
+export function playVesselBlip(red: boolean) {
+  try {
+    const m = master(red ? 0.05 : 0.03); if (!m) return; const { c, out, t } = m;
+    tone(c, out, t, red ? 880 : 1760, red ? 0.09 : 0.04, 0.9, red ? "square" : "sine");
+  } catch { /* sound is optional */ }
+}
+/** Lockdown door: something slams into it from inside, chains rattle, lights fail, it growls. */
+export function playDoorBurst() {
+  try {
+    const m = master(0.6); if (!m) return; const { c, out, t } = m;
+    thump(c, out, t, 58, 26, 0.6, 1); burst(c, out, t, 0.35, (x) => Math.pow(1 - x, 2), [{ type: "lowpass", f: 900, to: [[120, 0.3]] }], 0.9);
+    thump(c, out, t + 0.62, 52, 24, 0.5, 0.85); burst(c, out, t + 0.62, 0.3, (x) => Math.pow(1 - x, 2), [{ type: "lowpass", f: 800 }], 0.7);
+    for (let i = 0; i < 26; i++) {                                   // chain links clanking
+      const at = t + 0.03 + Math.random() * 1.4, f = 2200 + Math.random() * 3200;
+      const o = c.createOscillator(); o.type = "triangle"; o.frequency.value = f;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.12 * (1 - (at - t) / 1.6), at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09 + Math.random() * 0.1);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.25);
+    }
+    const cr = c.createOscillator(); cr.type = "sawtooth"; cr.frequency.setValueAtTime(70, t + 0.1); cr.frequency.linearRampToValueAtTime(110, t + 0.7); cr.frequency.linearRampToValueAtTime(60, t + 1.4);
+    const cb = c.createBiquadFilter(); cb.type = "bandpass"; cb.frequency.value = 520; cb.Q.value = 6;
+    const cg = c.createGain(); cg.gain.setValueAtTime(0.0001, t + 0.1); cg.gain.exponentialRampToValueAtTime(0.16, t + 0.3); cg.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+    cr.connect(cb); cb.connect(cg); cg.connect(out); cr.start(t + 0.1); cr.stop(t + 1.6);       // metal groaning under the strain
+    zap(c, out, t + 0.12, 0.18, 0.2); zap(c, out, t + 0.34, 0.1, 0.16); zap(c, out, t + 0.75, 0.22, 0.18);     // lights shorting out
+    const gr = c.createOscillator(); gr.type = "sawtooth"; gr.frequency.setValueAtTime(48, t + 0.25); gr.frequency.linearRampToValueAtTime(38, t + 1.3);
+    const gm = c.createOscillator(); gm.frequency.value = 23; const gmg = c.createGain(); gmg.gain.value = 0.5;
+    const gg = c.createGain(); gg.gain.setValueAtTime(0.0001, t + 0.25); gg.gain.exponentialRampToValueAtTime(0.22, t + 0.5); gg.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    gm.connect(gmg); gmg.connect(gg.gain);
+    const gl = c.createBiquadFilter(); gl.type = "lowpass"; gl.frequency.value = 380;
+    gr.connect(gl); gl.connect(gg); gg.connect(out); gr.start(t + 0.25); gr.stop(t + 1.45); gm.start(t + 0.25); gm.stop(t + 1.45);   // growl behind the door
+  } catch { /* sound is optional */ }
+}
+
+// ---------------------------------------------------------------- lab: horror room tone + flickering tubes
+/** Fluorescent hum, a cold dissonant drone, metal creaks, distant wails and whispers. duck() lowers it while an item is open. */
+export function startLabHorror(): { stop: () => void; duck: (on: boolean) => void } {
+  const none = { stop: () => undefined, duck: () => undefined };
+  try {
+    const c = audio(); if (!c) return none;
+    const out = c.createGain(); out.gain.value = 0.0001; out.connect(c.destination);
+    out.gain.exponentialRampToValueAtTime(0.42, c.currentTime + 3);
+    const duckG = c.createGain(); duckG.gain.value = 1; duckG.connect(out);
+    const len = Math.floor(c.sampleRate * 2.8), imp = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = imp.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    const verb = c.createConvolver(); verb.buffer = imp; const wet = c.createGain(); wet.gain.value = 0.55; verb.connect(wet); wet.connect(duckG);
+    const bus = c.createGain(); bus.connect(duckG); bus.connect(verb);
+    const nodes: AudioScheduledSourceNode[] = [];
+    const hum = c.createOscillator(); hum.type = "sawtooth"; hum.frequency.value = 100;
+    const hb = c.createBiquadFilter(); hb.type = "bandpass"; hb.frequency.value = 300; hb.Q.value = 2.5;
+    const hg = c.createGain(); hg.gain.value = 0.035; hum.connect(hb); hb.connect(hg); hg.connect(bus); hum.start(); nodes.push(hum);
+    for (const [f, g] of [[41.2, 0.12], [43.65, 0.09], [61.7, 0.05]] as const) {
+      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f; const gg = c.createGain(); gg.gain.value = g; o.connect(gg); gg.connect(bus); o.start(); nodes.push(o);
+    }
+    let alive = true; const timers: number[] = [];
+    const every = (fn: () => void, lo: number, hi: number, first: number) => {
+      const run = () => { if (!alive) return; if (c.state === "running") { try { fn(); } catch { /* optional */ } } timers.push(window.setTimeout(run, lo + Math.random() * (hi - lo))); };
+      timers.push(window.setTimeout(run, first));
+    };
+    every(() => {                                        // metal creak
+      const t = c.currentTime + 0.02, d = 1.2 + Math.random();
+      const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(80 + Math.random() * 60, t); o.frequency.linearRampToValueAtTime(50 + Math.random() * 40, t + d);
+      const b = c.createBiquadFilter(); b.type = "bandpass"; b.frequency.setValueAtTime(900, t); b.frequency.linearRampToValueAtTime(400, t + d); b.Q.value = 9;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + d * 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(b); b.connect(g); g.connect(bus); o.start(t); o.stop(t + d + 0.05);
+    }, 9000, 17000, 4000);
+    every(() => {                                        // a far-away wail through the vents
+      const t = c.currentTime + 0.05, d = 3 + Math.random() * 1.5, f = 380 + Math.random() * 220;
+      const o = c.createOscillator(); o.type = "triangle"; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 1.35, t + d * 0.35); o.frequency.exponentialRampToValueAtTime(f * 0.55, t + d);
+      const v = c.createOscillator(); v.frequency.value = 5.5; const vg = c.createGain(); vg.gain.value = f * 0.02; v.connect(vg); vg.connect(o.frequency);
+      const b = c.createBiquadFilter(); b.type = "bandpass"; b.frequency.value = 900; b.Q.value = 3;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.035, t + d * 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(b); b.connect(g); g.connect(verb); o.start(t); o.stop(t + d + 0.1); v.start(t); v.stop(t + d + 0.1);
+    }, 22000, 38000, 9000);
+    every(() => {                                        // whispering air
+      const t = c.currentTime + 0.02, d = 1.6 + Math.random();
+      burst(c, verb, t, d, (x) => Math.sin(Math.PI * x) * (0.6 + 0.4 * Math.sin(x * 40)), [{ type: "bandpass", f: 1500 + Math.random() * 1500, q: 4, to: [[900, d]] }], 0.05, [0.4, 1.6], [30, 90]);
+    }, 14000, 26000, 7000);
+    return {
+      duck: (on: boolean) => { duckG.gain.setTargetAtTime(on ? 0.3 : 1, c.currentTime, 0.3); },
+      stop: () => {
+        alive = false; timers.forEach((id) => window.clearTimeout(id));
+        const t = c.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+        out.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+        window.setTimeout(() => { nodes.forEach((n) => { try { n.stop(); } catch { /* stopped */ } }); try { out.disconnect(); } catch { /* gone */ } }, 900);
+      },
+    };
+  } catch { return none; }
+}
+/** A glass tube flickering: off = short electric crackle, on = buzzing re-strike. */
+export function playTubeFlicker(on: boolean, pan = 0) {
+  try {
+    const m = master(on ? 0.06 : 0.045); if (!m) return; const { c, out, t } = m;
+    const p = c.createStereoPanner(); p.pan.value = pan; out.disconnect(); out.connect(p); p.connect(c.destination);
+    if (on) { zap(c, out, t, 0.14, 0.5); tone(c, out, t + 0.02, 120, 0.12, 0.25, "square"); }
+    else burst(c, out, t, 0.06, (x) => (x < 0.2 ? 1 : 0.3), [{ type: "highpass", f: 2000 }], 0.6, [0.2, 1.8], [2, 6]);
+  } catch { /* sound is optional */ }
+}

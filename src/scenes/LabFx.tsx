@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { LAB_FX } from "./config";
 import { DEVIL_1, DEVIL_2 } from "@/lib/fileArt";
-import { gaugeSound } from "@/lib/fileSounds";
+import { gaugeSound, playTubeFlicker } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
@@ -47,7 +47,34 @@ export function ClipboardPrint({ box, hot }: { box: Box; hot: boolean }) {
 }
 
 // ---------------------------------------------------------------- everything alive on the wall
+// The tubes blink with CSS (tubeOn/tubeOff: dropping out at 40% of their loop, striking back at 60%).
+// Those animations run from mount, so the crackle / re-strike sounds are scheduled on the same clock.
+const SOUNDING_TUBES = [0, 3, 5, 7, 9];
+function useTubeSounds(live: boolean) {
+  const born = useRef(performance.now());
+  useEffect(() => {
+    if (!live) return;
+    const timers: number[] = [];
+    for (const i of SOUNDING_TUBES) {
+      const t = LAB_FX.tubes[i]; if (!t) continue;
+      const pan = Math.max(-0.8, Math.min(0.8, ((t.box.left + t.box.width / 2) / 100) * 2 - 1));
+      const schedule = () => {
+        const now = (performance.now() - born.current) / 1000;
+        const phase = ((((now - t.d) % t.p) + t.p) % t.p) / t.p;
+        let best = Infinity, on = false;
+        for (const [f, isOn] of [[0.4, false], [0.6, true]] as const) {
+          const dt = ((f - phase + 1) % 1) * t.p; if (dt > 0.02 && dt < best) { best = dt; on = isOn; }
+        }
+        timers.push(window.setTimeout(() => { if (Math.random() < 0.7) playTubeFlicker(on, pan); schedule(); }, best * 1000));
+      };
+      schedule();
+    }
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [live]);
+}
+
 export function LabFx({ live, onTag }: { live: boolean; onTag?: (k: string | null) => void }) {
+  useTubeSounds(live);
   return (
     <>
       {LAB_FX.tubes.map((t, i) => (

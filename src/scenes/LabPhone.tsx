@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { LAB_FX } from "./config";
-import { playHangup, playPhoneRing, playPickup, playVoice } from "@/lib/fileSounds";
+import { playClip, playHangup, playPhoneRing, playPickup, playVoice, SFX } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
@@ -10,6 +10,11 @@ const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, w
 type Phase = "wait" | "ring1" | "talk1" | "quiet" | "ring2" | "talk2";
 const FIRST_RING_MS = 3500;
 const SECOND_RING_MS = 20000;
+
+// the recorded voice on the line; if it cannot play, fall back to the browser's own speech
+function speak(url: string, text: string, done: () => void) {
+  void playClip(url, 1).done.then((len) => { if (len > 0) done(); else playVoice(text, done); });
+}
 
 export function LabPhone({ on, paused, tabIndex, onTag, onSay, onBlackout }: {
   on: boolean; paused: boolean; tabIndex: number; onTag: (k: string | null) => void;
@@ -46,7 +51,7 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay, onBlackout }: {
       setPhase("talk1");
       window.setTimeout(() => {
         onSay("LEAVE… OR DIE.");
-        playVoice("Leave... or die.", () => {
+        speak(SFX.phoneLeave, "Leave... or die.", () => {
           onSay(null); playHangup(); setPhase("quiet");
           window.setTimeout(() => { busy.current = false; }, 900);
         });
@@ -55,7 +60,7 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay, onBlackout }: {
       setPhase("talk2");
       window.setTimeout(() => {
         onSay("YOU ARE FINISHED.");
-        playVoice("You are finished.", () => {
+        speak(SFX.phoneFinished, "You are finished.", () => {
           playHangup(); onBlackout();
           window.setTimeout(() => window.location.assign("/"), 1700);
         });

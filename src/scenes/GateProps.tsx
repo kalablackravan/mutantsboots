@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { playValveTurn, startPour } from "@/lib/fileSounds";
+import { playDrip, playValveTurn, startPour } from "@/lib/fileSounds";
 
 // Gate scene additions drawn over the art (all coordinates in the 3840x1800 canvas):
 // devil-silhouette logo on the lab sign, wall first-aid kit, the new background's live
@@ -166,7 +166,24 @@ const CLOSED_TIPS: Tip[] = [[2959, 888], [2850, 985], [2927, 1137], [2884, 1298]
 const OPEN_TIPS: Tip[] = [[2959, 888], [2840, 984], [2895, 1136], [2865, 1298], [3214, 1070], [3280, 966], [3223, 1247], [2730, 853]];
 const FLOOR = 1592;
 const rnd = (i: number, k: number) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
-function DripSet({ tips, className, seed }: { tips: Tip[]; className?: string; seed: number }) {
+function DripSet({ tips, className, seed, sound }: { tips: Tip[]; className?: string; seed: number; sound: boolean }) {
+  // a plink each time a drop hits the floor (dripFall reaches the floor at 91% of its loop)
+  const born = useRef(performance.now());
+  useEffect(() => {
+    if (!sound) return;
+    const timers: number[] = [];
+    tips.forEach(([x], i) => {
+      const dur = 7 + rnd(i, seed) * 7, delay = -rnd(i, seed + 1) * dur;
+      const next = () => {
+        const now = (performance.now() - born.current) / 1000;
+        const phase = ((((now - delay) % dur) + dur) % dur) / dur;
+        const dt = (((0.91 - phase) % 1) + 1) % 1 * dur || dur;
+        timers.push(window.setTimeout(() => { playDrip((x / 3840) * 2 - 1, 0.6 + rnd(i, seed + 3) * 0.6); next(); }, dt * 1000));
+      };
+      next();
+    });
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [sound, tips, seed]);
   return (
     <div className={"gate-drips " + (className ?? "")} aria-hidden="true">
       {tips.map(([x, y], i) => {
@@ -183,12 +200,12 @@ function DripSet({ tips, className, seed }: { tips: Tip[]; className?: string; s
     </div>
   );
 }
-export function SlimeDrips() {
+export function SlimeDrips({ live, doorOpen }: { live: boolean; doorOpen: boolean }) {
   return (
     <>
-      <DripSet tips={LOCK_TIPS} seed={1} />
-      <DripSet tips={CLOSED_TIPS} className="slime-closed" seed={7} />
-      <DripSet tips={OPEN_TIPS} className="slime-open-layer" seed={13} />
+      <DripSet tips={LOCK_TIPS} seed={1} sound={live} />
+      <DripSet tips={CLOSED_TIPS} className="slime-closed" seed={7} sound={live && !doorOpen} />
+      <DripSet tips={OPEN_TIPS} className="slime-open-layer" seed={13} sound={live && doorOpen} />
     </>
   );
 }

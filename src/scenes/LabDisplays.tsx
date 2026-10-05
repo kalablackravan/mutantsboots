@@ -3,7 +3,7 @@ import { LAB_FX } from "./config";
 import { Tv } from "./LabFx";
 import { BLANK_DISPLAY } from "@/config/cdn";
 import { useTraits } from "@/lib/useTraits";
-import { playBlip, playDevilLaugh, startCamStatic } from "@/lib/fileSounds";
+import { playBlip, playClip, SFX, startCamStatic } from "@/lib/fileSounds";
 import type { Build, Trait, TraitCat } from "@/lib/traits";
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -185,15 +185,19 @@ function CamView({ devil, label, live }: { devil: 1 | 2; label: string; live: bo
   useEffect(() => {
     if (!live) { setLaughing(false); return; }
     const timers: number[] = [];
-    let current: { stop: () => void } | null = null;
+    let current: { stop: () => void } | null = null, gone = false;
     const laugh = () => {
-      const { len, stop } = playDevilLaugh(devil); current = { stop };
+      // Dark Sovereign: slow, deep demonic laugh; Hellspawn: shrieking metallic cackle
+      const clip = playClip(devil === 2 ? SFX.laughSovereign : SFX.laughHellspawn, 0.95); current = clip;
       setLaughing(true);
-      timers.push(window.setTimeout(() => setLaughing(false), Math.max(1.2, len) * 1000));
-      timers.push(window.setTimeout(laugh, (8 + Math.random() * 4) * 1000));
+      void clip.done.then(() => {
+        if (gone) return;
+        setLaughing(false);
+        timers.push(window.setTimeout(laugh, (8 + Math.random() * 4) * 1000));
+      });
     };
     timers.push(window.setTimeout(laugh, 1300));
-    return () => { timers.forEach((id) => window.clearTimeout(id)); current?.stop(); };
+    return () => { gone = true; timers.forEach((id) => window.clearTimeout(id)); current?.stop(); };
   }, [devil, live]);
   return (
     <div className="lvd-screen lvd-cam">

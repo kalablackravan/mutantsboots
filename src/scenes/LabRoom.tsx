@@ -11,7 +11,7 @@ import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
 import { loadTraits } from "@/lib/useTraits";
 import { BLANK_DISPLAY, LAB_DESK } from "@/config/cdn";
-import { playCrtOn, playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, playTvBreak, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playCrtOn, playFileArrive, playFloorDrop, playGlassBreak, playPageTurn, playTvBreak, startSubmergedBubbleLoop, preloadVoices, startLabHorror } from "@/lib/fileSounds";
 
 type Item = "clipboard" | "flask" | "files" | "display" | "cam0" | "cam1";
 type DeskItem = Exclude<Item, "display" | "cam0" | "cam1">;
@@ -59,6 +59,15 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); setSay(null); } }, [on]);
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
+  // horror room tone for as long as you are in the lab, quieter while something is open in front of you
+  const horror = useRef<ReturnType<typeof startLabHorror> | null>(null);
+  useEffect(() => {
+    if (!on) return;
+    preloadVoices();
+    const h = startLabHorror(); horror.current = h;
+    return () => { h.stop(); horror.current = null; };
+  }, [on]);
+  useEffect(() => { horror.current?.duck(!!view); }, [view]);
   return (
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>

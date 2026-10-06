@@ -305,7 +305,7 @@ export function VesselBubbles({ live, layer }: { live: boolean; layer: "back" | 
     if (!live) return;
     const timers: number[] = [];
     VBUBS.forEach((b) => {                                            // the pops for both layers live on one instance
-      if (Math.max(b.w, b.h) < 12 && b.i % 2) return;                 // some of the tiny ones pop silently
+      if (b.i % 3 !== 0 && Math.max(b.w, b.h) < 20) return;           // only about a third of them make a sound
       const next = () => {
         const now = (performance.now() - born.current) / 1000;
         const phase = ((((now - b.delay) % b.dur) + b.dur) % b.dur) / b.dur;

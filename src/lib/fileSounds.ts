@@ -941,7 +941,7 @@ export function playTubeFlicker(on: boolean, pan = 0) {
 export function playBubblePop(size = 0.6, pan = 0) {
   try {
     const sz = Math.max(0.3, Math.min(1, size));
-    const m = master(0.08 + 0.1 * sz); if (!m) return; const { c, out, t } = m;
+    const m = master(0.025 + 0.03 * sz); if (!m) return; const { c, out, t } = m;
     const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
     const f0 = 380 + (1 - sz) * 700 + Math.random() * 120;
     const o = c.createOscillator(); o.type = "sine";

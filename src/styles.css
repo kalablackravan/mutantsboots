@@ -890,21 +890,16 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .gate-homepad{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .gate-homepad:focus-visible{outline:2px solid rgba(120,255,200,.7);outline-offset:2px}
 
-/* lockdown door slam: leaves strain apart against the chains, the room shakes, lights fail, then all settles */
-.lock-split{position:absolute;inset:0;pointer-events:none;visibility:hidden}
-.lock-split.on{visibility:visible}
-.lock-leaf{position:absolute;inset:0}
-.lock-leaf.l .lock-leaf-img{clip-path:inset(33.1% 48.88% 16.94% 43.54%)}          /* left leaf: canvas x 1672-1963, y 596-1495 */
-.lock-leaf.r .lock-leaf-img{clip-path:inset(33.1% 41.41% 16.94% 51.12%)}          /* right leaf: canvas x 1963-2250 (seam at 1963) */
-.lock-gap{position:absolute;left:50.78%;top:33.1%;width:.68%;height:49.96%;background:linear-gradient(90deg,#020504,#0b2a14 35%,#7dff3a 50%,#0b2a14 65%,#020504)}
-.lock-glow{position:absolute;left:50.03%;top:31%;width:2.2%;height:54%;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(125,255,58,.55),rgba(125,255,58,0));mix-blend-mode:screen;filter:blur(.4cqw)}
-.lock-split.on .lock-leaf.l{animation:leafL 1.7s linear both}
-.lock-split.on .lock-leaf.r{animation:leafR 1.7s linear both}
-.lock-split.on .lock-gap,.lock-split.on .lock-glow{animation:gapGlow 1.7s steps(1,end) both}
-@keyframes leafL{0%{transform:translate(0,0)}8%{transform:translate(-.13%,0)}14%{transform:translate(-.06%,.03%)}22%{transform:translate(-.25%,0)}30%{transform:translate(-.14%,-.03%)}38%{transform:translate(-.21%,0)}48%{transform:translate(-.08%,0)}55%{transform:translate(-.24%,.03%)}66%{transform:translate(-.12%,0)}80%{transform:translate(-.04%,0)}100%{transform:translate(0,0)}}
-@keyframes leafR{0%{transform:translate(0,0)}8%{transform:translate(.13%,0)}14%{transform:translate(.06%,-.03%)}22%{transform:translate(.25%,0)}30%{transform:translate(.14%,.03%)}38%{transform:translate(.21%,0)}48%{transform:translate(.08%,0)}55%{transform:translate(.24%,-.03%)}66%{transform:translate(.12%,0)}80%{transform:translate(.04%,0)}100%{transform:translate(0,0)}}
-@keyframes gapGlow{0%{opacity:0}6%{opacity:1}16%{opacity:.4}22%{opacity:1}48%{opacity:.6}55%{opacity:1}80%{opacity:.5}92%{opacity:0}}
+/* lockdown door slam: the room shakes, the lights fail, beacons + alarm go off, then all settles (door stays shut) */
 #gate-stage.lock-burst{animation:stageShake 1.7s linear,lightFail 1.7s steps(1,end)}
 @keyframes stageShake{0%,100%{translate:0 0}5%{translate:-6px 3px}10%{translate:5px -4px}15%{translate:-4px 2px}20%{translate:3px 3px}28%{translate:-3px -2px}36%{translate:2px 2px}44%{translate:-5px 1px}50%{translate:4px -3px}60%{translate:-2px 2px}70%{translate:1px -1px}80%{translate:-1px 1px}}
 @keyframes lightFail{0%{filter:none}6%{filter:brightness(.35)}10%{filter:brightness(1.15)}16%{filter:brightness(.2)}22%{filter:brightness(.8)}30%{filter:brightness(.3)}40%{filter:brightness(1)}48%{filter:brightness(.45)}55%{filter:brightness(1.05)}70%{filter:brightness(.6)}85%,100%{filter:none}}
-@media (prefers-reduced-motion: reduce){#gate-stage.lock-burst{animation:lightFail 1.7s steps(1,end)}.lock-split.on .lock-leaf{animation:none}}
+@media (prefers-reduced-motion: reduce){#gate-stage.lock-burst{animation:lightFail 1.7s steps(1,end)}}
+
+/* cloning vessel: the painted bubbles, animated (rise, wobble, pop under the lid) */
+@property --wx{syntax:"<length>";inherits:false;initial-value:0px}
+.vessel-bubbles{container-type:size;pointer-events:none}
+.vessel-bubbles .vb{position:absolute;background:url(/scene/vessel-bubbles.webp) no-repeat;animation-name:vbUp,vbWob;animation-timing-function:linear,ease-in-out;animation-iteration-count:infinite,infinite;animation-direction:normal,alternate;will-change:transform}
+@keyframes vbUp{0%{transform:translate(var(--wx),0) scale(.8);opacity:0}5%{opacity:1}90%{transform:translate(var(--wx),var(--rise)) scale(1);opacity:1}94%{transform:translate(var(--wx),var(--rise)) scale(1.45);opacity:0}100%{transform:translate(var(--wx),var(--rise)) scale(1.45);opacity:0}}
+@keyframes vbWob{from{--wx:-1.1cqw}to{--wx:1.1cqw}}
+@media (prefers-reduced-motion: reduce){.vessel-bubbles .vb{animation:none}}

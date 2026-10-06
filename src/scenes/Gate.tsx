@@ -4,8 +4,8 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playDoorBurst, playDoorOpen, playVesselBlip, startAlertLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips } from "./GateProps";
+import { playClip, playDoorBurst, playDoorOpen, playVesselBlip, SFX, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
 type Props = { on: boolean; warm?: boolean; zoom?: "" | "zoom-from"; onDoor: () => void; onLab?: () => void; onHome?: () => void };
@@ -96,9 +96,17 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [on, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
-    if (!on || !lockHover || fileOpen) return;
-    return startAlertLoop();
-  }, [on, lockHover, fileOpen]);
+    if (!on || !(lockHover || burst) || fileOpen) return;
+    // red beacons on: emergency announcement + klaxon, repeated while they stay on
+    let clip: { stop: () => void } | null = null, gone = false, t = 0;
+    const play = () => {
+      if (gone) return;
+      const c = playClip(SFX.redAlert, 0.85); clip = c;
+      void c.done.then(() => { if (!gone) t = window.setTimeout(play, 900); });
+    };
+    play();
+    return () => { gone = true; window.clearTimeout(t); clip?.stop(); };
+  }, [on, lockHover || burst, fileOpen]);
   const openFile = async () => {
     if (fileBusy || fileOpen) return;
     setFileBusy(true); await preloadFile(); setFileBusy(false); // never open onto a blank page
@@ -112,8 +120,11 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <GateBackdrop />
         <SceneLayer name="chair.webp" box={SCENE_LAYERS.full} />
         <SceneLayer name="clonebase.webp" box={SCENE_LAYERS.full} className="clone-body" />
+        <img className="gate-layer vessel-clean" src="/scene/vessel-clean.webp" alt="" draggable={false} style={VESSEL_CLEAN_BOX} />
+        <VesselBubbles live={on && !fileOpen} layer="back" />
         {CLONE.gauges.map((g, i) => <Gauge key={i} {...g} active={cloneHover && !fileOpen} />)}
         <SceneLayer name="clonespecimen.webp" box={SCENE_LAYERS.full} className="clone-specimen" />
+        <VesselBubbles live={false} layer="front" />
         <SceneLayer name="clonecables.webp" box={SCENE_LAYERS.full} className="clone-cables" />
         {CLONE.lights.map((l, i) => (
           <span key={i} className="cap-light" aria-hidden="true" style={{
@@ -125,13 +136,6 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SignLogo />
-        {/* the two door leaves pulled apart a few px against the chains (only drawn while it happens) */}
-        <div className={"lock-split" + (burst ? " on" : "")} aria-hidden="true">
-          <i className="lock-gap" />
-          <div className="lock-leaf l"><SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-leaf-img" /><SignLogo /></div>
-          <div className="lock-leaf r"><SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} className="lock-leaf-img" /></div>
-          <i className="lock-glow" />
-        </div>
         <SceneLayer name="opendoor.webp" box={SCENE_LAYERS.full} className="slime-open-layer"
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
         <SlimeDrips live={on && !fileOpen} doorOpen={open && openReady} />

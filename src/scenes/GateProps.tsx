@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { playDrip, playValveTurn, startPour } from "@/lib/fileSounds";
+import { playBubblePop, playDrip, playValveTurn, startPour } from "@/lib/fileSounds";
 
 // Gate scene additions drawn over the art (all coordinates in the 3840x1800 canvas):
 // devil-silhouette logo on the lab sign, wall first-aid kit, the new background's live
@@ -218,5 +218,104 @@ export function HomePad({ tabIndex, onHome, onTag }: { tabIndex: number; onHome:
       <button type="button" className="gate-homepad" style={box(1172, 855, 104, 126)} tabIndex={tabIndex} aria-label="Exit to the home page" onClick={onHome}
         onPointerEnter={() => onTag?.(true)} onPointerLeave={() => onTag?.(false)} onFocus={() => onTag?.(true)} onBlur={() => onTag?.(false)} />
     </>
+  );
+}
+
+// ---------------------------------------------------------------- cloning vessel: the art's own bubbles, set free
+// The painted bubbles were lifted out of clonebase.webp (vessel-clean.webp is the tank with them inpainted away)
+// and cut into an atlas (vessel-bubbles.webp). Each one starts where the artist drew it, rises to the surface,
+// pops, and comes back up from the bottom. About half drift behind the specimen, the rest in front of it.
+// Row: [centre x, centre y, w, h, atlas x, atlas y] in canvas px.
+const VB_ATLAS = [256, 117];
+const VB_ART: [number, number, number, number, number, number][] = [
+  [816.0, 842.5, 18, 19, 139, 63],
+  [917.0, 849.5, 16, 17, 37, 85],
+  [928.5, 865.0, 17, 18, 216, 63],
+  [929.5, 881.5, 23, 25, 0, 37],
+  [924.5, 918.0, 15, 14, 175, 85],
+  [699.0, 929.5, 16, 15, 143, 85],
+  [928.0, 943.0, 24, 26, 226, 0],
+  [714.0, 943.5, 22, 25, 24, 37],
+  [823.0, 950.0, 14, 12, 217, 85],
+  [701.0, 1015.0, 12, 12, 232, 85],
+  [967.0, 1024.0, 12, 14, 191, 85],
+  [958.0, 1041.0, 30, 36, 0, 0],
+  [940.0, 1050.5, 18, 17, 54, 85],
+  [658.5, 1068.5, 23, 27, 156, 0],
+  [953.0, 1097.5, 22, 25, 47, 37],
+  [692.5, 1106.5, 23, 21, 0, 63],
+  [685.5, 1131.5, 25, 27, 180, 0],
+  [944.0, 1139.5, 18, 19, 158, 63],
+  [710.5, 1151.0, 31, 30, 66, 0],
+  [757.0, 1147.0, 16, 18, 234, 63],
+  [943.0, 1163.0, 28, 30, 98, 0],
+  [710.0, 1187.0, 22, 24, 95, 37],
+  [671.0, 1186.5, 14, 15, 160, 85],
+  [811.5, 1197.5, 19, 21, 24, 63],
+  [920.5, 1200.5, 19, 27, 206, 0],
+  [682.5, 1201.0, 13, 12, 0, 104],
+  [718.5, 1204.0, 19, 18, 0, 85],
+  [795.5, 1210.5, 17, 17, 73, 85],
+  [889.5, 1210.5, 19, 19, 177, 63],
+  [674.0, 1217.5, 18, 21, 44, 63],
+  [816.5, 1216.0, 15, 16, 113, 85],
+  [694.5, 1217.0, 13, 12, 14, 104],
+  [717.0, 1224.5, 22, 23, 143, 37],
+  [863.0, 1229.0, 34, 32, 31, 0],
+  [790.5, 1230.0, 17, 20, 84, 63],
+  [895.0, 1239.5, 18, 19, 197, 63],
+  [700.5, 1244.0, 13, 16, 129, 85],
+  [681.0, 1253.5, 28, 29, 127, 0],
+  [808.0, 1253.0, 16, 20, 102, 63],
+  [781.0, 1258.0, 24, 24, 118, 37],
+  [872.5, 1258.5, 23, 23, 166, 37],
+  [724.0, 1263.5, 24, 25, 70, 37],
+  [882.5, 1279.0, 21, 22, 190, 37],
+  [856.0, 1284.0, 22, 22, 212, 37],
+  [708.0, 1284.0, 16, 18, 20, 85],
+  [967.5, 1286.5, 21, 17, 91, 85],
+  [728.0, 1289.5, 20, 21, 63, 63],
+  [815.5, 1291.0, 19, 20, 119, 63],
+  [739.0, 1289.5, 12, 13, 204, 85],
+];
+const VB = { x: 646, y: 800, w: 344, h: 506, surface: 816, floor: 1296 };
+export const VESSEL_CLEAN_BOX = box(VB.x, VB.y, VB.w, VB.h);
+type VBub = { i: number; cx: number; w: number; h: number; ax: number; ay: number; dur: number; delay: number; rise: number; back: boolean };
+const VBUBS: VBub[] = VB_ART.map(([cx, cy, w, h, ax, ay], i) => {
+  const start = VB.floor - h / 2, end = VB.surface + h / 2;
+  const dur = Math.max(3.6, 7.2 - (Math.max(w, h) - 10) * 0.12) + rnd(i, 41) * 1.4;   // big bubbles rise faster
+  const p0 = Math.min(0.88, Math.max(0, (start - cy) / (start - end))) * 0.9;           // where it sits in the art = where its loop starts
+  return { i, cx, w, h, ax, ay, dur, delay: -p0 * dur, rise: ((end - start) / VB.h) * 100, back: rnd(i, 42) < 0.55 };
+});
+export function VesselBubbles({ live, layer }: { live: boolean; layer: "back" | "front" }) {
+  const born = useRef(performance.now());
+  const list = VBUBS.filter((b) => b.back === (layer === "back"));
+  useEffect(() => {
+    if (!live) return;
+    const timers: number[] = [];
+    VBUBS.forEach((b) => {                                            // the pops for both layers live on one instance
+      if (Math.max(b.w, b.h) < 12 && b.i % 2) return;                 // some of the tiny ones pop silently
+      const next = () => {
+        const now = (performance.now() - born.current) / 1000;
+        const phase = ((((now - b.delay) % b.dur) + b.dur) % b.dur) / b.dur;
+        const dt = ((((0.9 - phase) % 1) + 1) % 1) * b.dur || b.dur;
+        timers.push(window.setTimeout(() => { playBubblePop(Math.min(1, Math.max(b.w, b.h) / 26), -0.55 + ((b.cx - VB.x) / VB.w) * 0.2); next(); }, dt * 1000));
+      };
+      next();
+    });
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [live]);
+  return (
+    <div className={"gate-layer vessel-bubbles " + layer} style={VESSEL_CLEAN_BOX} aria-hidden="true">
+      {list.map((b) => (
+        <i key={b.i} className="vb" style={{
+          left: `${((b.cx - b.w / 2 - VB.x) / VB.w) * 100}%`, top: `${((VB.floor - b.h - VB.y) / VB.h) * 100}%`,
+          width: `${(b.w / VB.w) * 100}%`, height: `${(b.h / VB.h) * 100}%`,
+          backgroundSize: `${(VB_ATLAS[0]! / b.w) * 100}% ${(VB_ATLAS[1]! / b.h) * 100}%`,
+          backgroundPosition: `${(b.ax / Math.max(1, VB_ATLAS[0]! - b.w)) * 100}% ${(b.ay / Math.max(1, VB_ATLAS[1]! - b.h)) * 100}%`,
+          "--rise": `${b.rise}cqh`, animationDuration: `${b.dur}s, ${1.2 + rnd(b.i, 43) * 0.9}s`, animationDelay: `${b.delay}s, ${-rnd(b.i, 44) * 2}s`,
+        } as CSSProperties} />
+      ))}
+    </div>
   );
 }

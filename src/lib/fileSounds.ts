@@ -764,7 +764,7 @@ export function loadClip(url: string): Promise<AudioBuffer | null> {
 export const SFX = {
   phoneLeave: "/sfx/phone-leave.mp3", phoneFinished: "/sfx/phone-finished.mp3",
   laughSovereign: "/sfx/laugh-sovereign.mp3", laughHellspawn: "/sfx/laugh-hellspawn.mp3",
-  redAlert: "/sfx/red-alert.mp3",
+  telephoneCall: "/sfx/telephone-call.mp3",
 } as const;
 export function preloadVoices() { Object.values(SFX).forEach((u) => { void loadClip(u); }); }
 /** Plays a clip; resolves `done` when it ends (or right away if it could not play). */
@@ -949,5 +949,50 @@ export function playBubblePop(size = 0.6, pan = 0) {
     const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(1, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.1);
     burst(c, out, t + 0.004, 0.035, (x) => 1 - x, [{ type: "bandpass", f: 2600 + Math.random() * 1200, q: 1.2 }], 0.35);   // the film snapping
+  } catch { /* sound is optional */ }
+}
+
+/** Red beacons: "beep-beep ... beep-beep" on a 2 s loop, nothing spoken. */
+export function startBeepAlarm(): () => void {
+  try {
+    const c = audio(); if (!c) return () => undefined;
+    const out = c.createGain(); out.gain.value = 0.2; out.connect(c.destination);
+    let alive = true; const timers: number[] = [];
+    const cycle = () => {
+      if (!alive) return;
+      if (c.state === "running") {
+        const t0 = c.currentTime + 0.02;
+        for (const dt of [0, 0.26, 1.0, 1.26]) {
+          const t = t0 + dt;
+          const o = c.createOscillator(); o.type = "square"; o.frequency.value = 1046;
+          const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1500; bp.Q.value = 0.9;
+          const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.9, t + 0.008);
+          g.gain.setValueAtTime(0.9, t + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.17);
+          o.connect(bp); bp.connect(g); g.connect(out); o.start(t); o.stop(t + 0.2);
+        }
+      }
+      timers.push(window.setTimeout(cycle, 2000));
+    };
+    cycle();
+    return () => { alive = false; timers.forEach((id) => window.clearTimeout(id)); out.gain.setTargetAtTime(0.0001, c.currentTime, 0.05); window.setTimeout(() => { try { out.disconnect(); } catch { /* gone */ } }, 600); };
+  } catch { return () => undefined; }
+}
+/** The wall phone blowing out: electric crack, the casing bursting, glass, then a sizzle. */
+export function playPhoneBreak() {
+  try {
+    const m = master(0.5); if (!m) return; const { c, out, t } = m;
+    zap(c, out, t, 0.25, 0.5); zap(c, out, t + 0.28, 0.12, 0.35);
+    thump(c, out, t + 0.05, 160, 60, 0.18, 0.8);
+    burst(c, out, t + 0.05, 0.12, (x) => Math.pow(1 - x, 2), [{ type: "highpass", f: 1500 }], 0.7, [0.3, 1.7], [3, 9]);
+    for (let i = 0; i < 9; i++) burst(c, out, t + 0.08 + Math.random() * 0.35, 0.03 + Math.random() * 0.04, (x) => 1 - x, [{ type: "bandpass", f: 3000 + Math.random() * 3000, q: 2 }], 0.25);
+    burst(c, out, t + 0.3, 1.6, (x) => (1 - x) * (0.6 + 0.4 * Math.sin(x * 60)), [{ type: "highpass", f: 3500 }], 0.12);
+  } catch { /* sound is optional */ }
+}
+/** A spark jumping out of the dead phone (quiet). */
+export function playPhoneSpark(pan = -0.3) {
+  try {
+    const m = master(0.08); if (!m) return; const { c, out, t } = m;
+    const p = c.createStereoPanner(); p.pan.value = pan; out.disconnect(); out.connect(p); p.connect(c.destination);
+    zap(c, out, t, 0.07 + Math.random() * 0.06, 0.6);
   } catch { /* sound is optional */ }
 }

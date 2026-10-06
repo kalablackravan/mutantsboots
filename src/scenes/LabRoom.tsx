@@ -5,7 +5,7 @@ import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { WlClipboard } from "./WlClipboard";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
-import { LabPhone } from "./LabPhone";
+import { LabPhone, usePhoneBroken } from "./LabPhone";
 import { MutatedFlask3D } from "./MutatedFlask3D";
 import { FILE_SPECIMENS, RARITY_LABEL, type Specimen } from "@/lib/specimens";
 import { DeskScreens, TraitDisplay } from "./LabDisplays";
@@ -59,6 +59,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); setSay(null); } }, [on]);
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
+  const phoneBroken = usePhoneBroken();
   // horror room tone for as long as you are in the lab, quieter while something is open in front of you
   const horror = useRef<ReturnType<typeof startLabHorror> | null>(null);
   useEffect(() => {
@@ -119,9 +120,10 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
           style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>
         {WALL_TAGS.map((w) => {
           const line = w.id === "phone" ? say : null;          // the phone label speaks the voice line while it talks
+          const text = w.id === "phone" && phoneBroken ? "▸ dead line" : w.text;
           return (
             <span key={w.id} className={"gate-tag clone-tag lab-tag" + (line ? " lab-say" : "") + (((tag === w.id && !view) || line) ? " on" : "")}
-              style={{ left: `${w.box.left + w.box.width / 2}%`, top: `${w.box.top}%` }}>{line ?? w.text}</span>
+              style={{ left: `${w.box.left + w.box.width / 2}%`, top: `${w.box.top}%` }}>{line ?? text}</span>
           );
         })}
       </div>

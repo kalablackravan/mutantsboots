@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playClip, playDoorBurst, playDoorOpen, playVesselBlip, SFX, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorBurst, playDoorOpen, playVesselBlip, startBeepAlarm, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -97,15 +97,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   }, [on, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
     if (!on || !(lockHover || burst) || fileOpen) return;
-    // red beacons on: emergency announcement + klaxon, repeated while they stay on
-    let clip: { stop: () => void } | null = null, gone = false, t = 0;
-    const play = () => {
-      if (gone) return;
-      const c = playClip(SFX.redAlert, 0.85); clip = c;
-      void c.done.then(() => { if (!gone) t = window.setTimeout(play, 900); });
-    };
-    play();
-    return () => { gone = true; window.clearTimeout(t); clip?.stop(); };
+    return startBeepAlarm();                           // red beacons on: beep-beep alarm on a 2 s loop
   }, [on, lockHover || burst, fileOpen]);
   const openFile = async () => {
     if (fileBusy || fileOpen) return;

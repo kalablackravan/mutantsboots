@@ -20,8 +20,11 @@ export function usePhoneBroken() {
 
 type Phase = "wait" | "ring" | "talk";
 const FIRST_RING_MS = 3500;
-const BROKEN_ART = box(1150, 760, 350, 370);                // phone-broken.webp: our wall, the phone blown apart, scorch + cracks
-const SPARKS = [{ x: 1291, y: 870, d: 2.3 }, { x: 1342, y: 905, d: 3.1 }, { x: 1318, y: 945, d: 4.7 }];
+// phone-intact.webp / phone-broken.webp: our own wall with the old phone + keypad taken off and the new
+// phone (phone.webp / brokenphone.webp) mounted; the broken one also carries soot and cracks on the wall.
+const PHONE_ART = box(1180, 700, 325, 400);
+const SPARKS = [{ x: 1427, y: 909, d: 2.3 }, { x: 1452, y: 884, d: 3.1 }, { x: 1424, y: 956, d: 4.7 }];
+const SMOKE = [{ x: 1427, y: 905 }, { x: 1424, y: 952 }];
 
 export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
   on: boolean; paused: boolean; tabIndex: number; onTag: (k: string | null) => void;
@@ -91,14 +94,15 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
   const p = LAB_FX.phone;
   return (
     <>
+      <img className="gate-layer lab-phone-art" src="/scene/phone-intact.webp" alt="" draggable={false} style={{ ...PHONE_ART, visibility: broken ? "hidden" : "visible" }} />
+      <img className="gate-layer lab-phone-art" src="/scene/phone-broken.webp" alt="" draggable={false} style={{ ...PHONE_ART, visibility: broken ? "visible" : "hidden" }} />
       {broken && (
         <>
-          <img className="gate-layer lab-phone-broken" src="/scene/phone-broken.webp" alt="" draggable={false} style={BROKEN_ART} />
-          <div className="phone-smoke" style={{ left: `${1316 / 38.4}%`, top: `${858 / 18}%` }} aria-hidden="true"><i /><i /><i /><i /><i /></div>
+          {SMOKE.map((m, k) => <div key={k} className={"phone-smoke s" + k} style={{ left: `${m.x / 38.4}%`, top: `${m.y / 18}%` }} aria-hidden="true"><i /><i /><i /><i /><i /></div>)}
           {SPARKS.map((s, i) => <span key={i} className="phone-spark" style={{ left: `${s.x / 38.4}%`, top: `${s.y / 18}%`, animationDuration: `${s.d}s` }} aria-hidden="true" />)}
         </>
       )}
-      {flash && <span className="phone-flash" style={{ left: `${1316 / 38.4}%`, top: `${900 / 18}%` }} aria-hidden="true" />}
+      {flash && <span className="phone-flash" style={{ left: `${1427 / 38.4}%`, top: `${925 / 18}%` }} aria-hidden="true" />}
       {!broken && (
         <>
           <svg className={"lab-rings" + (ringing ? " on" : "")} style={at(p.rings)} viewBox="0 0 60 60" aria-hidden="true">
@@ -107,7 +111,6 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
             <path d="M10 25 A25 25 0 0 1 35 50" />
             <path d="M10 14 A36 36 0 0 1 46 50" />
           </svg>
-          <span className={"lab-phone-led" + (ringing ? " on" : "")} style={{ left: `${p.led.x}%`, top: `${p.led.y}%` }} aria-hidden="true" />
         </>
       )}
       <button type="button" className={"lab-phone" + (ringing ? " ringing" : "") + (phase === "talk" ? " talking" : "")}

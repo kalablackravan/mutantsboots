@@ -874,8 +874,8 @@ export function playDoorBurst() {
 
 // ---------------------------------------------------------------- lab: horror room tone + flickering tubes
 /** Fluorescent hum, a cold dissonant drone, metal creaks, distant wails and whispers. duck() lowers it while an item is open. */
-export function startLabHorror(): { stop: () => void; duck: (on: boolean) => void } {
-  const none = { stop: () => undefined, duck: () => undefined };
+export function startLabHorror(): { stop: (fade?: number) => void; duck: (on: boolean) => void; setMuted: (m: boolean) => void } {
+  const none = { stop: () => undefined, duck: () => undefined, setMuted: () => undefined };
   try {
     const c = audio(); if (!c) return none;
     const out = c.createGain(); out.gain.value = 0.0001; out.connect(c.destination);
@@ -918,6 +918,7 @@ export function startLabHorror(): { stop: () => void; duck: (on: boolean) => voi
     }, 14000, 26000, 7000);
     return {
       duck: (on: boolean) => { duckG.gain.setTargetAtTime(on ? 0.3 : 1, c.currentTime, 0.3); },
+      setMuted: (m: boolean) => { duckG.gain.setTargetAtTime(m ? 0.0001 : 1, c.currentTime, 0.2); },
       stop: () => {
         alive = false; timers.forEach((id) => window.clearTimeout(id));
         const t = c.currentTime; out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
@@ -937,21 +938,22 @@ export function playTubeFlicker(on: boolean, pan = 0) {
   } catch { /* sound is optional */ }
 }
 
-/** A bubble bursting at the top of the cloning vessel: a wet "plop" (bigger bubble = lower, louder). */
+/** A bubble bursting inside the cloning vessel: heard through liquid and glass, so low, dull and soft. */
 export function playBubblePop(size = 0.6, pan = 0) {
   try {
     const sz = Math.max(0.3, Math.min(1, size));
-    const m = master(0.025 + 0.03 * sz); if (!m) return; const { c, out, t } = m;
-    const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
-    const f0 = 380 + (1 - sz) * 700 + Math.random() * 120;
+    const m = master(0.02 + 0.022 * sz); if (!m) return; const { c, out, t } = m;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 520 + 260 * (1 - sz); lp.Q.value = 0.7;   // the glass + serum
+    const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan));
+    out.disconnect(); out.connect(lp); lp.connect(p); p.connect(c.destination);
+    const f0 = 150 + (1 - sz) * 240 + Math.random() * 60;
     const o = c.createOscillator(); o.type = "sine";
-    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 2.6, t + 0.05);
-    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(1, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-    o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.1);
-    burst(c, out, t + 0.004, 0.035, (x) => 1 - x, [{ type: "bandpass", f: 2600 + Math.random() * 1200, q: 1.2 }], 0.35);   // the film snapping
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 1.9, t + 0.07);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(1, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.18);
+    burst(c, out, t + 0.01, 0.06, (x) => 1 - x, [{ type: "lowpass", f: 600 }], 0.25);          // soft "blop" of the burst, no bright snap
   } catch { /* sound is optional */ }
 }
-
 /** Red beacons: "beep-beep ... beep-beep" on a 2 s loop, nothing spoken. */
 export function startBeepAlarm(): () => void {
   try {
@@ -995,4 +997,47 @@ export function playPhoneSpark(pan = -0.3) {
     const p = c.createStereoPanner(); p.pan.value = pan; out.disconnect(); out.connect(p); p.connect(c.destination);
     zap(c, out, t, 0.07 + Math.random() * 0.06, 0.6);
   } catch { /* sound is optional */ }
+}
+
+/** A glowing tube shattering: pop, glass showering down, the filament shorting out. */
+export function playBulbBreak(pan = 0) {
+  try {
+    const m = master(0.45); if (!m) return; const { c, out, t } = m;
+    const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
+    thump(c, out, t, 220, 90, 0.08, 0.6);
+    burst(c, out, t, 0.08, (x) => Math.pow(1 - x, 2), [{ type: "highpass", f: 1800 }], 0.9);
+    for (let i = 0; i < 14; i++) {                                      // shards tinkling down
+      const at = t + 0.03 + Math.random() * 0.7, f = 2800 + Math.random() * 4200;
+      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.12 * (1 - (at - t) / 0.9), at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.06 + Math.random() * 0.1);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.2);
+    }
+    zap(c, out, t + 0.02, 0.18, 0.35);
+  } catch { /* sound is optional */ }
+}
+/** Keypad key press: short electronic beep. */
+export function playKeyBeep() {
+  try { const m = master(0.12); if (!m) return; const { c, out, t } = m; tone(c, out, t, 1180, 0.07, 0.8, "square"); } catch { /* optional */ }
+}
+/** Wrong code: harsh low double buzz. */
+export function playDenyBuzz() {
+  try {
+    const m = master(0.2); if (!m) return; const { c, out, t } = m;
+    for (const dt of [0, 0.28]) { tone(c, out, t + dt, 140, 0.22, 0.9, "sawtooth"); tone(c, out, t + dt, 147, 0.22, 0.6, "square"); }
+  } catch { /* optional */ }
+}
+/** First-aid box: latch clicks, the little metal door swings on a dry hinge, hollow knock (it's empty). */
+export function playKitOpen() {
+  try {
+    const m = master(0.35); if (!m) return; const { c, out, t } = m;
+    burst(c, out, t, 0.03, (x) => 1 - x, [{ type: "bandpass", f: 3200, q: 2 }], 0.7);
+    const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(420, t + 0.06); o.frequency.linearRampToValueAtTime(620, t + 0.45);
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1400; bp.Q.value = 9;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t + 0.06); g.gain.exponentialRampToValueAtTime(0.08, t + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    o.connect(bp); bp.connect(g); g.connect(out); o.start(t + 0.06); o.stop(t + 0.55);
+    thump(c, out, t + 0.5, 180, 110, 0.12, 0.35);
+  } catch { /* optional */ }
+}
+export function playKitClose() {
+  try { const m = master(0.35); if (!m) return; const { c, out, t } = m; thump(c, out, t, 200, 120, 0.1, 0.6); burst(c, out, t + 0.04, 0.03, (x) => 1 - x, [{ type: "bandpass", f: 3000, q: 2 }], 0.6); } catch { /* optional */ }
 }

@@ -168,7 +168,7 @@ export const LAB_FX = {
   // the dead machine by the gas tanks: its slanted screen (box) and the screen shape inside it (box units 152x76)
   oos: { box: lb(3460, 1072, 152, 76), poly: "3,2 140,2 150,74 16,74", hit: lb(3388, 985, 252, 515) },
   // wall phone (left keypad with the cord) + the panel next to it: rings, picks up, threatens
-  phone: { hit: lb(1262, 772, 232, 232), rings: lb(1352, 790, 70, 70), led: { x: 1332 / 38.4, y: 942 / 18 } },
+  phone: { hit: lb(1262, 768, 236, 292), rings: lb(1478, 728, 70, 70), led: { x: 1332 / 38.4, y: 942 / 18 } },   // new wall phone (phone.webp)
   // wall keypad right of the big terminal = EXIT: whole pad is the button, screen shows EXIT
   exitPad: { hit: lb(3258, 800, 106, 154), screen: lb(3288, 824, 60, 35), key: lb(3334, 872, 17, 44) },
   // the three green desk monitors (screen glass): text log, live specimen build, single trait

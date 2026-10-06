@@ -11,7 +11,7 @@ import { Room, type RoomState } from "@/scenes/Room";
 import { IV, LINES, CLASSES, classify } from "@/scenes/content";
 import { Gallery, Notices, Tasks, Folder, Disclaimer, Menu, Socials } from "@/overlays/Panels";
 import { LabRoom, preloadLab } from "@/scenes/LabRoom";
-import { primeSceneAudio, startCreepyMusic, playBlip } from "@/lib/fileSounds";
+import { primeSceneAudio, startLabHorror, playBlip } from "@/lib/fileSounds";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,16 +53,19 @@ function Office() {
   // and the first gesture anywhere on the page lets it through; the speaker button mutes it.
   const [soundReady, setSoundReady] = useState(false);
   const [muted, setMuted] = useState(false);
-  const music = useRef<ReturnType<typeof startCreepyMusic> | null>(null);
+  const music = useRef<ReturnType<typeof startLabHorror> | null>(null);
   useEffect(() => {
     if (scene !== "intro") return;
-    const m = startCreepyMusic(); music.current = m;
+    const m = startLabHorror(); music.current = m;           // the same horror room tone as the lab
     const unlock = () => { primeSceneAudio(); setSoundReady(true); };
     const evs = ["pointerdown", "keydown", "touchstart"] as const;
     evs.forEach((e) => window.addEventListener(e, unlock, { once: true, passive: true }));
     return () => { evs.forEach((e) => window.removeEventListener(e, unlock)); m.stop(1.4); music.current = null; };
   }, [scene]);
   useEffect(() => { music.current?.setMuted(muted); }, [muted, scene]);
+  // the lab (and its heavy art) is only mounted once the visitor has reached the gate: the homepage loads lighter
+  const [labMounted, setLabMounted] = useState(false);
+  useEffect(() => { if (scene !== "intro") setLabMounted(true); }, [scene]);
   useEffect(() => { if (scene === "gate") void preloadLab(); }, [scene]); // lab room ready before the door is clicked
   const close = useCallback(() => setOv(null), []);
 
@@ -160,7 +163,7 @@ function Office() {
         </button>
       </section>
        <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("lab")} onHome={() => { playBlip(false); void travel("intro"); }} />
-      <LabRoom on={scene === "lab"} zoom={labZoom} onExit={() => travel("gate")} />
+      {labMounted && <LabRoom on={scene === "lab"} zoom={labZoom} onExit={() => travel("gate")} />}
       <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { LAB_FX } from "./config";
 import { DEVIL_1, DEVIL_2 } from "@/lib/fileArt";
-import { gaugeSound, playTubeFlicker } from "@/lib/fileSounds";
+import { gaugeSound, playBulbBreak, playTubeFlicker } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
@@ -50,6 +50,8 @@ export function ClipboardPrint({ box, hot }: { box: Box; hot: boolean }) {
 // The tubes blink with CSS (tubeOn/tubeOff: dropping out at 40% of their loop, striking back at 60%).
 // Those animations run from mount, so the crackle / re-strike sounds are scheduled on the same clock.
 const SOUNDING_TUBES = [0, 3, 5, 7, 9];
+// tubes the visitor has smashed: they stay dead until the page is reloaded (survives leaving the lab)
+const SMASHED = new Set<number>();
 function useTubeSounds(live: boolean) {
   const born = useRef(performance.now());
   useEffect(() => {
@@ -65,7 +67,7 @@ function useTubeSounds(live: boolean) {
         for (const [f, isOn] of [[0.4, false], [0.6, true]] as const) {
           const dt = ((f - phase + 1) % 1) * t.p; if (dt > 0.02 && dt < best) { best = dt; on = isOn; }
         }
-        timers.push(window.setTimeout(() => { if (Math.random() < 0.7) playTubeFlicker(on, pan); schedule(); }, best * 1000));
+        timers.push(window.setTimeout(() => { if (!SMASHED.has(i) && Math.random() < 0.7) playTubeFlicker(on, pan); schedule(); }, best * 1000));
       };
       schedule();
     }
@@ -75,13 +77,36 @@ function useTubeSounds(live: boolean) {
 
 export function LabFx({ live, onTag }: { live: boolean; onTag?: (k: string | null) => void }) {
   useTubeSounds(live);
+  const [, bump] = useState(0);
+  const smash = (i: number) => {
+    if (SMASHED.has(i)) return;
+    SMASHED.add(i); bump((n) => n + 1);
+    const t = LAB_FX.tubes[i]!;
+    playBulbBreak(Math.max(-0.8, Math.min(0.8, ((t.box.left + t.box.width / 2) / 100) * 2 - 1)));
+  };
   return (
     <>
+      {LAB_FX.tubes.map((t, i) => {
+        const dead = SMASHED.has(i);
+        return (
+          <span key={i} className={"lab-tube" + (dead ? " smashed" : "")} aria-hidden="true"
+            style={{ ...at(t.box), "--tp": `${t.p}s`, "--td": `${t.d}s`, "--tc": t.c } as CSSProperties}>
+            <b /><i />
+            {dead && (
+              <>
+                <svg className="tube-cracks" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path className="hole" d="M28 14 L40 22 L46 12 L55 25 L63 15 L72 24 L70 34 L58 30 L50 40 L41 31 L31 36 Z" />
+                  <path d="M50 40 L46 55 L52 66 L47 82" /><path d="M58 30 L66 46 L62 60 L69 74" /><path d="M41 31 L33 48 L37 62 L30 78" /><path d="M46 55 L56 58" />
+                </svg>
+                {[0, 1, 2, 3, 4, 5].map((k) => <em key={k} className={"tube-shard k" + k} />)}
+              </>
+            )}
+          </span>
+        );
+      })}
       {LAB_FX.tubes.map((t, i) => (
-        <span key={i} className="lab-tube" aria-hidden="true"
-          style={{ ...at(t.box), "--tp": `${t.p}s`, "--td": `${t.d}s`, "--tc": t.c } as CSSProperties}>
-          <b /><i />
-        </span>
+        <button key={"h" + i} type="button" className="lab-tube-hit" style={at(t.box)} tabIndex={-1}
+          aria-label="Smash the glowing tube" disabled={SMASHED.has(i)} onClick={() => smash(i)} />
       ))}
       <Gauges live={live} />
       {LAB_FX.tvs.map((tv, i) => <Tv key={i} box={tv.box} devil={tv.devil} label={tv.label} />)}

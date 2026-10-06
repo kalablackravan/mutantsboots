@@ -4,7 +4,8 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playDoorBurst, playDoorOpen, playVesselBlip, startBeepAlarm, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, startBeepAlarm, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { LockKeypad } from "@/overlays/LockKeypad";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -52,6 +53,10 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const [lockHover, setLockHover] = useState(false);
   const [faucetHover, setFaucetHover] = useState(false);
   const [homeHover, setHomeHover] = useState(false);
+  const [padOpen, setPadOpen] = useState(false);       // lockdown door keypad close-up
+  const [padHover, setPadHover] = useState(false);
+  const [kitOpen, setKitOpen] = useState(false);       // first-aid box on the wall (empty)
+  const [kitHover, setKitHover] = useState(false);
   // lockdown door: click it and something on the other side throws itself at it
   const [burst, setBurst] = useState(false);
   const burstTimer = useRef(0);
@@ -124,7 +129,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
             "--lc": l.color, "--lp": `${l.period}s`, "--ld": `${l.delay}s`,
           } as CSSProperties}><i /></span>
         ))}
-        <FirstAidKit />
+        <FirstAidKit open={kitOpen} />
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />
         <SignLogo />
@@ -132,6 +137,13 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           onLoad={(event) => { void event.currentTarget.decode().then(() => setOpenReady(true)).catch(() => setOpenReady(false)); }} />
         <SlimeDrips live={on && !fileOpen} doorOpen={open && openReady} />
         <HomePad tabIndex={on ? 0 : -1} onHome={() => onHome?.()} onTag={setHomeHover} />
+        <button type="button" className="gate-keypad-hit" style={{ left: `${2256 / 38.4}%`, top: `${872 / 18}%`, width: `${114 / 38.4}%`, height: `${192 / 18}%` }}
+          tabIndex={on ? 0 : -1} aria-label="Enter the door code" onClick={() => setPadOpen(true)}
+          onPointerEnter={() => setPadHover(true)} onPointerLeave={() => setPadHover(false)} />
+        <button type="button" className="kit-hit" style={{ left: `${2470 / 38.4}%`, top: `${264 / 18}%`, width: `${190 / 38.4}%`, height: `${134 / 18}%` }}
+          tabIndex={on ? 0 : -1} aria-label={kitOpen ? "Close the first-aid box" : "Open the first-aid box"}
+          onClick={() => { if (kitOpen) playKitClose(); else playKitOpen(); setKitOpen(!kitOpen); }}
+          onPointerEnter={() => setKitHover(true)} onPointerLeave={() => setKitHover(false)} />
         <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
         <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}
@@ -164,6 +176,10 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           style={{ left: `${SCENE_LAYERS.lockHit.left + SCENE_LAYERS.lockHit.width / 2}%`, top: `${SCENE_LAYERS.lockHit.top}%` }}>
           ⛔ no access
         </span>
+        <span className={"gate-tag clone-tag" + (padHover && !fileOpen && !padOpen ? " on" : "")}
+          style={{ left: `${2313 / 38.4}%`, top: `${858 / 18}%` }}>▸ enter code</span>
+        <span className={"gate-tag clone-tag" + (kitHover && !fileOpen ? " on" : "")}
+          style={{ left: `${2589 / 38.4}%`, top: `${252 / 18}%` }}>{kitOpen ? "▸ empty" : "▸ first aid"}</span>
         <span className={"gate-tag clone-tag" + (homeHover && !fileOpen ? " on" : "")}
           style={{ left: `${1224 / 38.4}%`, top: `${855 / 18}%` }}>▸ exit to home</span>
         <span className={"gate-tag clone-tag" + (faucetHover && !fileOpen ? " on" : "")}
@@ -173,6 +189,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           {fileBusy ? "opening file…" : "▸ click to open file"}
         </span>
       </div>
+      <LockKeypad open={padOpen} onClose={() => setPadOpen(false)} />
       <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>
   );

@@ -13,18 +13,36 @@ export function SignLogo() {
   return <img className="gate-layer gate-sign-logo" src={SIGN_LOGO} alt="" style={box(1788, 698, 126, 132)} draggable={false} />;
 }
 
-export function FirstAidKit() {
+export function FirstAidKit({ open = false }: { open?: boolean }) {
   return (
     <svg className="gate-props" viewBox="0 0 3840 1800" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <filter id="gpShadow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7" /></filter>
+        <linearGradient id="kitIn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0a0f11" /><stop offset=".35" stopColor="#182126" /><stop offset="1" stopColor="#10171a" />
+        </linearGradient>
         <linearGradient id="kitFace" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#c4bfb1" /><stop offset="1" stopColor="#9e9a8e" />
         </linearGradient>
       </defs>
       <rect x="2536" y="292" width="116" height="104" rx="8" fill="#000" opacity=".45" filter="url(#gpShadow)" />
-      {/* wall first-aid kit */}
-      <g className="gate-kit">
+      {/* wall first-aid kit: opened, there is nothing left inside */}
+      {open && (
+        <g className="gate-kit-open">
+          <rect x="2526" y="286" width="122" height="106" rx="7" fill="#2a3135" stroke="#090c0f" strokeWidth="5" />
+          <rect x="2535" y="295" width="104" height="88" rx="3" fill="url(#kitIn)" stroke="#05080a" strokeWidth="2" />
+          <path d="M2537 341 H2637" stroke="#2c363b" strokeWidth="5" /><path d="M2537 338 H2637" stroke="#3e4a50" strokeWidth="1.5" />
+          <rect x="2548" y="355" width="16" height="6" rx="1" fill="#222b30" /><rect x="2608" y="355" width="16" height="6" rx="1" fill="#222b30" />
+          <path d="M2536 296 L2556 296 M2536 296 L2536 314 M2536 296 L2552 310 M2541 296 Q2541 305 2536 307 M2547 296 Q2546 307 2536 311" stroke="#a9b3b6" strokeWidth="1" opacity=".35" fill="none" />
+          <circle cx="2590" cy="372" r="1.6" fill="#6f7a7e" opacity=".5" /><circle cx="2612" cy="376" r="1.2" fill="#6f7a7e" opacity=".45" /><circle cx="2566" cy="331" r="1.3" fill="#6f7a7e" opacity=".4" />
+          {/* the door swung out on its left hinge */}
+          <path d="M2526 288 L2476 300 L2476 380 L2526 390 Z" fill="#8c887d" stroke="#090c0f" strokeWidth="4" strokeLinejoin="round" />
+          <path d="M2526 288 L2476 300 L2476 380 L2526 390 Z" fill="rgba(14,30,38,.35)" />
+          <path d="M2490 318 L2512 314 M2490 350 L2512 350" stroke="#5b584f" strokeWidth="3" />
+          <rect x="2522" y="300" width="6" height="16" fill="#3b4246" stroke="#090c0f" strokeWidth="1.5" /><rect x="2522" y="360" width="6" height="16" fill="#3b4246" stroke="#090c0f" strokeWidth="1.5" />
+        </g>
+      )}
+      <g className="gate-kit" style={open ? { display: "none" } : undefined}>
         <rect x="2540" y="276" width="20" height="10" rx="2" fill="#2b3337" stroke="#090c0f" strokeWidth="3" />
         <rect x="2618" y="276" width="20" height="10" rx="2" fill="#2b3337" stroke="#090c0f" strokeWidth="3" />
         <path d="M2569 288 Q2569 270 2589 270 Q2609 270 2609 288" fill="none" stroke="#090c0f" strokeWidth="9" />

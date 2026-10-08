@@ -23,8 +23,8 @@ const FIRST_RING_MS = 3500;
 // phone-intact.webp / phone-broken.webp: our own wall with the old phone + keypad taken off and the new
 // phone (phone.webp / brokenphone.webp) mounted; the broken one also carries soot and cracks on the wall.
 const PHONE_ART = box(1180, 700, 325, 400);
-const SPARKS = [{ x: 1427, y: 909, d: 2.3 }, { x: 1452, y: 884, d: 3.1 }, { x: 1424, y: 956, d: 4.7 }];
-const SMOKE = [{ x: 1427, y: 905 }, { x: 1424, y: 952 }];
+const SPARKS = [{ x: 1376, y: 949, d: 2.3 }, { x: 1282, y: 868, d: 3.1 }, { x: 1291, y: 937, d: 4.7 }];
+const SMOKE = [{ x: 1382, y: 962 }, { x: 1284, y: 866 }];
 
 export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
   on: boolean; paused: boolean; tabIndex: number; onTag: (k: string | null) => void;
@@ -102,7 +102,7 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
           {SPARKS.map((s, i) => <span key={i} className="phone-spark" style={{ left: `${s.x / 38.4}%`, top: `${s.y / 18}%`, animationDuration: `${s.d}s` }} aria-hidden="true" />)}
         </>
       )}
-      {flash && <span className="phone-flash" style={{ left: `${1427 / 38.4}%`, top: `${925 / 18}%` }} aria-hidden="true" />}
+      {flash && <span className="phone-flash" style={{ left: `${1330 / 38.4}%`, top: `${905 / 18}%` }} aria-hidden="true" />}
       {!broken && (
         <>
           <svg className={"lab-rings" + (ringing ? " on" : "")} style={at(p.rings)} viewBox="0 0 60 60" aria-hidden="true">

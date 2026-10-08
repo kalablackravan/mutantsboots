@@ -4,7 +4,7 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
-import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, startBeepAlarm, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
+import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, SFX, startClipLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 import { LockKeypad } from "@/overlays/LockKeypad";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
@@ -53,6 +53,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const [lockHover, setLockHover] = useState(false);
   const [faucetHover, setFaucetHover] = useState(false);
   const [homeHover, setHomeHover] = useState(false);
+  const [fog, setFog] = useState(0);                   // opening the valve fills the room with smoke, then it clears
   const [padOpen, setPadOpen] = useState(false);       // lockdown door keypad close-up
   const [padHover, setPadHover] = useState(false);
   const [kitOpen, setKitOpen] = useState(false);       // first-aid box on the wall (empty)
@@ -102,7 +103,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   }, [on, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
     if (!on || !(lockHover || burst) || fileOpen) return;
-    return startBeepAlarm();                           // red beacons on: beep-beep alarm on a 2 s loop
+    return startClipLoop(SFX.lockAlarm, 0.75);         // red beacons on: the 2 s alarm (no voice), looped
   }, [on, lockHover || burst, fileOpen]);
   const openFile = async () => {
     if (fileBusy || fileOpen) return;
@@ -144,7 +145,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           tabIndex={on ? 0 : -1} aria-label={kitOpen ? "Close the first-aid box" : "Open the first-aid box"}
           onClick={() => { if (kitOpen) playKitClose(); else playKitOpen(); setKitOpen(!kitOpen); }}
           onPointerEnter={() => setKitHover(true)} onPointerLeave={() => setKitHover(false)} />
-        <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} />
+        <Faucet tabIndex={on ? 0 : -1} onTag={setFaucetHover} onOpen={() => setFog((n) => n + 1)} />
         <SceneLayer name="bgsilhouette.webp" box={SCENE_LAYERS.full} className="gate-silhouette" />
         <button type="button" className="clone-hit" style={position(SCENE_LAYERS.cloneHit)}
           aria-label="Open the classified file" tabIndex={on ? 0 : -1}
@@ -158,9 +159,16 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <Button type="button" variant="ghost" className="slime-hit" style={position(SCENE_LAYERS.doorHit)}
           aria-label="Open Department of FOMO" tabIndex={on ? 0 : -1}
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); doorSound(); } }}
+          onPointerDown={(event) => { if (event.pointerType !== "mouse") { setOpen(true); doorSound(); } }}
           onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
           onClick={() => { onDoor(); }} />
       </div>
+      {fog > 0 && (
+        <div key={fog} className="gate-fog" aria-hidden="true">
+          <i className="haze" />
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((k) => <i key={k} className={"cloud c" + k} />)}
+        </div>
+      )}
       <div className="gate-overlay" aria-hidden="true" />
       {/* UI above the pulsing overlay, same frame as the stage, so the hint stays readable */}
       <div id="gate-ui" aria-hidden="true">

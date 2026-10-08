@@ -765,6 +765,7 @@ export const SFX = {
   phoneLeave: "/sfx/phone-leave.mp3", phoneFinished: "/sfx/phone-finished.mp3",
   laughSovereign: "/sfx/laugh-sovereign.mp3", laughHellspawn: "/sfx/laugh-hellspawn.mp3",
   telephoneCall: "/sfx/telephone-call.mp3",
+  lockAlarm: "/sfx/alert-2s.mp3",
 } as const;
 export function preloadVoices() { Object.values(SFX).forEach((u) => { void loadClip(u); }); }
 /** Plays a clip; resolves `done` when it ends (or right away if it could not play). */
@@ -830,7 +831,7 @@ export function startPipeFlow(): () => void {
 /** One slime drop landing: a wet plink, panned to where it fell (-1 left .. 1 right). */
 export function playDrip(pan = 0, size = 1) {
   try {
-    const m = master(0.11 * size); if (!m) return; const { c, out, t } = m;
+    const m = master(0.04 * size); if (!m) return; const { c, out, t } = m;
     const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
     const f = 900 + Math.random() * 700;
     const o = c.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 2.2, t + 0.045);
@@ -1040,4 +1041,18 @@ export function playKitOpen() {
 }
 export function playKitClose() {
   try { const m = master(0.35); if (!m) return; const { c, out, t } = m; thump(c, out, t, 200, 120, 0.1, 0.6); burst(c, out, t + 0.04, 0.03, (x) => 1 - x, [{ type: "bandpass", f: 3000, q: 2 }], 0.6); } catch { /* optional */ }
+}
+
+/** Loop a recorded clip seamlessly (e.g. the 2 s lockdown alarm) until stop() is called. */
+export function startClipLoop(url: string, volume = 0.7): () => void {
+  let src: AudioBufferSourceNode | null = null, g: GainNode | null = null, stopped = false;
+  void loadClip(url).then((buf) => {
+    const c = audio(); if (!buf || !c || stopped) return;
+    src = c.createBufferSource(); src.buffer = buf; src.loop = true;
+    g = c.createGain(); g.gain.value = volume; src.connect(g); g.connect(c.destination); src.start();
+  });
+  return () => {
+    stopped = true;
+    try { const c = audio(); if (g && c) g.gain.setTargetAtTime(0.0001, c.currentTime, 0.05); window.setTimeout(() => { try { src?.stop(); } catch { /* done */ } }, 300); } catch { /* gone */ }
+  };
 }

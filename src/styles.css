@@ -949,3 +949,19 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lockpad-close{position:absolute;right:-2cqw;top:-2cqw;width:9cqw;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(0,0,0,.75);color:#fff;font:700 6cqw/1 var(--mono);cursor:pointer}
 /* the door-side keypad + first-aid box are clickable */
 .gate-keypad-hit,.kit-hit{position:absolute;z-index:4;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+/* valve: the steam spreads until the whole room is in smoke, then it slowly clears */
+.gate-fog{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;container-type:inline-size}
+.gate-fog .haze{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 82% 85%,rgba(150,175,170,.75),rgba(120,145,140,.55) 45%,rgba(100,120,118,.4));opacity:0;animation:fogHaze 15s ease-in-out forwards}
+.gate-fog .cloud{position:absolute;left:84%;top:80%;width:30cqw;aspect-ratio:1.6;margin:-9cqw 0 0 -15cqw;border-radius:50%;background:radial-gradient(ellipse at center,rgba(205,220,215,.7),rgba(170,190,185,.35) 45%,rgba(140,160,155,0) 70%);filter:blur(1.2cqw);opacity:0;animation:fogCloud 15s ease-in-out forwards}
+.gate-fog .c1{--tx:-30cqw;--ty:-14cqw;animation-delay:.3s}
+.gate-fog .c2{--tx:-55cqw;--ty:-4cqw;animation-delay:.8s}
+.gate-fog .c3{--tx:-70cqw;--ty:-26cqw;animation-delay:1.3s}
+.gate-fog .c4{--tx:-12cqw;--ty:-32cqw;animation-delay:1.7s}
+.gate-fog .c5{--tx:-42cqw;--ty:-34cqw;animation-delay:2.2s}
+.gate-fog .c6{--tx:-80cqw;--ty:-8cqw;animation-delay:2.6s}
+.gate-fog .c7{--tx:-24cqw;--ty:2cqw;animation-delay:3s}
+.gate-fog .c8{--tx:-62cqw;--ty:-40cqw;animation-delay:3.4s}
+@keyframes fogHaze{0%{opacity:0}40%{opacity:.75}62%{opacity:.75}100%{opacity:0}}
+@keyframes fogCloud{0%{opacity:0;transform:translate(0,0) scale(.3)}15%{opacity:.9}55%{opacity:.85;transform:translate(var(--tx,-20cqw),var(--ty,-10cqw)) scale(2.2)}100%{opacity:0;transform:translate(calc(var(--tx,-20cqw) * 1.2),calc(var(--ty,-10cqw) - 6cqw)) scale(2.8)}}
+@media (prefers-reduced-motion: reduce){.gate-fog .cloud{animation-duration:6s}.gate-fog .haze{animation-duration:6s}}

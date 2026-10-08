@@ -125,7 +125,7 @@ const FLOOR_Y = 1522;
 type Puff = { id: number; dx: number; s: number; d: number };
 let puffId = 0;
 
-export function Faucet({ tabIndex, onTag }: { tabIndex: number; onTag?: (on: boolean) => void }) {
+export function Faucet({ tabIndex, onTag, onOpen }: { tabIndex: number; onTag?: (on: boolean) => void; onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
   const [spin, setSpin] = useState(0);
   const [pool, setPool] = useState(0);           // 0..1 puddle size
@@ -133,6 +133,7 @@ export function Faucet({ tabIndex, onTag }: { tabIndex: number; onTag?: (on: boo
   const auto = useRef(0);
   const toggle = () => {
     setSpin((s) => s + 1); playValveTurn();
+    if (!open) onOpen?.();
     setOpen((o) => {
       window.clearTimeout(auto.current);
       if (!o) auto.current = window.setTimeout(() => { setOpen(false); setSpin((s) => s + 1); playValveTurn(); }, 6500);
@@ -184,26 +185,35 @@ const CLOSED_TIPS: Tip[] = [[2959, 888], [2850, 985], [2927, 1137], [2884, 1298]
 const OPEN_TIPS: Tip[] = [[2959, 888], [2840, 984], [2895, 1136], [2865, 1298], [3214, 1070], [3280, 966], [3223, 1247], [2730, 853]];
 const FLOOR = 1592;
 const rnd = (i: number, k: number) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
+// progress (0..1) of an element's first running CSS animation: sounds follow the real animation, whatever
+// paused or restarted it (scene hidden, tab in the background, etc.)
+function loopPhase(el: Element | null | undefined): number | null {
+  const a = el?.getAnimations?.()[0];
+  const p = a?.effect?.getComputedTiming().progress;
+  return typeof p === "number" ? p : null;
+}
+
 function DripSet({ tips, className, seed, sound }: { tips: Tip[]; className?: string; seed: number; sound: boolean }) {
-  // a plink each time a drop hits the floor (dripFall reaches the floor at 91% of its loop)
-  const born = useRef(performance.now());
+  // a plink exactly when a drop touches the floor (dripFall reaches the floor at 91% of its loop)
+  const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!sound) return;
     const timers: number[] = [];
     tips.forEach(([x], i) => {
-      const dur = 7 + rnd(i, seed) * 7, delay = -rnd(i, seed + 1) * dur;
+      const dur = 7 + rnd(i, seed) * 7;
       const next = () => {
-        const now = (performance.now() - born.current) / 1000;
-        const phase = ((((now - delay) % dur) + dur) % dur) / dur;
-        const dt = (((0.91 - phase) % 1) + 1) % 1 * dur || dur;
-        timers.push(window.setTimeout(() => { playDrip((x / 3840) * 2 - 1, 0.6 + rnd(i, seed + 3) * 0.6); next(); }, dt * 1000));
+        const phase = loopPhase(box.current?.children[i]?.querySelector("i"));
+        if (phase === null) { timers.push(window.setTimeout(next, 500)); return; }
+        let dt = ((((0.912 - phase) % 1) + 1) % 1) * dur;
+        if (dt < 0.05) dt += dur;
+        timers.push(window.setTimeout(() => { playDrip((x / 3840) * 2 - 1, 0.6 + rnd(i, seed + 3) * 0.6); timers.push(window.setTimeout(next, 120)); }, dt * 1000));
       };
       next();
     });
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [sound, tips, seed]);
   return (
-    <div className={"gate-drips " + (className ?? "")} aria-hidden="true">
+    <div ref={box} className={"gate-drips " + (className ?? "")} aria-hidden="true">
       {tips.map(([x, y], i) => {
         const dur = 7 + rnd(i, seed) * 7, delay = -rnd(i, seed + 1) * dur;   // one drop every 7-14 s per tip
         const floor = FLOOR + (rnd(i, seed + 2) - 0.5) * 24;
@@ -325,10 +335,11 @@ export function VesselBubbles({ live, layer }: { live: boolean; layer: "back" | 
     VBUBS.forEach((b) => {                                            // the pops for both layers live on one instance
       if (b.i % 3 !== 0 && Math.max(b.w, b.h) < 20) return;           // only about a third of them make a sound
       const next = () => {
-        const now = (performance.now() - born.current) / 1000;
-        const phase = ((((now - b.delay) % b.dur) + b.dur) % b.dur) / b.dur;
-        const dt = ((((0.9 - phase) % 1) + 1) % 1) * b.dur || b.dur;
-        timers.push(window.setTimeout(() => { playBubblePop(Math.min(1, Math.max(b.w, b.h) / 26), -0.55 + ((b.cx - VB.x) / VB.w) * 0.2); next(); }, dt * 1000));
+        const phase = loopPhase(document.querySelector(`.vessel-bubbles .vb[data-i="${b.i}"]`));
+        if (phase === null) { timers.push(window.setTimeout(next, 500)); return; }
+        let dt = ((((0.9 - phase) % 1) + 1) % 1) * b.dur;
+        if (dt < 0.05) dt += b.dur;
+        timers.push(window.setTimeout(() => { playBubblePop(Math.min(1, Math.max(b.w, b.h) / 26), -0.55 + ((b.cx - VB.x) / VB.w) * 0.2); timers.push(window.setTimeout(next, 120)); }, dt * 1000));
       };
       next();
     });
@@ -337,7 +348,7 @@ export function VesselBubbles({ live, layer }: { live: boolean; layer: "back" | 
   return (
     <div className={"gate-layer vessel-bubbles " + layer} style={VESSEL_CLEAN_BOX} aria-hidden="true">
       {list.map((b) => (
-        <i key={b.i} className="vb" style={{
+        <i key={b.i} data-i={b.i} className="vb" style={{
           left: `${((b.cx - b.w / 2 - VB.x) / VB.w) * 100}%`, top: `${((VB.floor - b.h - VB.y) / VB.h) * 100}%`,
           width: `${(b.w / VB.w) * 100}%`, height: `${(b.h / VB.h) * 100}%`,
           backgroundSize: `${(VB_ATLAS[0]! / b.w) * 100}% ${(VB_ATLAS[1]! / b.h) * 100}%`,

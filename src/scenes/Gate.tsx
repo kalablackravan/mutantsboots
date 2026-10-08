@@ -141,7 +141,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <button type="button" className="gate-keypad-hit" style={{ left: `${2256 / 38.4}%`, top: `${872 / 18}%`, width: `${114 / 38.4}%`, height: `${192 / 18}%` }}
           tabIndex={on ? 0 : -1} aria-label="Enter the door code" onClick={() => setPadOpen(true)}
           onPointerEnter={() => setPadHover(true)} onPointerLeave={() => setPadHover(false)} />
-        <button type="button" className="kit-hit" style={{ left: `${2470 / 38.4}%`, top: `${264 / 18}%`, width: `${190 / 38.4}%`, height: `${134 / 18}%` }}
+        <button type="button" className="kit-hit" style={{ left: `${2462 / 38.4}%`, top: `${272 / 18}%`, width: `${236 / 38.4}%`, height: `${130 / 18}%` }}
           tabIndex={on ? 0 : -1} aria-label={kitOpen ? "Close the first-aid box" : "Open the first-aid box"}
           onClick={() => { if (kitOpen) playKitClose(); else playKitOpen(); setKitOpen(!kitOpen); }}
           onPointerEnter={() => setKitHover(true)} onPointerLeave={() => setKitHover(false)} />
@@ -187,7 +187,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <span className={"gate-tag clone-tag" + (padHover && !fileOpen && !padOpen ? " on" : "")}
           style={{ left: `${2313 / 38.4}%`, top: `${858 / 18}%` }}>▸ enter code</span>
         <span className={"gate-tag clone-tag" + (kitHover && !fileOpen ? " on" : "")}
-          style={{ left: `${2589 / 38.4}%`, top: `${252 / 18}%` }}>{kitOpen ? "▸ empty" : "▸ first aid"}</span>
+          style={{ left: `${2626 / 38.4}%`, top: `${262 / 18}%` }}>{kitOpen ? "▸ empty" : "▸ first aid"}</span>
         <span className={"gate-tag clone-tag" + (homeHover && !fileOpen ? " on" : "")}
           style={{ left: `${1224 / 38.4}%`, top: `${855 / 18}%` }}>▸ exit to home</span>
         <span className={"gate-tag clone-tag" + (faucetHover && !fileOpen ? " on" : "")}

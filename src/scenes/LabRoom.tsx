@@ -40,12 +40,13 @@ const WALL_TAGS: { id: string; text: string; box: Box }[] = [
 
 // Everything the room and its three views need, decoded before the door lets anyone in.
 const LAB_IMAGES: SceneImage[] = ["2ndbg.webp", "bgsilhouette.webp", "clipboard.webp", "flask_black_border.webp",
-  "files_black_border.webp", "clipboard_black_border_thin.webp", "bestspread.webp", "frame_black_border.webp"];
+  "files_black_border.webp", "clipboard_black_border_thin.webp", "frame_black_border.webp"];
 let ready: Promise<void> | null = null;
 export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
-    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
+    Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode("/scene/bestspread-thin.webp"),
+      ...["/scene/phone-intact.webp", "/scene/phone-broken.webp", "/scene/lab-noticeboard.webp", "/scene/nb-stained.webp", "/scene/nb-paper.webp", "/scene/nb-form.webp"].map(loadAndDecode), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;
@@ -161,7 +162,7 @@ function decode(src: string): Promise<void> {
 const VIEW_ART: Partial<Record<Item, () => string[]>> = {
   clipboard: () => [sceneImage("clipboard_black_border_thin.webp")],
   flask: () => [sceneImage("frame_black_border.webp")],
-  files: () => [sceneImage("bestspread.webp")],
+  files: () => ["/scene/bestspread-thin.webp"],
   display: () => [BLANK_DISPLAY], cam0: () => [BLANK_DISPLAY], cam1: () => [BLANK_DISPLAY],
 };
 function useViewReady(item: Item | null, flaskUp: boolean) {
@@ -260,7 +261,7 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
       {shown === "files" && (
         <div className={"lv-files" + (dropping ? " drop" : "")} key={"p" + String(item)}>
           <div className="lv-paper" style={{
-            backgroundImage: `url(${sceneImage("bestspread.webp")})`,
+            backgroundImage: `url(${"/scene/bestspread-thin.webp"})`,
             backgroundSize: `${(3840 / (F.src.paper[2] - F.src.paper[0])) * 100}% ${(1800 / (F.src.paper[3] - F.src.paper[1])) * 100}%`,
             backgroundPosition: `${(F.src.paper[0] / (3840 - (F.src.paper[2] - F.src.paper[0]))) * 100}% ${(F.src.paper[1] / (1800 - (F.src.paper[3] - F.src.paper[1]))) * 100}%`,
             clipPath: F.paperClip,

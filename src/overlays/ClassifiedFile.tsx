@@ -8,7 +8,7 @@ type Box = { left: number; top: number; width: number; height: number };
 type Stage = "closed" | "spread1" | "spread2" | "back";
 type Leaf = "cover" | "sheet" | "back";
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
-const ART = sceneImage("bestspread.webp");
+const ART = "/scene/bestspread-thin.webp";
 const FLIP_MS = 1100;
 
 // a crop of bestspread.webp that exactly fills its element, cut along the art's torn outline

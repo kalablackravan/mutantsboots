@@ -13,8 +13,8 @@ export const SPECIMENS = [
   { id: "SPC-590", traits: "toxic hellfire · serum chest", rot: 4 },
 ];
 
-export const DEVIL_1 = SITE_ASSETS + "devil-1.png"; // Hellspawn, CAM 01
-export const DEVIL_2 = SITE_ASSETS + "devil-2.png"; // Dark Sovereign, CAM 02 (silhouette only)
+export const DEVIL_1 = "/scene/devil-1.webp"; // Hellspawn, CAM 01
+export const DEVIL_2 = "/scene/devil-2.webp"; // Dark Sovereign, CAM 02 (silhouette only)
 
 // Fetch + decode the file art (and its stencil font) before it is shown, so it never opens blank.
 let ready: Promise<void> | null = null;
@@ -26,7 +26,7 @@ export function preloadFile(timeoutMs = 6000): Promise<void> {
     : Promise.resolve();
   ready ??= Promise.race([
     Promise.all([
-      loadAndDecode(sceneImage("bestspread.webp")), loadAndDecode(sceneImage("file_front.webp")),
+      loadAndDecode("/scene/bestspread-thin.webp"), loadAndDecode(sceneImage("file_front.webp")),
       loadAndDecode(sceneImage("file_inside.webp")), loadAndDecode(sceneImage("file_back.webp")), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2),
       loadAndDecode(SPECIMEN_STRIP), loadAndDecode(INK_HEAVY), loadAndDecode(INK_LIGHT), font,
     ]).then(() => undefined),

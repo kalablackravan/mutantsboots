@@ -164,7 +164,7 @@ function Office() {
       </section>
        <Gate on={scene === "gate"} warm={scene === "intro"} zoom={gateZoom} onDoor={() => travel("lab")} onHome={() => { playBlip(false); void travel("intro"); }} />
       {labMounted && <LabRoom on={scene === "lab"} zoom={labZoom} onExit={() => travel("gate")} />}
-      <Room on={scene === "room"} f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />
+      {scene === "room" && <Room on f={f} vw={vw} vh={vh} portrait={portrait} st={st} open={openRoom} />}   {/* old room: only mounted if ever entered, so its big PNGs never load */}
       {scene === "room" && beat && (
         <div id="bubble" className="bub" role="status" aria-live="polite"
           style={{ left: f.ox + b.cx * f.scale, bottom: vh - (f.oy + b.tip * f.scale) + 20, maxWidth: Math.max(280, Math.min(b.maxw * f.scale, vw - 24)) }}>
@@ -179,13 +179,17 @@ function Office() {
         </div>
       )}
       <div id="blackout" className={black} />
-      <Disclaimer open={ov === "disclaimer"} onClose={close} />
-      <Gallery open={ov === "gallery"} onClose={close} />
-      <Notices open={ov === "notices"} onClose={close} />
-      <Tasks open={ov === "tasks"} onClose={close} portrait={portrait} />
-      <Folder open={ov === "folder"} onClose={close} cls={cls} handle="" />
-      <Socials open={ov === "socials"} onClose={close} />
-      <Menu open={ov === "menu"} onClose={close} go={(k) => setOv(k)} />
+      {scene === "room" && (
+        <>
+          <Disclaimer open={ov === "disclaimer"} onClose={close} />
+          <Gallery open={ov === "gallery"} onClose={close} />
+          <Notices open={ov === "notices"} onClose={close} />
+          <Tasks open={ov === "tasks"} onClose={close} portrait={portrait} />
+          <Folder open={ov === "folder"} onClose={close} cls={cls} handle="" />
+          <Socials open={ov === "socials"} onClose={close} />
+          <Menu open={ov === "menu"} onClose={close} go={(k) => setOv(k)} />
+        </>
+      )}
     </main>
   );
 }

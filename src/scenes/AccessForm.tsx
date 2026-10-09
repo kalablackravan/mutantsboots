@@ -6,6 +6,7 @@ import { playInject } from "@/lib/fileSounds";
 // WL code -> whitelist injection, FM code -> free mint injection. The wallet comes from Discord (shown
 // masked, read-only). Nothing about the code is shown or kept after it is sent.
 const X_URL = "https://x.com/mutatedfoots";
+export const DISCORD_URL = "https://discord.gg/SEpErZejb";
 const INJECT_MS = 2400;
 const looksX = (h: string) => /^@?[A-Za-z0-9_]{1,15}$/.test(h.trim());
 const cleanX = (h: string) => h.trim().replace(/^@/, "");
@@ -64,9 +65,15 @@ export function AccessForm({ active }: { active: boolean }) {
     );
   }
   if (!acc) return (
-    <div className="wl wl-center">
-      <p className="wl-big red">ACCESS CODE REQUIRED</p>
-      <p className="wl-text">The injection form only opens with an access code. Get yours in the mutatedfoots Discord, then enter it at the slime door.</p>
+    <div className="wl wl-center wl-readonly">
+      <p className="wl-big red">WL / FREE MINT INJECTION</p>
+      <p className="wl-mono">READ-ONLY · NO ACCESS CODE</p>
+      <div className="wl-steps">
+        <p><i className="wl-n">1</i>Join the mutatedfoots <b>Discord</b>.</p>
+        <p><i className="wl-n">2</i>Claim your <b>RP</b> and get your <b>WL</b> or <b>FREE MINT</b> access code.</p>
+        <p><i className="wl-n">3</i>Come back, enter this room <b>with that access code</b>, and get infected.</p>
+      </div>
+      <a className="wl-btn wl-discord" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">JOIN DISCORD ↗</a>
     </div>
   );
   if (injecting) return (

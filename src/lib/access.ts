@@ -24,7 +24,12 @@ if (typeof window !== "undefined") {
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((f) => f());
 export const getAccess = () => current;
-export const doorGranted = () => granted;
+// the slime door opens straight away only for someone who came in with a code (or injected on this device);
+// a visitor who walked in without a code still gets the terminal, so they can enter a code next time
+export const doorGranted = () => granted && current !== null;
+let guest = false;
+export const isGuest = () => guest && current === null;
+export function enterAsGuest() { guest = true; emit(); }
 export function grantAccess(a: { code: string; kind: AccessKind; wallet: string; used?: boolean | undefined; x?: string | undefined; discord?: string | undefined }) {
   if (a.used) {                                            // code already injected: let them back in to see their file
     const s = loadSaved();

@@ -6,7 +6,7 @@ import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, SFX, startClipLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 import { AccessPanel, preloadAccessPanel } from "@/overlays/AccessPanel";
-import { doorGranted, grantAccess } from "@/lib/access";
+import { doorGranted, enterAsGuest, grantAccess } from "@/lib/access";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -201,7 +201,8 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         </span>
       </div>
       <AccessPanel open={padOpen} mode={padMode} anchor={padMode === "lock" ? { x: 2313, y: 968 } : { x: 3367, y: 1040 }} onClose={() => setPadOpen(false)}
-        onGranted={(a) => { grantAccess(a); setPadOpen(false); setOpen(true); doorSound(); window.setTimeout(onDoor, 450); }} />
+        onGranted={(a) => { grantAccess(a); setPadOpen(false); setOpen(true); doorSound(); window.setTimeout(onDoor, 450); }}
+        onGuest={() => { enterAsGuest(); setPadOpen(false); setOpen(true); doorSound(); window.setTimeout(onDoor, 450); }} />
       <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>
   );

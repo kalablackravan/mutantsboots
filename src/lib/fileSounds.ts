@@ -980,15 +980,19 @@ export function startBeepAlarm(): () => void {
     return () => { alive = false; timers.forEach((id) => window.clearTimeout(id)); out.gain.setTargetAtTime(0.0001, c.currentTime, 0.05); window.setTimeout(() => { try { out.disconnect(); } catch { /* gone */ } }, 600); };
   } catch { return () => undefined; }
 }
-/** The wall phone blowing out: electric crack, the casing bursting, glass, then a sizzle. */
+/** The wall phone blowing out: a sharp electrical crack, the casing popping, bits of plastic, then a fading sizzle. */
 export function playPhoneBreak() {
   try {
-    const m = master(0.5); if (!m) return; const { c, out, t } = m;
-    zap(c, out, t, 0.25, 0.5); zap(c, out, t + 0.28, 0.12, 0.35);
-    thump(c, out, t + 0.05, 160, 60, 0.18, 0.8);
-    burst(c, out, t + 0.05, 0.12, (x) => Math.pow(1 - x, 2), [{ type: "highpass", f: 1500 }], 0.7, [0.3, 1.7], [3, 9]);
-    for (let i = 0; i < 9; i++) burst(c, out, t + 0.08 + Math.random() * 0.35, 0.03 + Math.random() * 0.04, (x) => 1 - x, [{ type: "bandpass", f: 3000 + Math.random() * 3000, q: 2 }], 0.25);
-    burst(c, out, t + 0.3, 1.6, (x) => (1 - x) * (0.6 + 0.4 * Math.sin(x * 60)), [{ type: "highpass", f: 3500 }], 0.12);
+    const m = master(0.42); if (!m) return; const { c, out, t } = m;
+    const lim = c.createDynamicsCompressor(); lim.threshold.value = -10; lim.ratio.value = 12; lim.attack.value = 0.002; lim.release.value = 0.15;
+    out.disconnect(); out.connect(lim); lim.connect(c.destination);
+    burst(c, out, t, 0.06, (x) => Math.pow(1 - x, 3), [{ type: "highpass", f: 2200 }], 0.9);             // the crack
+    thump(c, out, t + 0.01, 120, 55, 0.22, 0.75);                                                      // the casing pops
+    zap(c, out, t + 0.02, 0.22, 0.45);                                                                  // arc
+    for (let i = 0; i < 6; i++)                                                                         // plastic bits
+      burst(c, out, t + 0.12 + Math.random() * 0.3, 0.025, (x) => 1 - x, [{ type: "bandpass", f: 1800 + Math.random() * 1600, q: 3 }], 0.3);
+    burst(c, out, t + 0.25, 1.4, (x) => (1 - x) * (0.55 + 0.45 * Math.sin(x * 55)), [{ type: "bandpass", f: 5200, q: 0.7 }], 0.12);   // sizzle
+    zap(c, out, t + 0.7, 0.08, 0.2);
   } catch { /* sound is optional */ }
 }
 /** A spark jumping out of the dead phone (quiet). */
@@ -1081,5 +1085,21 @@ export function playShardsLand(pan = 0) {
       o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.16);
     }
     burst(c, out, t, 0.08, (x) => 1 - x, [{ type: "highpass", f: 3000 }], 0.4);
+  } catch { /* sound is optional */ }
+}
+
+/** Terminal waking with a digital glitch: stuttering bit-crushed bursts and pitch blips (short). */
+export function playGlitch() {
+  try {
+    const m = master(0.32); if (!m) return; const { c, out, t } = m;
+    for (let i = 0; i < 7; i++) {
+      const at = t + i * 0.045 + Math.random() * 0.02, d = 0.02 + Math.random() * 0.035;
+      const o = c.createOscillator(); o.type = Math.random() < 0.5 ? "square" : "sawtooth";
+      o.frequency.setValueAtTime(200 + Math.random() * 2400, at); o.frequency.setValueAtTime(100 + Math.random() * 3000, at + d / 2);
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.35, at + 0.003); g.gain.setValueAtTime(0.35, at + d); g.gain.exponentialRampToValueAtTime(0.0001, at + d + 0.01);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + d + 0.02);
+    }
+    burst(c, out, t, 0.32, (x) => (Math.sin(x * 70) > 0 ? 1 - x : 0.1), [{ type: "bandpass", f: 2400, q: 0.8 }], 0.35);
+    tone(c, out, t + 0.33, 1320, 0.06, 0.25, "square");
   } catch { /* sound is optional */ }
 }

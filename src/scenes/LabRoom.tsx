@@ -46,7 +46,7 @@ export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
     Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode("/scene/bestspread-thin.webp"),
-      ...["/scene/phone-intact.webp", "/scene/phone-broken.webp", "/scene/lab-noticeboard.webp", "/scene/nb-stained.webp", "/scene/nb-paper.webp", "/scene/nb-form.webp"].map(loadAndDecode), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
+      ...["/scene/phone-intact.webp", "/scene/phone-broken.webp", "/scene/lab-noticeboard.webp", "/scene/nb-stained.webp", "/scene/nb-paper.webp", "/scene/nb-form.webp", "/scene/nb-pin.webp"].map(loadAndDecode), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;
@@ -131,7 +131,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
       <div id="lab-ui" aria-hidden="true">
         {ITEMS.map((it) => (
           <span key={it.id} className={"gate-tag clone-tag lab-tag" + (hover === it.id && !view ? " on" : "")}
-            style={{ left: `${LAB.items[it.id].hit.left + LAB.items[it.id].hit.width / 2}%`, top: `${LAB.items[it.id].hit.top}%` }}>{it.id === "clipboard" ? (accessKind === "fm" ? "▸ free mint injection" : accessKind === "wl" ? "▸ wl injection" : "▸ injection form") : it.label}</span>
+            style={{ left: `${LAB.items[it.id].hit.left + LAB.items[it.id].hit.width / 2}%`, top: `${LAB.items[it.id].hit.top}%` }}>{it.id === "clipboard" ? (accessKind === "fm" ? "▸ free mint injection" : accessKind === "wl" ? "▸ wl injection" : "▸ wl / fm injection · read only") : it.label}</span>
         ))}
         <span className={"gate-tag clone-tag lab-tag" + (hover === "display" && !view ? " on" : "")}
           style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>

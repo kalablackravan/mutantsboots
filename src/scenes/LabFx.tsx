@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { LAB_FX } from "./config";
 import { DEVIL_1, DEVIL_2 } from "@/lib/fileArt";
-import { gaugeSound, playBulbBreak, playShardsLand, playTubeFlicker } from "@/lib/fileSounds";
+import { gaugeSound, playTubeFlicker } from "@/lib/fileSounds";
 
 type Box = { left: number; top: number; width: number; height: number };
 const at = (b: Box): CSSProperties => ({ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` });
@@ -50,13 +50,6 @@ export function ClipboardPrint({ box, hot }: { box: Box; hot: boolean }) {
 // The tubes blink with CSS (tubeOn/tubeOff: dropping out at 40% of their loop, striking back at 60%).
 // Those animations run from mount, so the crackle / re-strike sounds are scheduled on the same clock.
 const SOUNDING_TUBES = [0, 3, 5, 7, 9];
-// tubes the visitor has smashed: they stay dead until the page is reloaded (survives leaving the lab)
-const SMASHED = new Map<number, number>();          // tube -> when it was smashed (ms), so shards already on the desk stay there
-// broken-glass art (brokenglass.webp samples): one standing broken tube per glowing tube, the crown for the round bulb
-const BROKEN_ART = [0, 2, 4, 5, "crown", 1, 3, 0, 2, 5, 4] as const;
-const SHARD_FLOOR = 1235;                              // canvas y the shards come to rest on (the desk top in front of the screens)
-const SHARD_N = 7;
-const rnd = (i: number, k: number) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
 function useTubeSounds(live: boolean) {
   const born = useRef(performance.now());
   useEffect(() => {
@@ -72,7 +65,7 @@ function useTubeSounds(live: boolean) {
         for (const [f, isOn] of [[0.4, false], [0.6, true]] as const) {
           const dt = ((f - phase + 1) % 1) * t.p; if (dt > 0.02 && dt < best) { best = dt; on = isOn; }
         }
-        timers.push(window.setTimeout(() => { if (!SMASHED.has(i) && Math.random() < 0.7) playTubeFlicker(on, pan); schedule(); }, best * 1000));
+        timers.push(window.setTimeout(() => { if (Math.random() < 0.7) playTubeFlicker(on, pan); schedule(); }, best * 1000));
       };
       schedule();
     }
@@ -82,57 +75,13 @@ function useTubeSounds(live: boolean) {
 
 export function LabFx({ live, onTag }: { live: boolean; onTag?: (k: string | null) => void }) {
   useTubeSounds(live);
-  const [, bump] = useState(0);
-  const smash = (i: number) => {
-    if (SMASHED.has(i)) return;
-    SMASHED.set(i, Date.now()); bump((n) => n + 1);
-    const t = LAB_FX.tubes[i]!;
-    const pan = Math.max(-0.8, Math.min(0.8, ((t.box.left + t.box.width / 2) / 100) * 2 - 1));
-    playBulbBreak(pan);
-    window.setTimeout(() => playShardsLand(pan), 720);  // the shards hit the desk
-  };
   return (
     <>
-      {LAB_FX.tubes.map((t, i) => {
-        const dead = SMASHED.has(i);
-        return (
-          <span key={i} className={"lab-tube" + (dead ? " smashed" : "")} aria-hidden="true"
-            style={{ ...at(t.box), "--tp": `${t.p}s`, "--td": `${t.d}s`, "--tc": t.c } as CSSProperties}>
-            <b /><i />
-
-          </span>
-        );
-      })}
-      {LAB_FX.tubes.map((t, i) => {
-        const at0 = SMASHED.get(i); if (at0 === undefined) return null;
-        const art = BROKEN_ART[i]!;
-        const crown = art === "crown";
-        // standing broken tube: glass a bit wider than the art's tube, its base ring over the tube's holder
-        const w = t.box.width * (crown ? 1.25 : 1.32), h = crown ? t.box.height * 0.9 : t.box.height * 1.2;
-        const left = t.box.left + t.box.width / 2 - w / 2, top = t.box.top + t.box.height * (crown ? 0.25 : 0.06) - (h - t.box.height);
-        const cx = (t.box.left + t.box.width / 2) * 38.4, cy = (t.box.top + t.box.height * 0.45) * 18;   // canvas px
-        const landed = Date.now() - at0 > 900;
-        return (
-          <span key={"b" + i} className="tube-broken" aria-hidden="true">
-            <img src={`/scene/tube-broken-${art}.webp`} alt="" draggable={false}
-              style={{ left: `${left}%`, top: `${top}%`, width: `${w}%`, height: `${h}%` }} />
-            <span className="tube-smoke" style={{ left: `${t.box.left + t.box.width / 2}%`, top: `${t.box.top + (crown ? t.box.height * 0.3 : 0)}%` }}><i /><i /><i /><i /><i /></span>
-            {Array.from({ length: SHARD_N }, (_, k) => {
-              const dx = (rnd(i, k) - 0.5) * 150, sz = 0.28 + rnd(i, k + 9) * 0.4;
-              return (
-                <em key={k} className={"tube-shard" + (landed ? " landed" : "")} style={{
-                  left: `${cx / 38.4}%`, top: `${cy / 18}%`, width: `${sz}cqw`,
-                  "--dx": `${(dx / 3840) * 100}cqw`, "--dy": `${((SHARD_FLOOR + rnd(i, k + 3) * 25 - cy) / 3840) * 100}cqw`,
-                  "--rot": `${(rnd(i, k + 5) - 0.5) * 900}deg`, animationDelay: `${rnd(i, k + 7) * 0.12}s`,
-                } as CSSProperties} />
-              );
-            })}
-          </span>
-        );
-      })}
       {LAB_FX.tubes.map((t, i) => (
-        <button key={"h" + i} type="button" className="lab-tube-hit" style={at(t.box)} tabIndex={-1}
-          aria-label="Smash the glowing tube" disabled={SMASHED.has(i)} onClick={() => smash(i)} />
+        <span key={i} className="lab-tube" aria-hidden="true"
+          style={{ ...at(t.box), "--tp": `${t.p}s`, "--td": `${t.d}s`, "--tc": t.c } as CSSProperties}>
+          <b /><i />
+        </span>
       ))}
       <Gauges live={live} />
       {LAB_FX.tvs.map((tv, i) => <Tv key={i} box={tv.box} devil={tv.devil} label={tv.label} />)}

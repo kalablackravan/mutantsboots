@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { playDenyBuzz, playKeyBeep } from "@/lib/fileSounds";
+import { playDenyBuzz, playGlitch, playKeyBeep } from "@/lib/fileSounds";
 import { checkCode, type AccessKind } from "@/lib/access";
 
 // Small "SECURE ACCESS TERMINAL" that pops up over a door's own code panel (not full screen).
@@ -18,8 +18,8 @@ export function preloadAccessPanel() {
   return art;
 }
 
-export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
-  open: boolean; mode: "lock" | "access"; anchor: { x: number; y: number }; onClose: () => void; onGranted?: (g: Grant) => void;
+export function AccessPanel({ open, mode, anchor, onClose, onGranted, onGuest }: {
+  open: boolean; mode: "lock" | "access"; anchor: { x: number; y: number }; onClose: () => void; onGranted?: (g: Grant) => void; onGuest?: () => void;
 }) {
   const groups = GROUPS[mode];
   const total = groups.reduce((a, b) => a + b, 0);
@@ -36,6 +36,7 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
   useEffect(() => {
     if (!open) { setChars(""); setState("idle"); setMsg(null); setReady(false); setPos({ left: -9999, top: 0 }); window.clearTimeout(timer.current); return; }
     let live = true;
+    playGlitch();                                         // the terminal glitches awake
     void preloadAccessPanel().then(() => { if (live) setReady(true); });
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", esc);
@@ -112,11 +113,13 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
                 inputMode={mode === "lock" ? "numeric" : "text"} autoCapitalize="characters" autoComplete="off" autoCorrect="off" spellCheck={false}
                 maxLength={total + 6} aria-label={mode === "lock" ? "4 digit code" : "Access code"} disabled={state === "checking" || state === "granted" || state === "denied"} />
             </div>
-            <p className="apanel-msg" role="status">{msg ?? (mode === "access" ? "code from Discord · paste with Ctrl+V or hold the boxes" : "")}</p>
-            <div className="apanel-actions">
-              <button type="button" className="apanel-check" onClick={() => void check()} disabled={state === "checking" || state === "granted" || state === "denied"}>CHECK <span aria-hidden="true">✔</span></button>
-            </div>
+            <p className="apanel-msg" role="status">{msg ?? (mode === "access" ? "code from Discord · Ctrl+V or hold the boxes to paste" : "")}</p>
+            {mode === "access" && state === "idle" && (
+              <button type="button" className="apanel-guest" onClick={() => { onGuest?.(); }}>ENTER WITHOUT CODE ›</button>
+            )}
           </div>
+          {/* the art's own CHECK button */}
+          <button type="button" className="apanel-check" onClick={() => void check()} disabled={state === "checking" || state === "granted" || state === "denied"} aria-label="Check the code" />
         </div>
       )}
     </>

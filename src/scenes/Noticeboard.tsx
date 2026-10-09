@@ -5,13 +5,14 @@ import { playPageTurn, startCreepyMusic } from "@/lib/fileSounds";
 // Lab 7 noticeboard: four pencilled papers about the scientists who worked here, plus the two devils' prints.
 // The writing is real text on the papers (you can see it from across the room); click a paper and it comes up
 // in the middle of the screen, a slow horror track plays while you read, click anywhere to put it back.
-type Kind = "stained" | "small" | "form";
+type Kind = "stained" | "small" | "form" | "pin";
 const ART: Record<Kind, { src: string; ratio: number }> = {
   stained: { src: "/scene/nb-stained.webp", ratio: 679 / 900 },
   small: { src: "/scene/nb-paper.webp", ratio: 470 / 700 },
   form: { src: "/scene/nb-form.webp", ratio: 989 / 900 },
+  pin: { src: "/scene/nb-pin.webp", ratio: 590 / 900 },
 };
-type Paper = { id: string; kind: Kind; x: number; y: number; w: number; rot: number; flip?: boolean; pad: [number, number, number, number]; body: ReactNode };
+type Paper = { id: string; kind: Kind; x: number; y: number; w: number; rot: number; readRot?: number; flip?: boolean; pad: [number, number, number, number]; body: ReactNode };
 
 const Sketch = ({ d, red, className = "" }: { d: string; red?: string; className?: string }) => (
   <svg className={"nb-sketch " + className} viewBox="0 0 100 60" aria-hidden="true">
@@ -36,7 +37,21 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "raskin", kind: "small", x: 40.5, y: 14.5, w: 17, rot: -3, pad: [20, 12, 10, 12],
+    id: "founder", kind: "pin", x: 39.5, y: 4.5, w: 19.5, rot: 0, pad: [12, 11, 10, 12],
+    body: (<>
+      <p className="nb-h">THE FOUNDER · FILE 00</p>
+      <p className="nb-name">Prof. Dr. Thaddäus Vrzhlavik-Qorrenbach</p>
+      <p>Built Lab 7. Father of <b>Serum M1</b>. Every protocol here was his idea.</p>
+      <p>Patient zero: he injected <b>M1 into himself</b> first. Day 0.</p>
+      <p className="nb-status">STATUS: <b>PRESERVED</b></p>
+      <p>Body sealed in cryo chamber <b>C-0</b> under the lab. Heart stopped 4 years ago.</p>
+      <p>The chamber monitor still shows brain activity.</p>
+      <p className="nb-quote circled">DO NOT OPEN C-0</p>
+      <Sketch d="M36 4 Q50 0 64 4 L64 56 Q50 60 36 56 Z M44 14 Q50 10 56 14 Q58 22 50 24 Q42 22 44 14 M50 24 L50 44 M42 30 L58 30 M50 44 L44 54 M50 44 L56 54" red="M30 20 h4 M66 34 h4" />
+    </>),
+  },
+  {
+    id: "raskin", kind: "small", x: 69, y: 13, w: 16, rot: -3, pad: [20, 12, 10, 12],
     body: (<>
       <p className="nb-name">Dr. Ivo Raskin</p>
       <p>vessel technician</p>
@@ -47,7 +62,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "kessler", kind: "stained", x: 66, y: 9.5, w: 25, rot: -6, flip: true, pad: [14, 14, 7, 12],
+    id: "kessler", kind: "stained", x: 72.5, y: 45, w: 15.5, rot: 84, readRot: 0, flip: true, pad: [14, 14, 7, 12],
     body: (<>
       <p className="nb-h">PERSONNEL FILE 02</p>
       <p className="nb-name">Dr. Mara Kessler</p>
@@ -59,7 +74,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "orlov", kind: "form", x: 34.5, y: 51, w: 29, rot: 1, pad: [16, 12, 12, 17],
+    id: "orlov", kind: "form", x: 35, y: 53, w: 28, rot: 1, pad: [16, 12, 12, 17],
     body: (<>
       <p className="nb-h">LAB 7 · STAFF STATUS REPORT</p>
       <p><i>Subject:</i> <b className="nb-name in">Dr. Nadia Orlov</b></p>
@@ -104,14 +119,14 @@ export function Noticeboard({ live, onReading }: { live: boolean; onReading?: (o
         <img className="nb-board-art" src="/scene/lab-noticeboard.webp" alt="" draggable={false} />
         {PAPERS.map((p) => (
           <button key={p.id} type="button" className="nb-paper" tabIndex={live ? 0 : -1} aria-label={`Read the note about ${p.id}`}
-            style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)` }} onClick={() => read(p)}>
+            style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)`, transformOrigin: Math.abs(p.rot) > 45 ? "50% 50%" : undefined }} onClick={() => read(p)}>
             <PaperArt p={p} />
           </button>
         ))}
       </div>
       {open && typeof document !== "undefined" && createPortal(
         <div className="nb-read" role="dialog" aria-label="Note" onPointerDown={close}>
-          <div className={"nb-read-paper k-" + open.kind} style={{ transform: `rotate(${open.rot / 2}deg)` }}><PaperArt p={open} big /></div>
+          <div className={"nb-read-paper k-" + open.kind} style={{ transform: `rotate(${open.readRot ?? open.rot / 2}deg)` }}><PaperArt p={open} big /></div>
           <p className="nb-read-hint">click anywhere to put it back</p>
         </div>, document.body)}
     </>

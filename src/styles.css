@@ -924,23 +924,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @keyframes phoneFlash{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.3)}}
 @media (prefers-reduced-motion: reduce){.phone-smoke i,.phone-spark{animation:none}}
 
-/* smashed glowing tubes: the glow dies, the broken-glass art takes the tube's place, green fumes keep rising,
-   and the shards fall onto the desk (they stay there until the page is reloaded) */
-.lab-tube.smashed b{opacity:1;animation:none;background:radial-gradient(closest-side,rgba(3,10,9,.93) 62%,rgba(3,10,9,0))}
-.lab-tube.smashed i{animation:none;opacity:0}
-.tube-broken{position:absolute;inset:0;pointer-events:none;z-index:2}
-.tube-broken img{position:absolute;filter:brightness(.78) saturate(.9);user-select:none;-webkit-user-drag:none}
-.tube-smoke{position:absolute;width:0;height:0}
-.tube-smoke i{position:absolute;left:0;top:0;width:2.4cqw;aspect-ratio:1;margin:-1.2cqw 0 0 -1.2cqw;border-radius:50%;background:radial-gradient(circle,rgba(130,255,170,.8),rgba(80,220,140,.42) 45%,rgba(60,170,110,0) 70%);filter:blur(.3cqw);opacity:0;animation:tubeFume 4.2s ease-out infinite}
-.tube-smoke i:nth-child(2){animation-delay:-.9s;animation-duration:4.8s}.tube-smoke i:nth-child(3){animation-delay:-1.8s;animation-duration:3.9s}
-.tube-smoke i:nth-child(4){animation-delay:-2.6s;animation-duration:4.5s}.tube-smoke i:nth-child(5){animation-delay:-3.4s;animation-duration:5.2s}
-@keyframes tubeFume{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.85}55%{opacity:.5}100%{transform:translate(.8cqw,-7cqw) scale(2.4);opacity:0}}
-.tube-shard{position:absolute;aspect-ratio:1.4;margin:0;background:linear-gradient(135deg,rgba(210,255,225,.92),rgba(120,200,160,.75));clip-path:polygon(50% 0,100% 60%,62% 100%,0 72%);filter:drop-shadow(0 0 .15cqw rgba(140,255,180,.5));animation:shardDrop .72s cubic-bezier(.45,0,.9,.55) both}
-.tube-shard.landed{animation:none;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}
-@keyframes shardDrop{0%{transform:translate(0,0) rotate(0)}88%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}94%{transform:translate(var(--dx),calc(var(--dy) - .35cqw)) rotate(var(--rot))}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
-@media (prefers-reduced-motion: reduce){.tube-smoke i{animation:none}.tube-shard{animation:none;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
-.lab-tube-hit{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.lab-tube-hit:disabled{cursor:default;pointer-events:none}
 
 /* the door-side keypad + first-aid box are clickable */
 .gate-keypad-hit,.kit-hit{position:absolute;z-index:4;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -978,34 +961,32 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .wl-file dt{text-transform:uppercase;letter-spacing:.14em;opacity:.65;margin:0}
 .wl-file dd{margin:0;font-weight:700;color:#14100d;word-break:break-all;text-align:right}
 
-/* secure access terminal: pops up above a door's access panel */
+/* secure access terminal (slime-green CRT): pops up over a door's access panel */
 .apanel-catch{position:fixed;inset:0;z-index:39;background:transparent}
-.apanel{position:fixed;z-index:40;width:clamp(290px,20vw,330px);aspect-ratio:667/839;container-type:inline-size;filter:drop-shadow(0 1.2vh 2.4vh rgba(0,0,0,.75));animation:apIn .18s ease-out}
+.apanel{position:fixed;z-index:40;width:clamp(290px,21vw,340px);aspect-ratio:733/951;container-type:inline-size;filter:drop-shadow(0 1.2vh 2.4vh rgba(0,0,0,.75));animation:apIn .18s ease-out,apGlitch .5s steps(2,end) 1}
 @keyframes apIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes apGlitch{0%{clip-path:inset(0 0 60% 0);transform:translateX(-1.5%)}20%{clip-path:inset(40% 0 20% 0);transform:translateX(1.5%)}40%{clip-path:inset(10% 0 50% 0);transform:none}60%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 0)}}
 .apanel > img{display:block;width:100%;height:100%;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.apanel-screen{position:absolute;left:13.1%;top:12.5%;width:76%;height:73.7%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.2cqw;text-align:center;color:#8ff4ff;font-family:'Black Ops One',var(--mono)}
-.apanel-screen h3{margin:0;font:400 6.2cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.02em;color:#7ef0ff;text-shadow:0 0 2.2cqw rgba(60,230,255,.85)}
-.apanel-label{margin:2cqw 0 0;align-self:flex-start;font:400 4.6cqw 'Black Ops One',var(--mono);color:#8ff4ff;text-shadow:0 0 1.6cqw rgba(60,230,255,.7)}
+.apanel-screen{position:absolute;left:17%;top:15.5%;width:66%;height:42%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2cqw;text-align:center;color:#c9ff9a;font-family:'Black Ops One',var(--mono);text-shadow:0 0 1.6cqw rgba(120,255,80,.7)}
+.apanel-screen h3{margin:0;font:400 5.6cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.02em;color:#d6ffb0}
+.apanel-label{margin:.6cqw 0 0;align-self:flex-start;font:400 4.2cqw 'Black Ops One',var(--mono);color:#c9ff9a}
 .apanel-boxes{position:relative;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;cursor:text}
-.apanel-group{display:flex;align-items:center;gap:.45cqw}
-.apanel-dash{font-style:normal;margin:0 .45cqw;font:700 4cqw var(--mono);color:#7ef0ff}
-.apanel-cell{display:grid;place-items:center;width:3.6cqw;height:5.8cqw;border-radius:.7cqw;background:rgba(200,250,255,.88);box-shadow:0 0 1.6cqw rgba(80,235,255,.75),inset 0 -.5cqw .8cqw rgba(0,60,80,.25);color:#06141a;font:700 3.2cqw/1 var(--mono)}
-.apanel.lock .apanel-cell{width:11cqw;height:13cqw;font-size:7cqw;border-radius:1.4cqw;margin:0 .8cqw}
-.apanel-cell.cur{outline:.45cqw solid #00e5ff;outline-offset:.35cqw;animation:apCur 1s steps(1,end) infinite}
+.apanel-group{display:flex;align-items:center;gap:.4cqw}
+.apanel-dash{font-style:normal;margin:0 .35cqw;font:700 3.6cqw var(--mono);color:#c9ff9a}
+.apanel-cell{display:grid;place-items:center;width:3.3cqw;height:5.4cqw;border-radius:.6cqw;background:rgba(214,255,176,.9);box-shadow:0 0 1.4cqw rgba(140,255,90,.7),inset 0 -.5cqw .8cqw rgba(20,60,10,.25);color:#0d1f06;font:700 3cqw/1 var(--mono);text-shadow:none}
+.apanel.lock .apanel-cell{width:10cqw;height:12cqw;font-size:6.6cqw;border-radius:1.2cqw;margin:0 .8cqw}
+.apanel-cell.cur{outline:.45cqw solid #a8ff6a;outline-offset:.3cqw;animation:apCur 1s steps(1,end) infinite}
 @keyframes apCur{50%{outline-color:transparent}}
 .apanel-input{position:absolute;inset:-1cqw;width:calc(100% + 2cqw);height:calc(100% + 2cqw);opacity:0;font-size:16px;color:transparent;caret-color:transparent;background:transparent;border:0;outline:none;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
-.apanel-msg{margin:0;min-height:5cqw;font:700 3.6cqw/1.25 var(--mono);letter-spacing:.06em;color:rgba(160,245,255,.75);text-transform:uppercase}
-.apanel.denied .apanel-msg,.apanel-msg:not(:empty){color:#9ff6ff}
-.apanel.denied .apanel-msg{color:#ff5f52;text-shadow:0 0 1.4cqw rgba(255,60,40,.8);font-size:6cqw;font-family:'Black Ops One',var(--mono)}
-.apanel.granted .apanel-msg{color:#76ff8e;text-shadow:0 0 1.4cqw rgba(80,255,120,.85);font-size:4.4cqw}
-.apanel.granted .apanel-cell{background:rgba(190,255,205,.95);box-shadow:0 0 1.8cqw rgba(80,255,120,.8)}
-.apanel-actions{display:flex;gap:3cqw;align-items:center;justify-content:center}
-.apanel .apanel-check{padding:2.2cqw 6cqw;border:.5cqw solid rgba(150,240,255,.85)!important;border-radius:1.6cqw;background:linear-gradient(#1d6b80,#0c3644)!important;color:#d7fbff!important;font:400 6cqw/1 'Black Ops One',var(--mono)!important;text-shadow:0 0 1.2cqw rgba(60,230,255,.8);box-shadow:0 0 2.2cqw rgba(60,230,255,.45),inset 0 .5cqw .8cqw rgba(255,255,255,.18);cursor:pointer}
-.apanel .apanel-check span{color:#5dff6c;text-shadow:0 0 1.2cqw rgba(80,255,100,.9)}
-.apanel .apanel-check:active{transform:translateY(.3cqw)}
-.apanel .apanel-check:disabled{opacity:.6;cursor:default}
-.apanel .apanel-paste{padding:1.8cqw 3.4cqw;border:.4cqw solid rgba(150,240,255,.55)!important;border-radius:1.4cqw;background:rgba(5,30,38,.85)!important;color:#9ff6ff!important;font:700 3.6cqw/1 var(--mono)!important;letter-spacing:.12em;cursor:pointer}
-.apanel .apanel-close{position:absolute;right:1cqw;top:1cqw;width:8.5cqw;aspect-ratio:1;border-radius:50%;border:.4cqw solid rgba(255,255,255,.55)!important;background:rgba(0,0,0,.7)!important;color:#fff!important;font:700 5.5cqw/1 var(--mono)!important;cursor:pointer;padding:0}
+.apanel-msg{margin:0;min-height:4.6cqw;font:700 3.2cqw/1.25 var(--mono);letter-spacing:.05em;color:rgba(214,255,176,.8);text-transform:uppercase}
+.apanel.denied .apanel-msg{color:#ff5f52;text-shadow:0 0 1.4cqw rgba(255,60,40,.8);font-size:5.4cqw;font-family:'Black Ops One',var(--mono)}
+.apanel.granted .apanel-msg{color:#eaffd5;text-shadow:0 0 1.6cqw rgba(160,255,120,.95);font-size:4cqw}
+.apanel.granted .apanel-cell{background:#eaffd5;box-shadow:0 0 1.8cqw rgba(160,255,120,.9)}
+.apanel .apanel-guest{margin-top:.4cqw;padding:1.2cqw 2.6cqw;border:.35cqw dashed rgba(214,255,176,.6)!important;border-radius:1cqw;background:rgba(10,30,6,.55)!important;color:#d6ffb0!important;font:700 3cqw/1 var(--mono)!important;letter-spacing:.08em;cursor:pointer}
+.apanel .apanel-guest:hover{background:rgba(30,70,15,.75)!important}
+.apanel .apanel-check{position:absolute;left:33%;top:64.2%;width:33%;height:10.6%;padding:0;border:0!important;border-radius:2cqw;background:transparent!important;cursor:pointer}
+.apanel .apanel-check:active{background:rgba(0,0,0,.18)!important}
+.apanel .apanel-check:disabled{cursor:default}
 
 /* lab noticeboard: pencilled scientist notes */
 .nb-board{position:absolute;z-index:1;container-type:inline-size}
@@ -1016,6 +997,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .nb-paper-art img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .nb-ink{position:absolute;overflow:hidden;color:#2b2a2e;font-family:'Reenie Beanie','Caveat',cursive;font-size:6.1cqw;line-height:1;text-align:left;mix-blend-mode:multiply;opacity:.9;text-shadow:0 0 .05em rgba(40,40,45,.35);pointer-events:none}
 .k-small .nb-ink{font-size:8.4cqw}
+.k-pin .nb-ink{font-size:6.3cqw}
+.k-pin .nb-name{font-size:1.05em}
+.nb-read-paper.k-pin{width:min(70vw,calc(82vh * 0.656))}
 .k-form .nb-ink{font-size:4.6cqw;line-height:1.1}
 .nb-ink p{margin:0 0 .22em}
 .nb-ink b{font-weight:400;text-decoration:underline;text-decoration-thickness:.06em}
@@ -1040,3 +1024,11 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 
 /* smooth pull-in / drop of the case file */
 .cf-motion{will-change:transform,opacity;backface-visibility:hidden}
+
+/* clipboard without an access code: read-only explainer */
+.wl-readonly{gap:2cqw}
+.wl-steps{margin:1cqw 0 2cqw;text-align:left;font:400 3.2cqw/1.45 var(--mono);color:#14100d}
+.wl-steps p{margin:.8cqw 0;display:flex;gap:1.6cqw;align-items:baseline}
+.wl-steps .wl-n{font-style:normal;flex:none}
+.wl-steps b{font-weight:700}
+.wl .wl-discord{display:inline-block;text-decoration:none;text-align:center;background:#5865f2!important;border-color:#2c2f7a!important}

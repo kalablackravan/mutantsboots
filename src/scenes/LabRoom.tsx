@@ -4,7 +4,7 @@ import { FILE_LAYOUT as F, LAB, LAB_FX } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { AccessForm } from "./AccessForm";
-import { getAccess } from "@/lib/access";
+import { getAccess, onAccess } from "@/lib/access";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
 import { LabPhone, usePhoneBroken } from "./LabPhone";
 import { MutatedFlask3D } from "./MutatedFlask3D";
@@ -70,6 +70,9 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   const phoneBroken = usePhoneBroken();
+  // the clipboard says which injection the visitor's code opened (free mint or whitelist)
+  const [accessKind, setAccessKind] = useState(getAccess()?.kind ?? null);
+  useEffect(() => onAccess(() => setAccessKind(getAccess()?.kind ?? null)), []);
   // horror room tone for as long as you are in the lab, quieter while something is open in front of you
   const horror = useRef<ReturnType<typeof startLabHorror> | null>(null);
   useEffect(() => {
@@ -124,7 +127,7 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
       <div id="lab-ui" aria-hidden="true">
         {ITEMS.map((it) => (
           <span key={it.id} className={"gate-tag clone-tag lab-tag" + (hover === it.id && !view ? " on" : "")}
-            style={{ left: `${LAB.items[it.id].hit.left + LAB.items[it.id].hit.width / 2}%`, top: `${LAB.items[it.id].hit.top}%` }}>{it.label}</span>
+            style={{ left: `${LAB.items[it.id].hit.left + LAB.items[it.id].hit.width / 2}%`, top: `${LAB.items[it.id].hit.top}%` }}>{it.id === "clipboard" ? (accessKind === "fm" ? "▸ free mint injection" : accessKind === "wl" ? "▸ wl injection" : "▸ injection form") : it.label}</span>
         ))}
         <span className={"gate-tag clone-tag lab-tag" + (hover === "display" && !view ? " on" : "")}
           style={{ left: `${LAB_FX.screens[1].box.left + LAB_FX.screens[1].box.width / 2}%`, top: `${LAB_FX.screens[1].box.top}%` }}>▸ trait scanner</span>

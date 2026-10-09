@@ -5,7 +5,7 @@ import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, SFX, startClipLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { LockKeypad, preloadKeypad } from "@/overlays/LockKeypad";
+import { AccessPanel, preloadAccessPanel } from "@/overlays/AccessPanel";
 import { doorGranted, grantAccess } from "@/lib/access";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
@@ -57,7 +57,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const [fog, setFog] = useState(0);                   // opening the valve fills the room with smoke, then it clears
   const [padOpen, setPadOpen] = useState(false);       // door keypad close-up
   const [padMode, setPadMode] = useState<"lock" | "access">("lock");   // lockdown door (any code fails) / slime door (access code)
-  useEffect(() => { if (on || warm) void preloadKeypad(); }, [on, warm]);
+  useEffect(() => { if (on || warm) void preloadAccessPanel(); }, [on, warm]);
   const [padHover, setPadHover] = useState(false);
   const [kitOpen, setKitOpen] = useState(false);       // first-aid box on the wall (empty)
   const [kitHover, setKitHover] = useState(false);
@@ -200,7 +200,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           {fileBusy ? "opening file…" : "▸ click to open file"}
         </span>
       </div>
-      <LockKeypad open={padOpen} mode={padMode} onClose={() => setPadOpen(false)}
+      <AccessPanel open={padOpen} mode={padMode} anchor={padMode === "lock" ? { x: 2313, y: 968 } : { x: 3367, y: 1040 }} onClose={() => setPadOpen(false)}
         onGranted={(a) => { grantAccess(a); setPadOpen(false); setOpen(true); doorSound(); window.setTimeout(onDoor, 450); }} />
       <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>

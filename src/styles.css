@@ -936,20 +936,6 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-tube-hit{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lab-tube-hit:disabled{cursor:default;pointer-events:none}
 
-/* lockdown door keypad close-up */
-.lockpad{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(0,0,0,.72);animation:lpIn .2s ease-out}
-@keyframes lpIn{from{opacity:0}to{opacity:1}}
-.lockpad-box{position:relative;height:min(84vh,calc(92vw * 1531 / 1027));aspect-ratio:1027/1531;container-type:inline-size;filter:drop-shadow(0 2vh 4vh rgba(0,0,0,.8))}
-.lockpad-box img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
-.lockpad-screen{position:absolute;display:grid;place-content:center;justify-items:center;gap:1cqw;border-radius:3cqw;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#5a0907,#250202 75%);box-shadow:inset 0 0 3cqw rgba(0,0,0,.8);color:#ff6a55;text-shadow:0 0 1.6cqw rgba(255,60,40,.9);font-family:'Black Ops One',var(--mono);pointer-events:none}
-.lockpad-screen small{font-size:3.6cqw;letter-spacing:.14em;opacity:.8;white-space:nowrap}
-.lockpad-screen b{font-size:7cqw;letter-spacing:.16em;font-weight:400;white-space:nowrap;line-height:1}
-.lockpad-screen.denied b{font-size:6.6cqw;letter-spacing:.06em;animation:lpBlink .35s steps(1,end) infinite}
-@keyframes lpBlink{50%{opacity:.25}}
-.lockpad-key{position:absolute;padding:0;margin:0;border:0;border-radius:2.2cqw;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.lockpad-key.round{border-radius:50%}
-.lockpad-key.down{background:rgba(0,0,0,.35);box-shadow:inset 0 .8cqw 1.4cqw rgba(0,0,0,.7)}
-.lockpad-close{position:absolute;right:-2cqw;top:-2cqw;width:9cqw;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(0,0,0,.75);color:#fff;font:700 6cqw/1 var(--mono);cursor:pointer}
 /* the door-side keypad + first-aid box are clickable */
 .gate-keypad-hit,.kit-hit{position:absolute;z-index:4;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 
@@ -975,26 +961,42 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .wl-err{margin-top:1cqw;font-weight:700}
 .wl-field input[aria-invalid="true"]{border-color:#8e1a1a}
 
-.lockpad.waiting{background:rgba(0,0,0,.72)}
-.lockpad-screen.access{pointer-events:auto;gap:1.6cqw}
-.lockpad-screen.access small{font-size:3.4cqw;text-align:center;max-width:92%;white-space:normal;line-height:1.2}
-.lockpad-screen.access input{width:88%;box-sizing:border-box;background:transparent;border:0;border-bottom:.45cqw solid rgba(255,90,70,.55);color:#ff7a62;text-shadow:0 0 1.4cqw rgba(255,60,40,.9);font:400 2.75cqw/1.1 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;outline:none;padding:.6cqw 0;-webkit-user-select:text;user-select:text}
-.lockpad-screen.access input::placeholder{color:rgba(255,110,90,.35)}
-.lockpad-screen.access.granted{background:radial-gradient(ellipse at 50% 40%,#0b4a1c,#021a08 75%)}
-.lockpad-screen.access.granted small,.lockpad-screen.access.granted input{color:#7dff8a;text-shadow:0 0 1.4cqw rgba(80,255,120,.9)}
-.lockpad-help{position:absolute;left:0;right:0;bottom:-7cqw;margin:0;text-align:center;font:700 2.6cqw var(--mono);letter-spacing:.1em;color:rgba(200,255,215,.75);text-transform:uppercase}
 
 /* a close-up waits (dark, empty) until its art is ready, then everything fades in together */
 .lab-view.waiting > *{visibility:hidden}
 
-.lockpad-screen.access input{width:94%;-webkit-touch-callout:default;touch-action:manipulation}
-.lockpad-screen.access small{font-size:3.1cqw}
-.lockpad .lockpad-box .lockpad-paste{position:absolute;left:50%;top:36.5%;transform:translateX(-50%);z-index:2;padding:1.6cqw 4cqw;border:.4cqw solid rgba(160,255,190,.6)!important;border-radius:1.6cqw;background:rgba(10,20,14,.9)!important;color:#b8ffd0!important;font:700 3.3cqw/1.2 var(--mono)!important;letter-spacing:.12em;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 0 2cqw rgba(80,255,140,.25)}
-.lockpad-paste:active{transform:translateX(-50%) translateY(.3cqw)}
-.lockpad-paste:disabled{opacity:.5}
 
 /* the visitor's injection file on the clipboard */
 .wl-file{display:grid;gap:.9cqw;margin:2cqw 0 1.6cqw;padding:2cqw 2.4cqw;border:.4cqw dashed rgba(43,36,32,.55);border-radius:.6cqw;background:rgba(255,255,255,.25)}
 .wl-file div{display:flex;justify-content:space-between;gap:2cqw;font:400 2.9cqw var(--mono)}
 .wl-file dt{text-transform:uppercase;letter-spacing:.14em;opacity:.65;margin:0}
 .wl-file dd{margin:0;font-weight:700;color:#14100d;word-break:break-all;text-align:right}
+
+/* secure access terminal: pops up above a door's access panel */
+.apanel-catch{position:fixed;inset:0;z-index:39;background:transparent}
+.apanel{position:fixed;z-index:40;width:clamp(290px,20vw,330px);aspect-ratio:667/839;container-type:inline-size;filter:drop-shadow(0 1.2vh 2.4vh rgba(0,0,0,.75));animation:apIn .18s ease-out}
+@keyframes apIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.apanel > img{display:block;width:100%;height:100%;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.apanel-screen{position:absolute;left:13.1%;top:12.5%;width:76%;height:73.7%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3.2cqw;text-align:center;color:#8ff4ff;font-family:'Black Ops One',var(--mono)}
+.apanel-screen h3{margin:0;font:400 6.2cqw/1.05 'Black Ops One',var(--mono);letter-spacing:.02em;color:#7ef0ff;text-shadow:0 0 2.2cqw rgba(60,230,255,.85)}
+.apanel-label{margin:2cqw 0 0;align-self:flex-start;font:400 4.6cqw 'Black Ops One',var(--mono);color:#8ff4ff;text-shadow:0 0 1.6cqw rgba(60,230,255,.7)}
+.apanel-boxes{position:relative;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;cursor:text}
+.apanel-group{display:flex;align-items:center;gap:.45cqw}
+.apanel-dash{font-style:normal;margin:0 .45cqw;font:700 4cqw var(--mono);color:#7ef0ff}
+.apanel-cell{display:grid;place-items:center;width:3.6cqw;height:5.8cqw;border-radius:.7cqw;background:rgba(200,250,255,.88);box-shadow:0 0 1.6cqw rgba(80,235,255,.75),inset 0 -.5cqw .8cqw rgba(0,60,80,.25);color:#06141a;font:700 3.2cqw/1 var(--mono)}
+.apanel.lock .apanel-cell{width:11cqw;height:13cqw;font-size:7cqw;border-radius:1.4cqw;margin:0 .8cqw}
+.apanel-cell.cur{outline:.45cqw solid #00e5ff;outline-offset:.35cqw;animation:apCur 1s steps(1,end) infinite}
+@keyframes apCur{50%{outline-color:transparent}}
+.apanel-input{position:absolute;inset:-1cqw;width:calc(100% + 2cqw);height:calc(100% + 2cqw);opacity:0;font-size:16px;color:transparent;caret-color:transparent;background:transparent;border:0;outline:none;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+.apanel-msg{margin:0;min-height:5cqw;font:700 3.6cqw/1.25 var(--mono);letter-spacing:.06em;color:rgba(160,245,255,.75);text-transform:uppercase}
+.apanel.denied .apanel-msg,.apanel-msg:not(:empty){color:#9ff6ff}
+.apanel.denied .apanel-msg{color:#ff5f52;text-shadow:0 0 1.4cqw rgba(255,60,40,.8);font-size:6cqw;font-family:'Black Ops One',var(--mono)}
+.apanel.granted .apanel-msg{color:#76ff8e;text-shadow:0 0 1.4cqw rgba(80,255,120,.85);font-size:4.4cqw}
+.apanel.granted .apanel-cell{background:rgba(190,255,205,.95);box-shadow:0 0 1.8cqw rgba(80,255,120,.8)}
+.apanel-actions{display:flex;gap:3cqw;align-items:center;justify-content:center}
+.apanel .apanel-check{padding:2.2cqw 6cqw;border:.5cqw solid rgba(150,240,255,.85)!important;border-radius:1.6cqw;background:linear-gradient(#1d6b80,#0c3644)!important;color:#d7fbff!important;font:400 6cqw/1 'Black Ops One',var(--mono)!important;text-shadow:0 0 1.2cqw rgba(60,230,255,.8);box-shadow:0 0 2.2cqw rgba(60,230,255,.45),inset 0 .5cqw .8cqw rgba(255,255,255,.18);cursor:pointer}
+.apanel .apanel-check span{color:#5dff6c;text-shadow:0 0 1.2cqw rgba(80,255,100,.9)}
+.apanel .apanel-check:active{transform:translateY(.3cqw)}
+.apanel .apanel-check:disabled{opacity:.6;cursor:default}
+.apanel .apanel-paste{padding:1.8cqw 3.4cqw;border:.4cqw solid rgba(150,240,255,.55)!important;border-radius:1.4cqw;background:rgba(5,30,38,.85)!important;color:#9ff6ff!important;font:700 3.6cqw/1 var(--mono)!important;letter-spacing:.12em;cursor:pointer}
+.apanel .apanel-close{position:absolute;right:1cqw;top:1cqw;width:8.5cqw;aspect-ratio:1;border-radius:50%;border:.4cqw solid rgba(255,255,255,.55)!important;background:rgba(0,0,0,.7)!important;color:#fff!important;font:700 5.5cqw/1 var(--mono)!important;cursor:pointer;padding:0}

@@ -978,7 +978,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lockpad.waiting{background:rgba(0,0,0,.72)}
 .lockpad-screen.access{pointer-events:auto;gap:1.6cqw}
 .lockpad-screen.access small{font-size:3.4cqw;text-align:center;max-width:92%;white-space:normal;line-height:1.2}
-.lockpad-screen.access input{width:88%;box-sizing:border-box;background:transparent;border:0;border-bottom:.45cqw solid rgba(255,90,70,.55);color:#ff7a62;text-shadow:0 0 1.4cqw rgba(255,60,40,.9);font:400 3.7cqw/1.1 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;outline:none;padding:.6cqw 0;-webkit-user-select:text;user-select:text}
+.lockpad-screen.access input{width:88%;box-sizing:border-box;background:transparent;border:0;border-bottom:.45cqw solid rgba(255,90,70,.55);color:#ff7a62;text-shadow:0 0 1.4cqw rgba(255,60,40,.9);font:400 2.75cqw/1.1 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;outline:none;padding:.6cqw 0;-webkit-user-select:text;user-select:text}
 .lockpad-screen.access input::placeholder{color:rgba(255,110,90,.35)}
 .lockpad-screen.access.granted{background:radial-gradient(ellipse at 50% 40%,#0b4a1c,#021a08 75%)}
 .lockpad-screen.access.granted small,.lockpad-screen.access.granted input{color:#7dff8a;text-shadow:0 0 1.4cqw rgba(80,255,120,.9)}
@@ -986,3 +986,9 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 
 /* a close-up waits (dark, empty) until its art is ready, then everything fades in together */
 .lab-view.waiting > *{visibility:hidden}
+
+.lockpad-screen.access input{width:94%;-webkit-touch-callout:default;touch-action:manipulation}
+.lockpad-screen.access small{font-size:3.1cqw}
+.lockpad .lockpad-box .lockpad-paste{position:absolute;left:50%;top:36.5%;transform:translateX(-50%);z-index:2;padding:1.6cqw 4cqw;border:.4cqw solid rgba(160,255,190,.6)!important;border-radius:1.6cqw;background:rgba(10,20,14,.9)!important;color:#b8ffd0!important;font:700 3.3cqw/1.2 var(--mono)!important;letter-spacing:.12em;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 0 2cqw rgba(80,255,140,.25)}
+.lockpad-paste:active{transform:translateX(-50%) translateY(.3cqw)}
+.lockpad-paste:disabled{opacity:.5}

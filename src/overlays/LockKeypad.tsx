@@ -10,7 +10,9 @@ const W = 1027, H = 1531;
 const COLS = [354, 520, 686], ROWS = [520, 640, 762, 884], BW = 150, BH = 104;
 const KEYS = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["*", "0", "#"]];
 const pct = (x: number, y: number, w: number, h: number) => ({ left: `${((x - w / 2) / W) * 100}%`, top: `${((y - h / 2) / H) * 100}%`, width: `${(w / W) * 100}%`, height: `${(h / H) * 100}%` });
-const MSG = { invalid: "CODE NOT VALID", used: "CODE ALREADY USED", slow: "TOO MANY TRIES, WAIT A BIT", down: "LAB LINK DOWN" } as const;
+const MSG = { invalid: "CODE NOT VALID", used: "CODE ALREADY USED", slow: "TOO MANY TRIES", down: "LAB LINK DOWN" } as const;
+const MAX = 24;
+const tidy = (v: string) => v.toUpperCase().replace(/\s+/g, "").slice(0, MAX);
 
 // the keypad art is decoded before the close-up shows, so the screen and the machine appear together
 let artReady: Promise<void> | null = null;
@@ -43,6 +45,7 @@ export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
   const check = async () => {
     if (state === "checking" || state === "granted") return;
     const c = cleanCode(code);
+    if (!c) { input.current?.focus(); return; }
     setState("checking"); setMsg(null);
     const r = await checkCode(c);
     if (r.ok) {
@@ -62,10 +65,14 @@ export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
       return;
     }
     if (state === "checking" || state === "granted") return;
+    if (k !== "*" && k !== "#") return;                         // access codes are pasted / typed, the number keys do nothing here
     flash(k); setMsg(null);
     if (k === "*") setCode((c) => c.slice(0, -1));            // * = delete
-    else if (k === "#") setCode((c) => (c.length < 15 ? c + "-" : c));
-    else setCode((c) => (c.length < 15 ? c + k : c));
+    else setCode((c) => (c.length < MAX ? c + "-" : c));      // # = "-"
+  };
+  const paste = async () => {
+    try { const t = await navigator.clipboard.readText(); if (t) { setCode(tidy(t)); setMsg(null); playKeyBeep(); } }
+    catch { input.current?.focus(); }                          // no clipboard permission: focus the screen, hold it to paste
   };
   const red = () => {
     if (mode === "lock") { if (state === "denied") return; flash("clear"); setCode(""); return; }
@@ -85,19 +92,21 @@ export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
           ) : (
             <form className={"lockpad-screen access" + (state === "granted" ? " granted" : "") + (msg ? " denied" : "")} style={pct(528, 307, 452, 228)} onSubmit={submit}>
               <small>{state === "granted" ? "ACCESS GRANTED" : state === "checking" ? "CHECKING…" : msg ?? "ENTER ACCESS CODE"}</small>
-              <input ref={input} value={code} onChange={(e) => { setCode(e.target.value.toUpperCase().replace(/\s+/g, "").slice(0, 15)); setMsg(null); }}
-                placeholder="WL-XXXXXXXXXXXX" spellCheck={false} autoComplete="off" autoCapitalize="characters" aria-label="Access code"
+              <input ref={input} value={code} onChange={(e) => { setCode(tidy(e.target.value)); setMsg(null); }}
+                onPaste={(e) => { e.preventDefault(); setCode(tidy(e.clipboardData.getData("text"))); setMsg(null); }}
+                maxLength={MAX} placeholder="WL-XXXX-XXXX-XXXX" spellCheck={false} autoComplete="off" autoCorrect="off" autoCapitalize="characters" inputMode="text" aria-label="Access code"
                 disabled={state === "checking" || state === "granted"} />
             </form>
           )}
-          {KEYS.map((row, r) => row.map((k, c) => (
+          {mode === "access" && <button type="button" className="lockpad-paste" onClick={() => void paste()} disabled={state === "checking" || state === "granted"}>📋 PASTE CODE</button>}
+          {KEYS.map((row, r) => row.map((k, c) => mode === "access" && k !== "*" && k !== "#" ? null : (
             <button key={k} type="button" tabIndex={-1} className={"lockpad-key" + (pressed === k ? " down" : "")}
               style={pct(COLS[c]!, ROWS[r]!, BW, BH)} aria-label={k} onPointerDown={(e) => { e.preventDefault(); press(k); }} />
           )))}
           <button type="button" tabIndex={-1} className={"lockpad-key round" + (pressed === "clear" ? " down" : "")} style={pct(512, 1140, 190, 190)}
             aria-label={mode === "access" ? "enter" : "clear"} onPointerDown={(e) => { e.preventDefault(); red(); }} />
           <button type="button" className="lockpad-close" onClick={onClose} aria-label="Close keypad">×</button>
-          {mode === "access" && <p className="lockpad-help">type your code from Discord · red button to enter · ✱ deletes · # types -</p>}
+          {mode === "access" && <p className="lockpad-help">paste your code from Discord (or hold the screen and paste) · red button to enter · ✱ deletes · # types -</p>}
         </div>
       )}
     </div>

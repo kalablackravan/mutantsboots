@@ -53,7 +53,7 @@ export function AccessForm({ active }: { active: boolean }) {
         <span className="cf-stamp-ink wl-mutated">YOU ARE INFECTED</span>
         <p className="wl-big">{kind === "fm" ? "FREE MINT SERUM INJECTED." : "WHITELIST SERUM INJECTED."}</p>
         <p className="wl-text wl-blink">INCUBATION STARTED…</p>
-        <p className="wl-text">Your injection is logged. Watch Discord and <b>@mutatedfoots</b> on X for what happens next.</p>
+        <p className="wl-text">Your injection is logged. Your <b>MUTANT</b> role arrives in Discord within a minute.</p>
       </div>
     );
   }

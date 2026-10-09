@@ -17,7 +17,10 @@ export function markSubmitted() { if (current) { current = { ...current, code: "
 export function onAccess(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; }
 
 export const cleanCode = (c: string) => c.trim().toUpperCase().replace(/\s+/g, "");
-export const looksCode = (c: string) => /^(WL|FM)-[A-Z0-9]{12}$/.test(c);
+// WL-XXXX-XXXX-XXXX / FM-XXXX-XXXX-XXXX (A-Z, 2-9). Only used to spot an empty/obviously broken entry:
+// the server is the judge, so anything that looks like a code is sent to /access/check.
+export const CODE_RE = /^(WL|FM)-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
+export const looksCode = (c: string) => c.length >= 6 && c.length <= 24;
 
 async function post(path: string, body: unknown) {
   const r = await fetch(WL_API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -39,7 +42,7 @@ export async function checkCode(raw: string): Promise<CheckResult> {
     if (st === 404) return { ok: false, reason: "invalid" };
     if (st === 409) return { ok: false, reason: "used" };
     if (st === 429) return { ok: false, reason: "slow" };
-    return { ok: false, reason: st >= 500 ? "down" : "invalid" };
+    return { ok: false, reason: st >= 500 || st === 0 ? "down" : "invalid" };
   } catch { return { ok: false, reason: "down" }; }
 }
 

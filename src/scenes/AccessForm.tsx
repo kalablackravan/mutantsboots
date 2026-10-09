@@ -42,18 +42,24 @@ export function AccessForm({ active }: { active: boolean }) {
     setErr(null); setBusy(true); setInjecting(true); playInject();
     const [res] = await Promise.all([submitAccess(acc.code, cleanX(x), discord.trim(), trap), wait(INJECT_MS)]);
     setInjecting(false); setBusy(false);
-    if (res.ok) { markSubmitted(); setDone(res.kind); return; }
+    if (res.ok) { markSubmitted(cleanX(x), discord.trim()); setDone(res.kind); return; }
     setErr(res.reason === "invalid_x" ? "x" : res.reason === "invalid_discord" ? "discord" : res.reason);
   };
 
   if (done || acc?.submitted) {
-    const kind = done ?? acc?.kind ?? "wl";
+    const kind = acc?.kind ?? done ?? "wl";
+    const role = kind === "fm" ? "MUTANT" : "INFECTED";
     return (
       <div className="wl wl-result wl-k-infected">
         <span className="cf-stamp-ink wl-mutated">YOU ARE INFECTED</span>
         <p className="wl-big">{kind === "fm" ? "FREE MINT SERUM INJECTED." : "WHITELIST SERUM INJECTED."}</p>
-        <p className="wl-text wl-blink">INCUBATION STARTED…</p>
-        <p className="wl-text">Your injection is logged. Your <b>MUTANT</b> role arrives in Discord within a minute.</p>
+        <dl className="wl-file">
+          <div><dt>Injection</dt><dd>{kind === "fm" ? "Free Mint" : "Whitelist"}</dd></div>
+          <div><dt>X</dt><dd>{acc?.x ? "@" + acc.x : "on file"}</dd></div>
+          <div><dt>Discord</dt><dd>{acc?.discord || "on file"}</dd></div>
+          <div><dt>Wallet</dt><dd>{acc?.wallet || "on file"}</dd></div>
+        </dl>
+        <p className="wl-text">Your <b>{role}</b> role arrives in Discord within a minute.</p>
       </div>
     );
   }

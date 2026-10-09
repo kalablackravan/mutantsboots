@@ -23,13 +23,14 @@ export function preloadKeypad() {
 }
 
 export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
-  open: boolean; onClose: () => void; mode?: "lock" | "access"; onGranted?: (a: { code: string; kind: AccessKind; wallet: string }) => void;
+  open: boolean; onClose: () => void; mode?: "lock" | "access"; onGranted?: (a: { code: string; kind: AccessKind; wallet: string; used?: boolean | undefined; x?: string | undefined; discord?: string | undefined }) => void;
 }) {
   const [code, setCode] = useState("");
   const [state, setState] = useState<"idle" | "denied" | "checking" | "granted">("idle");
   const [msg, setMsg] = useState<string | null>(null);
   const [pressed, setPressed] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [usedEntry, setUsedEntry] = useState(false);
   const timer = useRef(0);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -49,8 +50,8 @@ export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
     setState("checking"); setMsg(null);
     const r = await checkCode(c);
     if (r.ok) {
-      setState("granted");
-      timer.current = window.setTimeout(() => { onGranted?.({ code: c, kind: r.kind, wallet: r.wallet }); setCode(""); }, 900);
+      setState("granted"); setUsedEntry(!!r.used);
+      timer.current = window.setTimeout(() => { onGranted?.({ code: c, kind: r.kind, wallet: r.wallet, used: r.used, x: r.x, discord: r.discord }); setCode(""); }, 900);
       return;
     }
     playDenyBuzz(); setState("idle"); setMsg(MSG[r.reason]);
@@ -91,7 +92,7 @@ export function LockKeypad({ open, onClose, mode = "lock", onGranted }: {
             </div>
           ) : (
             <form className={"lockpad-screen access" + (state === "granted" ? " granted" : "") + (msg ? " denied" : "")} style={pct(528, 307, 452, 228)} onSubmit={submit}>
-              <small>{state === "granted" ? "ACCESS GRANTED" : state === "checking" ? "CHECKING…" : msg ?? "ENTER ACCESS CODE"}</small>
+              <small>{state === "granted" ? (usedEntry ? "ALREADY INJECTED · WELCOME BACK" : "ACCESS GRANTED") : state === "checking" ? "CHECKING…" : msg ?? "ENTER ACCESS CODE"}</small>
               <input ref={input} value={code} onChange={(e) => { setCode(tidy(e.target.value)); setMsg(null); }}
                 onPaste={(e) => { e.preventDefault(); setCode(tidy(e.clipboardData.getData("text"))); setMsg(null); }}
                 maxLength={MAX} placeholder="WL-XXXX-XXXX-XXXX" spellCheck={false} autoComplete="off" autoCorrect="off" autoCapitalize="characters" inputMode="text" aria-label="Access code"

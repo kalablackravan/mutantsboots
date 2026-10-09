@@ -1068,3 +1068,18 @@ export function startClipLoop(url: string, volume = 0.7, loopStart = 0, loopEnd 
     try { const c = audio(); if (g && c) g.gain.setTargetAtTime(0.0001, c.currentTime, 0.05); window.setTimeout(() => { try { src?.stop(); } catch { /* done */ } }, 300); } catch { /* gone */ }
   };
 }
+
+/** Glass shards landing on a hard surface: a scatter of tiny high clinks over half a second. */
+export function playShardsLand(pan = 0) {
+  try {
+    const m = master(0.32); if (!m) return; const { c, out, t } = m;
+    const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); out.disconnect(); out.connect(p); p.connect(c.destination);
+    for (let i = 0; i < 16; i++) {
+      const at = t + Math.pow(Math.random(), 1.6) * 0.55, f = 3200 + Math.random() * 4800;
+      const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.18 * (1 - (at - t) / 0.7), at + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.04 + Math.random() * 0.09);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + 0.16);
+    }
+    burst(c, out, t, 0.08, (x) => 1 - x, [{ type: "highpass", f: 3000 }], 0.4);
+  } catch { /* sound is optional */ }
+}

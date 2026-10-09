@@ -924,16 +924,21 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 @keyframes phoneFlash{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.3)}}
 @media (prefers-reduced-motion: reduce){.phone-smoke i,.phone-spark{animation:none}}
 
-/* smashed glowing tubes: dark for good, cracked glass, a shower of shards when it goes */
+/* smashed glowing tubes: the glow dies, the broken-glass art takes the tube's place, green fumes keep rising,
+   and the shards fall onto the desk (they stay there until the page is reloaded) */
 .lab-tube.smashed b{opacity:1;animation:none;background:radial-gradient(closest-side,rgba(3,10,9,.93) 62%,rgba(3,10,9,0))}
 .lab-tube.smashed i{animation:none;opacity:0}
-.tube-cracks{position:absolute;inset:4% 12%;width:76%;height:92%;overflow:visible}
-.tube-cracks path{fill:none;stroke:rgba(190,255,215,.55);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linejoin:round}
-.tube-cracks path.hole{fill:#010403;stroke:rgba(200,255,220,.7)}
-.tube-shard{position:absolute;left:50%;top:22%;width:6%;aspect-ratio:1;background:rgba(170,255,200,.85);clip-path:polygon(50% 0,100% 70%,20% 100%);opacity:0;animation:shardFall .9s ease-in forwards}
-.tube-shard.k1{left:38%;animation-delay:.03s}.tube-shard.k2{left:62%;animation-delay:.06s;width:5%}.tube-shard.k3{left:45%;animation-delay:.1s;width:4%}.tube-shard.k4{left:57%;animation-delay:.02s;width:7%}.tube-shard.k5{left:30%;animation-delay:.08s;width:4%}
-@keyframes shardFall{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(calc((var(--sx,1) * 1) * 60%),700%) rotate(260deg)}}
-.tube-shard.k0,.tube-shard.k3,.tube-shard.k5{--sx:-1}
+.tube-broken{position:absolute;inset:0;pointer-events:none;z-index:2}
+.tube-broken img{position:absolute;filter:brightness(.78) saturate(.9);user-select:none;-webkit-user-drag:none}
+.tube-smoke{position:absolute;width:0;height:0}
+.tube-smoke i{position:absolute;left:0;top:0;width:2.4cqw;aspect-ratio:1;margin:-1.2cqw 0 0 -1.2cqw;border-radius:50%;background:radial-gradient(circle,rgba(130,255,170,.8),rgba(80,220,140,.42) 45%,rgba(60,170,110,0) 70%);filter:blur(.3cqw);opacity:0;animation:tubeFume 4.2s ease-out infinite}
+.tube-smoke i:nth-child(2){animation-delay:-.9s;animation-duration:4.8s}.tube-smoke i:nth-child(3){animation-delay:-1.8s;animation-duration:3.9s}
+.tube-smoke i:nth-child(4){animation-delay:-2.6s;animation-duration:4.5s}.tube-smoke i:nth-child(5){animation-delay:-3.4s;animation-duration:5.2s}
+@keyframes tubeFume{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.85}55%{opacity:.5}100%{transform:translate(.8cqw,-7cqw) scale(2.4);opacity:0}}
+.tube-shard{position:absolute;aspect-ratio:1.4;margin:0;background:linear-gradient(135deg,rgba(210,255,225,.92),rgba(120,200,160,.75));clip-path:polygon(50% 0,100% 60%,62% 100%,0 72%);filter:drop-shadow(0 0 .15cqw rgba(140,255,180,.5));animation:shardDrop .72s cubic-bezier(.45,0,.9,.55) both}
+.tube-shard.landed{animation:none;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}
+@keyframes shardDrop{0%{transform:translate(0,0) rotate(0)}88%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}94%{transform:translate(var(--dx),calc(var(--dy) - .35cqw)) rotate(var(--rot))}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+@media (prefers-reduced-motion: reduce){.tube-smoke i{animation:none}.tube-shard{animation:none;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
 .lab-tube-hit{position:absolute;z-index:3;padding:0;margin:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lab-tube-hit:disabled{cursor:default;pointer-events:none}
 

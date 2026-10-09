@@ -82,10 +82,7 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
     }
     playDenyBuzz(); setState("idle"); setMsg(MSG[r.reason]);
   };
-  const paste = async () => {
-    try { const t = await navigator.clipboard.readText(); if (t) setFrom(t); }
-    catch { input.current?.focus(); }
-  };
+
 
   if (!open) return null;
   let k = 0;
@@ -115,9 +112,8 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
                 inputMode={mode === "lock" ? "numeric" : "text"} autoCapitalize="characters" autoComplete="off" autoCorrect="off" spellCheck={false}
                 maxLength={total + 6} aria-label={mode === "lock" ? "4 digit code" : "Access code"} disabled={state === "checking" || state === "granted" || state === "denied"} />
             </div>
-            <p className="apanel-msg" role="status">{msg ?? (mode === "access" ? "code from Discord · hold the boxes to paste" : "")}</p>
+            <p className="apanel-msg" role="status">{msg ?? (mode === "access" ? "code from Discord · paste with Ctrl+V or hold the boxes" : "")}</p>
             <div className="apanel-actions">
-              {mode === "access" && <button type="button" className="apanel-paste" onClick={() => void paste()} disabled={state !== "idle"}>PASTE</button>}
               <button type="button" className="apanel-check" onClick={() => void check()} disabled={state === "checking" || state === "granted" || state === "denied"}>CHECK <span aria-hidden="true">✔</span></button>
             </div>
           </div>

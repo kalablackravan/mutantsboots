@@ -22,6 +22,14 @@ export const cleanCode = (c: string) => c.trim().toUpperCase().replace(/\s+/g, "
 export const CODE_RE = /^(WL|FM)-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
 export const looksCode = (c: string) => c.length >= 6 && c.length <= 24;
 
+// the server says "wl" for whitelist and "freemint" (or "fm") for free mint codes
+const kindOf = (k?: string): AccessKind | null => {
+  const v = (k ?? "").toLowerCase().replace(/[^a-z]/g, "");
+  if (v === "wl" || v === "whitelist") return "wl";
+  if (v === "fm" || v === "freemint") return "fm";
+  return null;
+};
+
 async function post(path: string, body: unknown) {
   const r = await fetch(WL_API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   let data: { status?: string; kind?: string; wallet?: string; error?: string } = {};
@@ -37,8 +45,8 @@ export async function checkCode(raw: string): Promise<CheckResult> {
   if (!looksCode(code)) return { ok: false, reason: "invalid" };
   try {
     const { code: st, data } = await post("/access/check", { code });
-    if (st === 200 && data.status === "ok" && (data.kind === "wl" || data.kind === "fm"))
-      return { ok: true, kind: data.kind, wallet: String(data.wallet ?? "") };
+    const kind = kindOf(data.kind);
+    if (st === 200 && data.status === "ok" && kind) return { ok: true, kind, wallet: String(data.wallet ?? "") };
     if (st === 404) return { ok: false, reason: "invalid" };
     if (st === 409) return { ok: false, reason: "used" };
     if (st === 429) return { ok: false, reason: "slow" };
@@ -52,7 +60,7 @@ export type SubmitResult =
 export async function submitAccess(code: string, x: string, discord: string, website: string): Promise<SubmitResult> {
   try {
     const { code: st, data } = await post("/access/submit", { code, x, discord, website });
-    if (st === 201 && data.status === "submitted") return { ok: true, kind: data.kind === "fm" ? "fm" : "wl" };
+    if (st === 201 && data.status === "submitted") return { ok: true, kind: kindOf(data.kind) ?? (code.startsWith("FM") ? "fm" : "wl") };
     if (st === 400 && data.error === "invalid_x") return { ok: false, reason: "invalid_x" };
     if (st === 400 && data.error === "invalid_discord") return { ok: false, reason: "invalid_discord" };
     if (st === 404) return { ok: false, reason: "invalid_code" };

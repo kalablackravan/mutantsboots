@@ -5,7 +5,8 @@ import { CLONE, LOCK, SCENE_LAYERS } from "./config";
 import { ClassifiedFile } from "@/overlays/ClassifiedFile";
 import { preloadFile } from "@/lib/fileArt";
 import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, SFX, startClipLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
-import { LockKeypad } from "@/overlays/LockKeypad";
+import { LockKeypad, preloadKeypad } from "@/overlays/LockKeypad";
+import { doorGranted, grantAccess } from "@/lib/access";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -54,7 +55,9 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   const [faucetHover, setFaucetHover] = useState(false);
   const [homeHover, setHomeHover] = useState(false);
   const [fog, setFog] = useState(0);                   // opening the valve fills the room with smoke, then it clears
-  const [padOpen, setPadOpen] = useState(false);       // lockdown door keypad close-up
+  const [padOpen, setPadOpen] = useState(false);       // door keypad close-up
+  const [padMode, setPadMode] = useState<"lock" | "access">("lock");   // lockdown door (any code fails) / slime door (access code)
+  useEffect(() => { if (on || warm) void preloadKeypad(); }, [on, warm]);
   const [padHover, setPadHover] = useState(false);
   const [kitOpen, setKitOpen] = useState(false);       // first-aid box on the wall (empty)
   const [kitHover, setKitHover] = useState(false);
@@ -139,7 +142,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
         <SlimeDrips live={on && !fileOpen} doorOpen={open && openReady} />
         <HomePad tabIndex={on ? 0 : -1} onHome={() => onHome?.()} onTag={setHomeHover} />
         <button type="button" className="gate-keypad-hit" style={{ left: `${2256 / 38.4}%`, top: `${872 / 18}%`, width: `${114 / 38.4}%`, height: `${192 / 18}%` }}
-          tabIndex={on ? 0 : -1} aria-label="Enter the door code" onClick={() => setPadOpen(true)}
+          tabIndex={on ? 0 : -1} aria-label="Enter the door code" onClick={() => { setPadMode("lock"); setPadOpen(true); }}
           onPointerEnter={() => setPadHover(true)} onPointerLeave={() => setPadHover(false)} />
         <button type="button" className="kit-hit" style={{ left: `${2462 / 38.4}%`, top: `${272 / 18}%`, width: `${236 / 38.4}%`, height: `${130 / 18}%` }}
           tabIndex={on ? 0 : -1} aria-label={kitOpen ? "Close the first-aid box" : "Open the first-aid box"}
@@ -161,7 +164,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           onPointerEnter={(event) => { if (event.pointerType === "mouse") { setOpen(true); doorSound(); } }}
           onPointerDown={(event) => { if (event.pointerType !== "mouse") { setOpen(true); doorSound(); } }}
           onPointerLeave={() => setOpen(false)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
-          onClick={() => { onDoor(); }} />
+          onClick={() => { if (doorGranted()) onDoor(); else { setPadMode("access"); setPadOpen(true); } }} />
       </div>
       {fog > 0 && (
         <div key={fog} className="gate-fog" aria-hidden="true">
@@ -197,7 +200,8 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
           {fileBusy ? "opening file…" : "▸ click to open file"}
         </span>
       </div>
-      <LockKeypad open={padOpen} onClose={() => setPadOpen(false)} />
+      <LockKeypad open={padOpen} mode={padMode} onClose={() => setPadOpen(false)}
+        onGranted={(a) => { grantAccess(a); setPadOpen(false); setOpen(true); doorSound(); window.setTimeout(onDoor, 450); }} />
       <ClassifiedFile open={fileOpen} onClose={closeFile} />
     </section>
   );

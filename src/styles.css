@@ -908,12 +908,15 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .lab-phone-art{z-index:1;pointer-events:none}
 .phone-smoke.s1 i{animation-delay:-2s}
 .phone-smoke{position:absolute;z-index:3;width:0;height:0;pointer-events:none}
-.phone-smoke i{position:absolute;left:0;top:0;width:3cqw;aspect-ratio:1;margin:-1.5cqw 0 0 -1.5cqw;border-radius:50%;background:radial-gradient(circle,rgba(215,222,226,.8),rgba(170,180,186,.42) 45%,rgba(120,130,136,0) 70%);filter:blur(.3cqw);z-index:3;opacity:0;animation:phoneSmoke 4s ease-out infinite}
+.phone-smoke i{position:absolute;left:0;top:0;width:3.4cqw;aspect-ratio:1;margin:-1.7cqw 0 0 -1.7cqw;border-radius:50%;background:radial-gradient(circle,rgba(28,28,30,.85),rgba(40,40,44,.5) 45%,rgba(50,50,55,0) 70%);filter:blur(.35cqw);z-index:3;opacity:0;animation:phoneSmoke 4s ease-out infinite}
 .phone-smoke i:nth-child(2){animation-delay:-.8s;animation-duration:4.6s}
 .phone-smoke i:nth-child(3){animation-delay:-1.6s;animation-duration:3.8s}
 .phone-smoke i:nth-child(4){animation-delay:-2.4s;animation-duration:4.3s}
 .phone-smoke i:nth-child(5){animation-delay:-3.2s;animation-duration:5s}
-@keyframes phoneSmoke{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.95}55%{opacity:.6}100%{transform:translate(1.4cqw,-10cqw) scale(2.6);opacity:0}}
+.phone-smoke i:nth-child(6){animation-delay:-1.2s;animation-duration:4.4s}
+.phone-smoke i:nth-child(7){animation-delay:-2.8s;animation-duration:3.6s}
+.phone-smoke i:nth-child(8){animation-delay:-.4s;animation-duration:4.9s}
+@keyframes phoneSmoke{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.9}55%{opacity:.6}100%{transform:translate(1.6cqw,-11cqw) scale(3);opacity:0}}
 .phone-spark{position:absolute;z-index:2;width:.35cqw;aspect-ratio:1;margin:-.175cqw 0 0 -.175cqw;border-radius:50%;background:#fff3c4;box-shadow:0 0 .6cqw .25cqw rgba(255,170,40,.9);opacity:0;pointer-events:none;animation:phoneSpark 3s linear infinite}
 @keyframes phoneSpark{0%,92%{opacity:0;transform:translate(0,0) scale(1)}93%{opacity:1}97%{opacity:.8;transform:translate(.6cqw,.9cqw) scale(.6)}100%{opacity:0;transform:translate(.9cqw,1.6cqw) scale(.3)}}
 .phone-flash{position:absolute;z-index:3;width:14cqw;aspect-ratio:1;margin:-7cqw 0 0 -7cqw;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,250,220,.95),rgba(255,170,60,.55) 25%,rgba(255,120,40,0) 60%);mix-blend-mode:screen;animation:phoneFlash .45s ease-out forwards}
@@ -968,3 +971,18 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 
 /* wall first-aid box art */
 .gate-kit-img{z-index:1;pointer-events:none;filter:drop-shadow(.25cqw .35cqw .3cqw rgba(0,0,0,.55))}
+
+.wl-err{margin-top:1cqw;font-weight:700}
+.wl-field input[aria-invalid="true"]{border-color:#8e1a1a}
+
+.lockpad.waiting{background:rgba(0,0,0,.72)}
+.lockpad-screen.access{pointer-events:auto;gap:1.6cqw}
+.lockpad-screen.access small{font-size:3.4cqw;text-align:center;max-width:92%;white-space:normal;line-height:1.2}
+.lockpad-screen.access input{width:88%;box-sizing:border-box;background:transparent;border:0;border-bottom:.45cqw solid rgba(255,90,70,.55);color:#ff7a62;text-shadow:0 0 1.4cqw rgba(255,60,40,.9);font:400 3.7cqw/1.1 'Black Ops One',var(--mono);letter-spacing:0;text-align:center;outline:none;padding:.6cqw 0;-webkit-user-select:text;user-select:text}
+.lockpad-screen.access input::placeholder{color:rgba(255,110,90,.35)}
+.lockpad-screen.access.granted{background:radial-gradient(ellipse at 50% 40%,#0b4a1c,#021a08 75%)}
+.lockpad-screen.access.granted small,.lockpad-screen.access.granted input{color:#7dff8a;text-shadow:0 0 1.4cqw rgba(80,255,120,.9)}
+.lockpad-help{position:absolute;left:0;right:0;bottom:-7cqw;margin:0;text-align:center;font:700 2.6cqw var(--mono);letter-spacing:.1em;color:rgba(200,255,215,.75);text-transform:uppercase}
+
+/* a close-up waits (dark, empty) until its art is ready, then everything fades in together */
+.lab-view.waiting > *{visibility:hidden}

@@ -3,7 +3,8 @@ import { sceneImage, type SceneImage } from "@/config/cdn";
 import { FILE_LAYOUT as F, LAB, LAB_FX } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
-import { WlClipboard } from "./WlClipboard";
+import { AccessForm } from "./AccessForm";
+import { getAccess } from "@/lib/access";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
 import { LabPhone, usePhoneBroken } from "./LabPhone";
 import { MutatedFlask3D } from "./MutatedFlask3D";
@@ -57,6 +58,15 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
   const [black, setBlack] = useState(false);                  // second call: the room blacks out before you are thrown out
   const blackout = useCallback(() => setBlack(true), []);
   useEffect(() => { if (!on) { setView(null); setHover(null); setTag(null); setSay(null); } }, [on]);
+  useEffect(() => { if (on) void import("@/lib/flask3d/createFlaskScene"); }, [on]);   // 3D flask code ready before the flask is picked up
+  // walked in with a fresh access code: the injection form comes up by itself once the room has zoomed in
+  useEffect(() => {
+    if (!on) return;
+    const a = getAccess();
+    if (!a || a.submitted) return;
+    const id = window.setTimeout(() => { setView((v) => v ?? "clipboard"); playFileArrive(); }, 1400);
+    return () => window.clearTimeout(id);
+  }, [on]);
   const open = (it: Item) => { setHover(null); setView(it); if (it === "files") playPageTurn(); else if (isTv(it)) playCrtOn(); else playFileArrive(); };
   const close = useCallback(() => setView(null), []);
   const phoneBroken = usePhoneBroken();
@@ -135,7 +145,37 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
 }
 
 // ---------------------------------------------------------------- the three close-up views
+// The close-up only appears once its frame art is decoded (and, for the flask, once the 3D flask is up),
+// so the paper / screen and the thing they belong to show up together instead of seconds apart.
+const decoded = new Set<string>();
+function decode(src: string): Promise<void> {
+  if (decoded.has(src)) return Promise.resolve();
+  return new Promise<void>((res) => { const i = new Image(); i.src = src; i.decode().then(() => { decoded.add(src); res(); }, () => res()); });
+}
+const VIEW_ART: Partial<Record<Item, () => string[]>> = {
+  clipboard: () => [sceneImage("clipboard_black_border_thin.webp")],
+  flask: () => [sceneImage("frame_black_border.webp")],
+  files: () => [sceneImage("bestspread.webp")],
+  display: () => [BLANK_DISPLAY], cam0: () => [BLANK_DISPLAY], cam1: () => [BLANK_DISPLAY],
+};
+function useViewReady(item: Item | null, flaskUp: boolean) {
+  const [ready, setReady] = useState<Item | null>(null);
+  useEffect(() => {
+    if (!item) { setReady(null); return; }
+    let live = true;
+    const urls = VIEW_ART[item]?.() ?? [];
+    const art = Promise.all(urls.map(decode));
+    const cap = new Promise<void>((r) => setTimeout(r, 5000));          // never hold a view back forever
+    void Promise.race([art, cap]).then(() => { if (live) setReady(item); });
+    return () => { live = false; };
+  }, [item]);
+  return ready === item && (item !== "flask" || flaskUp);
+}
+
 function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) {
+  const [flaskUp, setFlaskUp] = useState(false);
+  useEffect(() => { if (item !== "flask") { setFlaskUp(false); return; } const id = window.setTimeout(() => setFlaskUp(true), 4000); return () => window.clearTimeout(id); }, [item]);
+  const viewReady = useViewReady(item, flaskUp);
   const [shown, setShown] = useState<Item | null>(null);      // keeps the content while it fades out
   const [dropping, setDropping] = useState(false);
   const [page, setPage] = useState(0);                        // files: 0 = transfer log, then one specimen per page
@@ -170,20 +210,20 @@ function LabView({ item, onClose }: { item: Item | null; onClose: () => void }) 
   }, [item, dropping]);
   const outside = (e: MouseEvent) => { if (e.target === e.currentTarget) drop(); };
   return (
-    <div className={"lab-view" + (item ? " on" : "") + (dropping ? " dropping" : "")} role="dialog" aria-modal="true" aria-hidden={!item} inert={!item}
+    <div className={"lab-view" + (item ? " on" : "") + (dropping ? " dropping" : "") + (item && !viewReady && !dropping ? " waiting" : "")} role="dialog" aria-modal="true" aria-hidden={!item} inert={!item}
       aria-label={shown ?? "lab item"} onClick={outside} style={{ "--ink-heavy": `url(${INK_HEAVY})` } as CSSProperties}>
       {shown === "clipboard" && (
         <div className={"lv-clipboard" + (dropping ? " drop" : "")} key={"c" + String(item)}>
           <img src={sceneImage("clipboard_black_border_thin.webp")} alt="" draggable={false} />
           <div className="lv-clip-paper">
-            <WlClipboard active={item === "clipboard"} />
+            <AccessForm active={item === "clipboard"} />
           </div>
         </div>
       )}
       {shown === "flask" && (
         <div className={"lv-flask" + (dropping ? " drop" : "")} key={"f" + String(item)}>
           <div className="lv-flask-stage">
-            <MutatedFlask3D active={item === "flask"} />
+            <MutatedFlask3D active={item === "flask"} onReady={() => setFlaskUp(true)} />
             <i className="lv-flask-shadow" />
             <span className="lv-flask-hint">drag to turn</span>
           </div>

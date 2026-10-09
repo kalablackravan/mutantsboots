@@ -4,7 +4,7 @@ import { sceneImage } from "@/config/cdn";
 // Serum M1 as a real WebGL flask (Three.js). The scene module (and three itself) is loaded lazily
 // on the client inside useEffect, so SSR never touches WebGL and the lab loads no 3D code until
 // the flask is actually opened. Falls back to the flat art if WebGL is unavailable.
-export function MutatedFlask3D({ active, className = "" }: { active: boolean; className?: string }) {
+export function MutatedFlask3D({ active, className = "", onReady }: { active: boolean; className?: string; onReady?: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -14,11 +14,12 @@ export function MutatedFlask3D({ active, className = "" }: { active: boolean; cl
     import("@/lib/flask3d/createFlaskScene")
       .then(({ createFlaskScene }) => {
         if (gone || !ref.current) return;
-        try { scene = createFlaskScene(ref.current, { still: window.matchMedia("(prefers-reduced-motion: reduce)").matches }); }
-        catch { setFailed(true); }
+        try { scene = createFlaskScene(ref.current, { still: window.matchMedia("(prefers-reduced-motion: reduce)").matches }); requestAnimationFrame(() => requestAnimationFrame(() => onReady?.())); }
+        catch { setFailed(true); onReady?.(); }
       })
-      .catch(() => setFailed(true));
+      .catch(() => { setFailed(true); onReady?.(); });
     return () => { gone = true; scene?.dispose(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, failed]);
   if (failed) return <img className={"lv-flask-canvas " + className} src={sceneImage("flask_black_border.webp")} alt="Serum M1 flask" draggable={false} />;
   return <canvas ref={ref} className={"lv-flask-canvas lv-flask-3d " + className} role="img" aria-label="Serum M1 flask, drag to turn it" />;

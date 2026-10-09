@@ -98,7 +98,7 @@ export function LabPhone({ on, paused, tabIndex, onTag, onSay }: {
       <img className="gate-layer lab-phone-art" src="/scene/phone-broken.webp" alt="" draggable={false} style={{ ...PHONE_ART, visibility: broken ? "visible" : "hidden" }} />
       {broken && (
         <>
-          {SMOKE.map((m, k) => <div key={k} className={"phone-smoke s" + k} style={{ left: `${m.x / 38.4}%`, top: `${m.y / 18}%` }} aria-hidden="true"><i /><i /><i /><i /><i /></div>)}
+          {SMOKE.map((m, k) => <div key={k} className={"phone-smoke s" + k} style={{ left: `${m.x / 38.4}%`, top: `${m.y / 18}%` }} aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>)}
           {SPARKS.map((s, i) => <span key={i} className="phone-spark" style={{ left: `${s.x / 38.4}%`, top: `${s.y / 18}%`, animationDuration: `${s.d}s` }} aria-hidden="true" />)}
         </>
       )}

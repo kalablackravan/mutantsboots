@@ -69,9 +69,9 @@ export function AccessForm({ active }: { active: boolean }) {
       <p className="wl-big red">WL / FREE MINT INJECTION</p>
       <p className="wl-mono">READ-ONLY · NO ACCESS CODE</p>
       <div className="wl-steps">
-        <p><i className="wl-n">1</i>Join the mutatedfoots <b>Discord</b>.</p>
-        <p><i className="wl-n">2</i>Claim your <b>RP</b> and get your <b>WL</b> or <b>FREE MINT</b> access code.</p>
-        <p><i className="wl-n">3</i>Come back, enter this room <b>with that access code</b>, and get infected.</p>
+        <p><i className="wl-n">1</i><span>Join the mutatedfoots <b>Discord</b>.</span></p>
+        <p><i className="wl-n">2</i><span>Claim your <b>RP</b> and get your <b>WL</b> or <b>FREE MINT</b> access code.</span></p>
+        <p><i className="wl-n">3</i><span>Come back, enter this room <b>with that access code</b>, and get infected.</span></p>
       </div>
       <a className="wl-btn wl-discord" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">JOIN DISCORD ↗</a>
     </div>

@@ -37,7 +37,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "founder", kind: "pin", x: 39.5, y: 4.5, w: 19.5, rot: 0, pad: [12, 11, 10, 12],
+    id: "founder", kind: "pin", x: 39.5, y: 10, w: 19.5, rot: 0, pad: [12, 11, 10, 12],
     body: (<>
       <p className="nb-h">THE FOUNDER · FILE 00</p>
       <p className="nb-name">Prof. Dr. Thaddäus Vrzhlavik-Qorrenbach</p>

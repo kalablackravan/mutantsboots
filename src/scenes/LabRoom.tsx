@@ -86,6 +86,9 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
+        {/* noticeboard on the left wall: torn notes, the blood-stained form, and the two devils' prints */}
+        <img className="gate-layer" src="/scene/lab-noticeboard.webp" alt="" draggable={false}
+          style={{ left: `${358 / 38.4}%`, top: `${544 / 18}%`, width: `${600 / 38.4}%`, height: `${404 / 18}%` }} />
         <DeskScreens live={on && !view} hot={hover === "display"} />
         <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} onTag={setTag} />

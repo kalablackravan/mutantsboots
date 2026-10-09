@@ -121,7 +121,6 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted }: {
               <button type="button" className="apanel-check" onClick={() => void check()} disabled={state === "checking" || state === "granted" || state === "denied"}>CHECK <span aria-hidden="true">✔</span></button>
             </div>
           </div>
-          <button type="button" className="apanel-close" onClick={onClose} aria-label="Close">×</button>
         </div>
       )}
     </>

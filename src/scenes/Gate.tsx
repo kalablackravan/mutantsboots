@@ -106,7 +106,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
   }, [on, fileOpen]);
   useEffect(() => {                                   // quiet lockdown alert while the red alarm is up
     if (!on || !(lockHover || burst) || fileOpen) return;
-    return startClipLoop(SFX.lockAlarm, 0.75);         // red beacons on: the 2 s alarm (no voice), looped
+    return startClipLoop(SFX.lockAlarm, 0.75);         // red beacons on: beep, pause, beep, pause… every beep and pause the same
   }, [on, lockHover || burst, fileOpen]);
   const openFile = async () => {
     if (fileBusy || fileOpen) return;

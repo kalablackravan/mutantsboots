@@ -4,6 +4,7 @@ import { FILE_LAYOUT as F, LAB, LAB_FX } from "./config";
 import { loadAndDecode } from "@/lib/scenePreload";
 import { DEVIL_1, DEVIL_2, INK_HEAVY } from "@/lib/fileArt";
 import { AccessForm } from "./AccessForm";
+import { Noticeboard } from "./Noticeboard";
 import { getAccess, onAccess } from "@/lib/access";
 import { ClipboardPrint, ExitPad, LabFx, OutOfService } from "./LabFx";
 import { LabPhone, usePhoneBroken } from "./LabPhone";
@@ -86,9 +87,8 @@ export function LabRoom({ on, zoom = "", onExit }: { on: boolean; zoom?: "" | "z
     <section id="s-lab" className={"scene" + (on ? " on" : "") + (zoom ? " " + zoom : "") + (view ? " viewing" : "")} aria-hidden={!on}>
       <div id="lab-stage" inert={!!view} className={view ? "viewing" : ""}>
         <img className="gate-layer" src={sceneImage("2ndbg.webp")} alt="" style={at(FULL)} draggable={false} />
-        {/* noticeboard on the left wall: torn notes, the blood-stained form, and the two devils' prints */}
-        <img className="gate-layer" src="/scene/lab-noticeboard.webp" alt="" draggable={false}
-          style={{ left: `${358 / 38.4}%`, top: `${544 / 18}%`, width: `${600 / 38.4}%`, height: `${404 / 18}%` }} />
+        {/* noticeboard on the left wall: the scientists' notes (click to read) and the two devils' prints */}
+        <Noticeboard live={on && !view} onReading={(r) => horror.current?.duck(r || !!view)} />
         <DeskScreens live={on && !view} hot={hover === "display"} />
         <img className="gate-layer lab-desk" src={LAB_DESK} alt="" style={at(FULL)} draggable={false} />
         <LabFx live={on && !view} onTag={setTag} />

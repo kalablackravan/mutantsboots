@@ -765,7 +765,7 @@ export const SFX = {
   phoneLeave: "/sfx/phone-leave.mp3", phoneFinished: "/sfx/phone-finished.mp3",
   laughSovereign: "/sfx/laugh-sovereign.mp3", laughHellspawn: "/sfx/laugh-hellspawn.mp3",
   telephoneCall: "/sfx/telephone-call.mp3",
-  lockAlarm: "/sfx/alert-2s.mp3",
+  lockAlarm: "/sfx/alert-beep.wav",          // exactly one beep + its pause: loops seamlessly (wav, so no mp3 padding)
 } as const;
 export function preloadVoices() { Object.values(SFX).forEach((u) => { void loadClip(u); }); }
 /** Plays a clip; resolves `done` when it ends (or right away if it could not play). */
@@ -1027,29 +1027,41 @@ export function playDenyBuzz() {
     for (const dt of [0, 0.28]) { tone(c, out, t + dt, 140, 0.22, 0.9, "sawtooth"); tone(c, out, t + dt, 147, 0.22, 0.6, "square"); }
   } catch { /* optional */ }
 }
-/** First-aid box: latch clicks, the little metal door swings on a dry hinge, hollow knock (it's empty). */
+/** First-aid box: the latch snaps, the little steel door swings out on a dry hinge, a hollow knock (it's empty). */
 export function playKitOpen() {
   try {
-    const m = master(0.35); if (!m) return; const { c, out, t } = m;
-    burst(c, out, t, 0.03, (x) => 1 - x, [{ type: "bandpass", f: 3200, q: 2 }], 0.7);
-    const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(420, t + 0.06); o.frequency.linearRampToValueAtTime(620, t + 0.45);
-    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1400; bp.Q.value = 9;
-    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t + 0.06); g.gain.exponentialRampToValueAtTime(0.08, t + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-    o.connect(bp); bp.connect(g); g.connect(out); o.start(t + 0.06); o.stop(t + 0.55);
-    thump(c, out, t + 0.5, 180, 110, 0.12, 0.35);
+    const m = master(0.7); if (!m) return; const { c, out, t } = m;
+    burst(c, out, t, 0.035, (x) => 1 - x, [{ type: "bandpass", f: 2600, q: 1.6 }], 0.9);                  // latch
+    tone(c, out, t + 0.01, 1900, 0.05, 0.35, "square");
+    const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(380, t + 0.07); o.frequency.linearRampToValueAtTime(700, t + 0.32); o.frequency.linearRampToValueAtTime(520, t + 0.6);
+    const vib = c.createOscillator(); vib.frequency.value = 26; const vg = c.createGain(); vg.gain.value = 40; vib.connect(vg); vg.connect(o.frequency);
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1300; bp.Q.value = 7;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t + 0.07); g.gain.exponentialRampToValueAtTime(0.3, t + 0.16); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
+    o.connect(bp); bp.connect(g); g.connect(out); o.start(t + 0.07); o.stop(t + 0.7); vib.start(t + 0.07); vib.stop(t + 0.7);   // hinge creak
+    thump(c, out, t + 0.62, 210, 120, 0.14, 0.7);                                                            // door taps the wall
+    thump(c, out, t + 0.66, 150, 90, 0.2, 0.35);                                                             // hollow box
   } catch { /* optional */ }
 }
 export function playKitClose() {
-  try { const m = master(0.35); if (!m) return; const { c, out, t } = m; thump(c, out, t, 200, 120, 0.1, 0.6); burst(c, out, t + 0.04, 0.03, (x) => 1 - x, [{ type: "bandpass", f: 3000, q: 2 }], 0.6); } catch { /* optional */ }
+  try {
+    const m = master(0.7); if (!m) return; const { c, out, t } = m;
+    const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.setValueAtTime(620, t); o.frequency.linearRampToValueAtTime(420, t + 0.22);
+    const bp = c.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 7;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.06); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    o.connect(bp); bp.connect(g); g.connect(out); o.start(t); o.stop(t + 0.3);                               // short creak
+    thump(c, out, t + 0.24, 230, 120, 0.12, 0.9);                                                            // slam
+    burst(c, out, t + 0.26, 0.04, (x) => 1 - x, [{ type: "bandpass", f: 2800, q: 1.6 }], 0.85);           // latch catches
+  } catch { /* optional */ }
 }
 
 /** Loop a recorded clip seamlessly (e.g. the 2 s lockdown alarm) until stop() is called. */
-export function startClipLoop(url: string, volume = 0.7): () => void {
+export function startClipLoop(url: string, volume = 0.7, loopStart = 0, loopEnd = 0): () => void {
   let src: AudioBufferSourceNode | null = null, g: GainNode | null = null, stopped = false;
   void loadClip(url).then((buf) => {
     const c = audio(); if (!buf || !c || stopped) return;
     src = c.createBufferSource(); src.buffer = buf; src.loop = true;
-    g = c.createGain(); g.gain.value = volume; src.connect(g); g.connect(c.destination); src.start();
+    if (loopEnd) { src.loopStart = loopStart; src.loopEnd = Math.min(buf.duration, loopStart + loopEnd); }
+    g = c.createGain(); g.gain.value = volume; src.connect(g); g.connect(c.destination); src.start(0, loopStart);
   });
   return () => {
     stopped = true;

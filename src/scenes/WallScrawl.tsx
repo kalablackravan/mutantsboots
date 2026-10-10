@@ -9,11 +9,7 @@ const GATE: Mark[] = [
   { t: "7", x: 2560, y: 880, rot: 5, size: 3.6 },    // wall between the two doors
   { t: "1", x: 3111, y: 270, rot: 3, size: 3.3 },  // top right wall, above the restricted door
 ];
-const LAB: Mark[] = [
-  { t: "8", x: 601, y: 411, rot: -7, size: 3.6 },    // above the noticeboard
-  { t: "5", x: 2754, y: 210, rot: -5, size: 3.6 },   // top wall, right of the tubes
-  { t: "1", x: 3275, y: 1232, rot: 4, size: 3.3 }, // between CCTV cabinet and out-of-service machine
-];
+const LAB: Mark[] = []; // lab uses the PSD signs (LabSigns.tsx) instead
 
 export function WallScrawl({ room }: { room: "gate" | "lab" }) {
   const id = "wall-paint-" + room;

@@ -1044,3 +1044,4 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .nb-burn-num{margin:.3em 0 0;text-align:center;font-family:'Caveat',cursive;font-weight:700;font-size:5cqw;color:#24170e;opacity:.8;transform:rotate(3deg)}
 .cf-scrawl{font-family:'Reenie Beanie','Caveat',cursive;font-size:calc(.95cqw * var(--k));color:#3a2a2a;opacity:.8;transform:rotate(-2deg);margin:calc(.3cqw * var(--k)) 0 0}
 .cf-scrawl.r{text-align:right;transform:rotate(1.5deg)}
+.lab-sign{position:absolute;z-index:3;pointer-events:none;user-select:none;max-width:none}

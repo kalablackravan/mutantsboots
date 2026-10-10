@@ -182,6 +182,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                       </figure>
                     </div>
                     <footer className="cf-end"><b>604 escaped · 2 unlogged</b> · status: uncontained</footer>
+                    <p className="cf-scrawl r">locker 0419 → 52</p>
                     <span className="cf-stamp-ink paper-stamp copy">DO NOT COPY</span>
                   </div>
                 </div>
@@ -222,6 +223,7 @@ export function ClassifiedFile({ open, onClose }: { open: boolean; onClose: () =
                   <p><b className="red">DEVIL II · DARK SOVEREIGN.</b> Still hidden. <b>CAM 02</b> holds one black silhouette and two red eyes.</p>
                   <p className="cf-quote">"Nobody has seen it. Yet."</p>
                   <p className="cf-note">Addendum: the vessel glass is still warm. <b>Nobody has switched it on.</b></p>
+                  <p className="cf-scrawl">vent seal 6120 · don't forget · <s>3374</s> 8</p>
                   <span className="cf-stamp-ink paper-stamp unc">UNCONTAINED</span>
                 </div>
               </div>

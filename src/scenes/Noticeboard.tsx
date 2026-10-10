@@ -33,7 +33,7 @@ const PAPERS: Paper[] = [
       <p>Head of Genetics · <u>Level 5</u></p>
       <p>Wrote Serum M1. Ran the clone vessel night trials himself.</p>
       <p className="nb-status">STATUS: <b>DECEASED</b></p>
-      <p>Found 03:16 beside Vessel B. No wounds.</p>
+      <p>Found 03:16 beside Vessel B. No wounds. Locker <b>0419</b>.</p>
       <p>Blood: <s>M1 reaction</s> unknown virus. <b>Not ours.</b></p>
       <p className="nb-quote">last line in his notebook: "the copies are looking back at m—"</p>
       <Sketch d="M8 40 L52 20 M52 20 L60 16 M60 16 L66 22 M60 16 L54 10 M14 37 L20 44 M24 34 L30 41 M34 30 L40 37 M42 27 L48 34 M72 48 Q78 30 84 48 Q84 56 78 56 Q72 56 72 48" />
@@ -59,7 +59,7 @@ const PAPERS: Paper[] = [
       <p className="nb-name">Dr. Ivo Raskin</p>
       <p>vessel technician</p>
       <p className="nb-status">STATUS: <b>???</b></p>
-      <p>coat found in the drain. torn. teeth marks, foot-sized.</p>
+      <p>coat found in the drain 7. torn. teeth marks, foot-sized. tag 5516</p>
       <p className="nb-quote">did they eat him??</p>
       <Sketch d="M30 50 Q22 34 34 24 Q46 16 54 26 Q62 38 52 50 Q42 58 30 50 M28 22 L22 10 M38 18 L36 4 M50 20 L56 6 M58 30 L70 22" />
     </>),
@@ -71,21 +71,21 @@ const PAPERS: Paper[] = [
       <p className="nb-name">Dr. Mara Kessler</p>
       <p>Containment officer · night shift. Keeper of <b>TANK 000</b> &amp; <b>TANK 001</b>.</p>
       <p className="nb-status">STATUS: <b>MISSING</b></p>
-      <p>Body never found. Last frame on CAM 02: walking towards Tank 001. Then the feed shows two red eyes.</p>
+      <p>Body never found. Door log 2290. Last frame on CAM 02: walking towards Tank 001. Then the feed shows two red eyes.</p>
       <p className="nb-quote">someone wrote under it: "the Sovereign took her soul"</p>
       <Sketch d="M50 8 Q34 10 32 30 Q30 50 36 58 L64 58 Q70 50 68 30 Q66 10 50 8 M38 20 L32 12 M62 20 L68 12" red="M42 30 h5 M55 30 h5" />
     </>),
   },
   {
     id: "burnt", kind: "burn", x: 11.71, y: 60.3, w: 15.69, rot: 0, pad: [38, 16, 30, 16],
-    body: (<p className="nb-burnt">If you are reading this, I am already dead…</p>),
+    body: (<><p className="nb-burnt">If you are reading this, I am already dead…</p><p className="nb-burn-num">…4 · 6 · 1</p></>),
   },
   {
     id: "orlov", kind: "form", x: 34.22, y: 51.75, w: 28.77, rot: 0, pad: [16, 12, 12, 17],
     body: (<>
       <p className="nb-h">LAB 7 · STAFF STATUS REPORT</p>
       <p><i>Subject:</i> <b className="nb-name in">Dr. Nadia Orlov</b></p>
-      <p><i>Post:</i> serum chemist · M1 batch 606</p>
+      <p><i>Post:</i> serum chemist · M1 batch 606 · seal 3841</p>
       <p><i>Exposure:</i> 03:13 leak, Room 2</p>
       <p><i>Cause of death:</i> <b>UNKNOWN VIRUS</b> (strain not on file)</p>
       <p><i>Body:</i> gone from morgue drawer 6</p>
@@ -93,6 +93,14 @@ const PAPERS: Paper[] = [
       <p className="nb-quote circled">Hellspawn's skull matches her X-ray.</p>
     </>),
   },
+];
+
+// pencil / marker numbers scribbled straight onto the cork in the gaps between papers (% of the board)
+const GAPS = [
+  { t: "37", x: 32.5, y: 30, r: -9 },
+  { t: "1 9 4", x: 61.5, y: 33, r: 6 },
+  { t: "6 0", x: 29, y: 74, r: -5 },
+  { t: "88", x: 66, y: 86, r: 4 },
 ];
 
 function PaperArt({ p, big = false }: { p: Paper; big?: boolean }) {
@@ -124,6 +132,7 @@ export function Noticeboard({ live, onReading }: { live: boolean; onReading?: (o
     <>
       <div className="nb-board" style={{ left: `${415.3 / 38.4}%`, top: `${542.2 / 18}%`, width: `${611.6 / 38.4}%`, height: `${413.6 / 18}%` }}>
         <img className="nb-board-art" src="/scene/lab-noticeboard.webp" alt="" draggable={false} />
+        {GAPS.map((g, i) => <span key={i} className="nb-gap" aria-hidden="true" style={{ left: `${g.x}%`, top: `${g.y}%`, transform: `rotate(${g.r}deg)` }}>{g.t}</span>)}
         {PAPERS.map((p) => (
           <button key={p.id} type="button" className="nb-paper" tabIndex={live ? 0 : -1} aria-label={`Read the note about ${p.id}`}
             style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)`, transformOrigin: "50% 50%" }} onClick={() => read(p)}>

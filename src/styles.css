@@ -1038,3 +1038,13 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .wl-steps .wl-n{font-style:normal;flex:none}
 .wl-steps b{font-weight:700}
 .wl .wl-discord{display:inline-block;text-decoration:none;text-align:center;background:#5865f2!important;border-color:#2c2f7a!important}
+
+/* hype numbers scattered around the rooms (decoys, no real code) */
+.wall-scrawl{position:absolute;z-index:3;pointer-events:none;white-space:nowrap;font-family:'Reenie Beanie','Caveat',cursive;font-weight:700;letter-spacing:.12em;line-height:1}
+.wall-scrawl.chalk{color:rgba(235,238,225,.62);text-shadow:0 0 .15cqw rgba(255,255,255,.35);mix-blend-mode:screen}
+.wall-scrawl.scratch{color:rgba(10,14,16,.7);text-shadow:.06cqw .06cqw 0 rgba(120,150,160,.28);mix-blend-mode:multiply}
+.wall-scrawl.pencil{color:rgba(190,200,205,.42);mix-blend-mode:screen}
+.nb-gap{position:absolute;z-index:1;pointer-events:none;font-family:'Reenie Beanie','Caveat',cursive;font-weight:700;font-size:1.25cqw;letter-spacing:.1em;color:rgba(225,225,215,.5);mix-blend-mode:screen}
+.nb-burn-num{margin:.3em 0 0;text-align:center;font-family:'Caveat',cursive;font-weight:700;font-size:5cqw;color:#24170e;opacity:.8;transform:rotate(3deg)}
+.cf-scrawl{font-family:'Reenie Beanie','Caveat',cursive;font-size:calc(.95cqw * var(--k));color:#3a2a2a;opacity:.8;transform:rotate(-2deg);margin:calc(.3cqw * var(--k)) 0 0}
+.cf-scrawl.r{text-align:right;transform:rotate(1.5deg)}

@@ -1,4 +1,4 @@
-// All 91 Mutatedfoots trait layers (0xDarkSeidBull/mutantboots traits/mutatedfootstraits.zip),
+// All 91 Mutatedfoots trait layers,
 // reduced to their native 44x44 pixel grid and embedded, so nothing has to be hosted.
 // Loaded lazily (dynamic import) by the lab displays.
 export type TraitCat = "face" | "eyes" | "ears" | "nose" | "mouth" | "chest" | "costume" | "weapon";

@@ -1,5 +1,5 @@
 // Gate room (two doors) wall signs, placed exactly as in the "numbers" PSD. Art = the original webp files from signs.zip
-// (0xDarkSeidBull/mutantboots site/frontend/WEBP_FILES/signs.zip), shown in their own colours.
+// (signs set), shown in their own colours.
 // x / y / w / h = the whole image's box in canvas pixels on the 3840x1800 art (% = x/38.4, y/18).
 const SIGNS = [
   { f: "01_plus", x: 2399.5, y: 827.8, w: 138.7, h: 136.0 },

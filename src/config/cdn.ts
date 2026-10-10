@@ -1,20 +1,14 @@
-// Commit-pin the post-ENTER artwork so copied workspaces and deployments use the same files.
-export const CDN_BASE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@3dcd346e99e662649114e145eefd9aec54128f7e/site/frontend/WEBP_FILES/";
+// All scene artwork is served from this site itself (public/scene/art), so nothing points anywhere else.
+export const CDN_BASE = "/scene/art/";
 
-// Same pinned commit, site/assets folder (devil prints used in the classified file).
-export const SITE_ASSETS = CDN_BASE.replace("/frontend/WEBP_FILES/", "/assets/");
+// Trait-scanner front view (blank CRT, transparent screen).
+export const BLANK_DISPLAY = "/scene/art/blankdisplay.webp";
 
-// Pinned to the commit that introduced this room so every deployment keeps it.
-export const LAB_ROOM_IMAGE = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@a6518976e76b03bb081162bd6564d48817dffc7d/site/frontend/WEBP_FILES/2ndbg.webp";
+// Lab desk with see-through monitor screens and an empty top.
+export const LAB_DESK = "/scene/art/lab-desk.webp";
 
-// Trait-scanner front view (blank CRT, transparent screen), pinned to the commit that added it.
-export const BLANK_DISPLAY = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@cb588bd221bcd7b6ecfda0bf2d3b99242619de5c/site/frontend/WEBP_FILES/blankdisplay.webp";
-
-// Lab desk with see-through monitor screens and an empty top (photoroompfp.webp), pinned to the commit that added it.
-export const LAB_DESK = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@7c7a2d6f4959beb5e7f0ba87cc1fb4b65f7be18a/site/frontend/WEBP_FILES/photoroompfp.webp";
-
-// New gate background (pipes run to a faucet by the restricted door), pinned to the commit that added it.
-export const GATE_BG = "https://cdn.jsdelivr.net/gh/0xDarkSeidBull/mutantboots@19869e1011a0d3f13382e929d43cc8afe6ffef92/site/frontend/WEBP_FILES/background_3840x1800.webp";
+// Gate background (pipes run to a faucet by the restricted door).
+export const GATE_BG = "/scene/art/gate-bg.webp";
 const SCENE_OVERRIDES: Partial<Record<SceneImage, string>> = { "bg.webp": GATE_BG };
 
 export const sceneImage = (filename: SceneImage) => SCENE_OVERRIDES[filename] ?? CDN_BASE + filename;
@@ -23,19 +17,16 @@ export type SceneImage =
   | "bg.webp"
   | "bgsilhouette.webp"
   | "chair.webp"
-  | "clonevessel.webp"
   | "clonebase.webp"
   | "clonecables.webp"
   | "clonespecimen.webp"
   | "closeddoor.webp"
   | "lockdoor.webp"
   | "opendoor.webp"
-  | "bestspread.webp"
   | "file_front.webp"
   | "file_inside.webp"
   | "file_back.webp"
   | "2ndbg.webp"
-  | "desk.webp"
   | "clipboard.webp"
   | "clipboard_black_border_thin.webp"
   | "flask_black_border.webp"

@@ -1,7 +1,7 @@
 import { DEVIL_1, DEVIL_2 } from "@/lib/fileArt";
 
-// Specimen file pages (lab room files). 23 picks from the 606 collection (0xDarkSeidBull/nft
-// files/mutantfoots/606nftcsv), native 44x44, embedded so there is nothing to host.
+// Specimen file pages (lab room files). 23 picks from the 606 collection,
+// native 44x44, embedded so there is nothing to host.
 // Rarity rule: costume = Ultra Rare · weapon only = Rare · neither = Uncommon. Plus the 2 devils.
 export type Rarity = "uncommon" | "rare" | "ultra" | "epic" | "legend";
 export type Specimen = { id: string; name: string; rarity: Rarity; mutation: string; cls: string; img: string; silhouette?: boolean };

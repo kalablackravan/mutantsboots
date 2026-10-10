@@ -99,7 +99,7 @@ function PaperArt({ p, big = false }: { p: Paper; big?: boolean }) {
   const a = ART[p.kind];
   return (
     <div className={"nb-paper-art k-" + p.kind + (big ? " big" : "")} style={{ aspectRatio: String(a.ratio) } as CSSProperties}>
-      <img src={a.src} alt="" draggable={false} style={p.flip ? { transform: "scaleX(-1)" } : undefined} />
+      <img src={a.src} alt="" draggable={false} decoding={big ? "sync" : "async"} style={p.flip ? { transform: "scaleX(-1)" } : undefined} />
       <div className="nb-ink" style={{ inset: `${p.pad[0]}% ${p.pad[1]}% ${p.pad[2]}% ${p.pad[3]}%` }}>{p.body}</div>
     </div>
   );

@@ -1020,12 +1020,11 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .nb-sketch{display:block;width:46%;height:auto;margin:.1em auto 0;overflow:visible}
 .nb-sketch path{fill:none;stroke:#2f2e33;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
 .nb-sketch path.red{stroke:#8e1a1a;stroke-width:3;opacity:.9}
-.nb-read{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(0,0,0,.82);cursor:pointer;animation:nbIn .22s ease-out}
+.nb-read{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(0,0,0,.82);cursor:pointer;animation:nbIn .15s ease-out}
 @keyframes nbIn{from{opacity:0}to{opacity:1}}
-.nb-read-paper{width:min(76vw,calc(80vh * 0.75));filter:drop-shadow(0 2vh 4vh rgba(0,0,0,.85));animation:nbUp .3s ease-out}
+.nb-read-paper{width:min(76vw,calc(80vh * 0.75));filter:drop-shadow(0 2vh 4vh rgba(0,0,0,.85))}
 .nb-read-paper.k-small{width:min(70vw,calc(78vh * 0.67))}
 .nb-read-paper.k-form{width:min(92vw,calc(82vh * 1.1))}
-@keyframes nbUp{from{transform:translateY(3vh) scale(.92)}}
 .nb-read-hint{position:fixed;left:0;right:0;bottom:3vh;margin:0;text-align:center;font:700 clamp(10px,1vw,13px) var(--mono);letter-spacing:.18em;text-transform:uppercase;color:rgba(220,235,225,.7)}
 
 /* smooth pull-in / drop of the case file */

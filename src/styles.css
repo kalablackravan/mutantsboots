@@ -998,6 +998,12 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .nb-ink{position:absolute;overflow:hidden;color:#2b2a2e;font-family:'Reenie Beanie','Caveat',cursive;font-size:6.1cqw;line-height:1;text-align:left;mix-blend-mode:multiply;opacity:.9;text-shadow:0 0 .05em rgba(40,40,45,.35);pointer-events:none}
 .k-small .nb-ink{font-size:8.4cqw}
 .k-pin .nb-ink{font-size:6.3cqw}
+.k-left .nb-ink{font-size:6cqw}
+.k-stitched .nb-ink{font-size:4.1cqw;line-height:1.02}
+.k-burn .nb-ink{display:grid;place-items:center}
+.nb-burnt{margin:0;text-align:center;font-family:'Caveat',cursive;font-weight:700;font-size:9.5cqw;line-height:1.05;color:#24170e;transform:rotate(-4deg);text-shadow:0 0 .12em rgba(60,30,10,.55)}
+.nb-read-paper.k-left,.nb-read-paper.k-burn{width:min(70vw,calc(82vh * 0.75))}
+.nb-read-paper.k-stitched{width:min(92vw,calc(78vh * 1.38))}
 .k-pin .nb-name{font-size:1.05em}
 .nb-read-paper.k-pin{width:min(70vw,calc(82vh * 0.656))}
 .k-form .nb-ink{font-size:4.6cqw;line-height:1.1}

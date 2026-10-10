@@ -5,12 +5,15 @@ import { playPageTurn, startCreepyMusic } from "@/lib/fileSounds";
 // Lab 7 noticeboard: four pencilled papers about the scientists who worked here, plus the two devils' prints.
 // The writing is real text on the papers (you can see it from across the room); click a paper and it comes up
 // in the middle of the screen, a slow horror track plays while you read, click anywhere to put it back.
-type Kind = "stained" | "small" | "form" | "pin";
+type Kind = "left" | "small" | "pin" | "form" | "burn" | "stitched";
+// art + exact placement come from the noticeboard PSD (site/frontend/noticeboard): positions are % of the board
 const ART: Record<Kind, { src: string; ratio: number }> = {
-  stained: { src: "/scene/nb-stained.webp", ratio: 679 / 900 },
-  small: { src: "/scene/nb-paper.webp", ratio: 470 / 700 },
-  form: { src: "/scene/nb-form.webp", ratio: 989 / 900 },
-  pin: { src: "/scene/nb-pin.webp", ratio: 590 / 900 },
+  left: { src: "/scene/nb2-leftpaper.webp", ratio: 0.7436 },
+  small: { src: "/scene/nb2-paper.webp", ratio: 0.6724 },
+  pin: { src: "/scene/nb2-pinpaper.webp", ratio: 0.656 },
+  form: { src: "/scene/nb2-form.webp", ratio: 1.0993 },
+  burn: { src: "/scene/nb2-burnpaper.webp", ratio: 0.7673 },
+  stitched: { src: "/scene/nb2-stitchedpaper.webp", ratio: 1.3775 },
 };
 type Paper = { id: string; kind: Kind; x: number; y: number; w: number; rot: number; readRot?: number; flip?: boolean; pad: [number, number, number, number]; body: ReactNode };
 
@@ -23,7 +26,7 @@ const Sketch = ({ d, red, className = "" }: { d: string; red?: string; className
 
 const PAPERS: Paper[] = [
   {
-    id: "voss", kind: "stained", x: 7.3, y: 11.5, w: 23.5, rot: 2, pad: [14, 12, 7, 14],
+    id: "voss", kind: "left", x: 8.55, y: 14.57, w: 22.55, rot: -6.5, readRot: -2, pad: [15, 11, 9, 11],
     body: (<>
       <p className="nb-h">PERSONNEL FILE 01</p>
       <p className="nb-name">Dr. Elias Voss</p>
@@ -37,7 +40,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "founder", kind: "pin", x: 39.5, y: 10, w: 19.5, rot: 0, pad: [12, 11, 10, 12],
+    id: "founder", kind: "pin", x: 40.46, y: 10.82, w: 18.79, rot: 0, pad: [12, 11, 10, 12],
     body: (<>
       <p className="nb-h">THE FOUNDER · FILE 00</p>
       <p className="nb-name">Prof. Dr. Thaddäus Vrzhlavik-Qorrenbach</p>
@@ -51,7 +54,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "raskin", kind: "small", x: 69, y: 13, w: 16, rot: -3, pad: [20, 12, 10, 12],
+    id: "raskin", kind: "small", x: 70.3, y: 12.27, w: 15.76, rot: 0, pad: [20, 12, 10, 12],
     body: (<>
       <p className="nb-name">Dr. Ivo Raskin</p>
       <p>vessel technician</p>
@@ -62,7 +65,7 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "kessler", kind: "stained", x: 72.5, y: 45, w: 15.5, rot: 84, readRot: 0, flip: true, pad: [14, 14, 7, 12],
+    id: "kessler", kind: "stitched", x: 64.5, y: 52.92, w: 26.44, rot: -12, readRot: -4, pad: [17, 37, 12, 7],
     body: (<>
       <p className="nb-h">PERSONNEL FILE 02</p>
       <p className="nb-name">Dr. Mara Kessler</p>
@@ -74,7 +77,11 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "orlov", kind: "form", x: 35, y: 53, w: 28, rot: 1, pad: [16, 12, 12, 17],
+    id: "burnt", kind: "burn", x: 11.71, y: 60.3, w: 15.69, rot: 0, pad: [38, 16, 30, 16],
+    body: (<p className="nb-burnt">If you are reading this, I am already dead…</p>),
+  },
+  {
+    id: "orlov", kind: "form", x: 34.22, y: 51.75, w: 28.77, rot: 0, pad: [16, 12, 12, 17],
     body: (<>
       <p className="nb-h">LAB 7 · STAFF STATUS REPORT</p>
       <p><i>Subject:</i> <b className="nb-name in">Dr. Nadia Orlov</b></p>
@@ -115,11 +122,11 @@ export function Noticeboard({ live, onReading }: { live: boolean; onReading?: (o
   useEffect(() => { if (!live) setOpen(null); }, [live]);
   return (
     <>
-      <div className="nb-board" style={{ left: `${500 / 38.4}%`, top: `${556 / 18}%`, width: `${630 / 38.4}%`, height: `${424 / 18}%` }}>
+      <div className="nb-board" style={{ left: `${415.3 / 38.4}%`, top: `${542.2 / 18}%`, width: `${611.6 / 38.4}%`, height: `${413.6 / 18}%` }}>
         <img className="nb-board-art" src="/scene/lab-noticeboard.webp" alt="" draggable={false} />
         {PAPERS.map((p) => (
           <button key={p.id} type="button" className="nb-paper" tabIndex={live ? 0 : -1} aria-label={`Read the note about ${p.id}`}
-            style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)`, transformOrigin: Math.abs(p.rot) > 45 ? "50% 50%" : undefined }} onClick={() => read(p)}>
+            style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)`, transformOrigin: "50% 50%" }} onClick={() => read(p)}>
             <PaperArt p={p} />
           </button>
         ))}

@@ -46,7 +46,7 @@ export function preloadLab(timeoutMs = 8000): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   ready ??= Promise.race([
     Promise.all([...LAB_IMAGES.map((n) => loadAndDecode(sceneImage(n))), loadAndDecode("/scene/bestspread-thin.webp"),
-      ...["/scene/phone-intact.webp", "/scene/phone-broken.webp", "/scene/lab-noticeboard.webp", "/scene/nb-stained.webp", "/scene/nb-paper.webp", "/scene/nb-form.webp", "/scene/nb-pin.webp"].map(loadAndDecode), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
+      ...["/scene/phone-intact.webp", "/scene/phone-broken.webp", "/scene/lab-noticeboard.webp", "/scene/nb2-leftpaper.webp", "/scene/nb2-paper.webp", "/scene/nb2-pinpaper.webp", "/scene/nb2-form.webp", "/scene/nb2-burnpaper.webp", "/scene/nb2-stitchedpaper.webp"].map(loadAndDecode), loadAndDecode(DEVIL_1), loadAndDecode(DEVIL_2), loadAndDecode(BLANK_DISPLAY), loadAndDecode(LAB_DESK), loadTraits()]).then(() => undefined),
     new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
   ]);
   return ready;

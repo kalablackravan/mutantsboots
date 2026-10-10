@@ -1000,7 +1000,7 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .k-pin .nb-ink{font-size:6.3cqw}
 .k-left .nb-ink{font-size:6cqw}
 .k-stitched .nb-ink{font-size:4.1cqw;line-height:1.02}
-.k-burn .nb-ink{display:grid;place-items:center}
+.k-burn .nb-ink{display:flex;flex-direction:column;justify-content:space-between;align-items:center}
 .nb-burnt{margin:0;text-align:center;font-family:'Caveat',cursive;font-weight:700;font-size:9.5cqw;line-height:1.05;color:#24170e;transform:rotate(-4deg);text-shadow:0 0 .12em rgba(60,30,10,.55)}
 .nb-read-paper.k-left,.nb-read-paper.k-burn{width:min(70vw,calc(82vh * 0.75))}
 .nb-read-paper.k-stitched{width:min(92vw,calc(78vh * 1.38))}
@@ -1044,3 +1044,15 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .cf-scrawl{font-family:'Reenie Beanie','Caveat',cursive;font-size:calc(.95cqw * var(--k));color:#3a2a2a;opacity:.8;transform:rotate(-2deg);margin:calc(.3cqw * var(--k)) 0 0}
 .cf-scrawl.r{text-align:right;transform:rotate(1.5deg)}
 .lab-sign{position:absolute;z-index:3;pointer-events:none;user-select:none;max-width:none}
+/* lockdown door terminal: red screen */
+.apanel.lock .apanel-screen{color:#ffc2b8;text-shadow:0 0 1.6cqw rgba(255,60,40,.75)}
+.apanel.lock .apanel-screen h3,.apanel.lock .apanel-label{color:#ffd0c8}
+.apanel.lock .apanel-cell{background:rgba(255,200,190,.9);box-shadow:0 0 1.4cqw rgba(255,70,50,.7),inset 0 -.5cqw .8cqw rgba(70,10,5,.3);color:#2a0603}
+.apanel.lock .apanel-cell.cur{outline-color:#ff8a78}
+.apanel.lock .apanel-msg{color:rgba(255,200,190,.85)}
+/* burnt note: the rest of the page, half burnt away */
+.nb-burn-lines{width:100%;font-family:'Caveat',cursive;font-weight:500;font-size:5.2cqw;line-height:1.12;color:#2a1c12;opacity:.78;transform:rotate(-3deg)}
+.nb-burn-lines p{margin:0 0 .12em}
+.nb-burn-lines .char{-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 96%);mask-image:linear-gradient(90deg,#000 55%,transparent 96%)}
+.nb-burn-lines .sig{text-align:right;padding-right:34%}
+.nb-burn-lines .scorch{color:#3d2618;opacity:.6;text-shadow:0 0 .08em rgba(40,20,10,.8)}

@@ -1020,15 +1020,34 @@ export function playBulbBreak(pan = 0) {
     zap(c, out, t + 0.02, 0.18, 0.35);
   } catch { /* sound is optional */ }
 }
-/** Keypad key press: short electronic beep. */
+/** Keypad key press: a dull, worn metal key clacking down, with a faint wrong-sounding hum under it. */
 export function playKeyBeep() {
-  try { const m = master(0.12); if (!m) return; const { c, out, t } = m; tone(c, out, t, 1180, 0.07, 0.8, "square"); } catch { /* optional */ }
+  try {
+    const m = master(0.32); if (!m) return; const { c, out, t } = m;
+    burst(c, out, t, 0.05, (x) => (1 - x) ** 3, [{ type: "lowpass", f: 1100 }, { type: "highpass", f: 180 }], 0.9, [0.7, 1.3], [3, 8]);
+    thump(c, out, t, 150, 60, 0.12, 0.5);
+    for (const f of [233, 247]) tone(c, out, t + 0.01, f, 0.32, 0.035, "sine");   // minor second: slightly off
+  } catch { /* optional */ }
 }
-/** Wrong code: harsh low double buzz. */
+/** Wrong code: a deep distorted groan with a metal scrape over it, not a game buzzer. */
 export function playDenyBuzz() {
   try {
-    const m = master(0.2); if (!m) return; const { c, out, t } = m;
-    for (const dt of [0, 0.28]) { tone(c, out, t + dt, 140, 0.22, 0.9, "sawtooth"); tone(c, out, t + dt, 147, 0.22, 0.6, "square"); }
+    const m = master(0.5); if (!m) return; const { c, out, t } = m;
+    const sh = c.createWaveShaper(); const n = 1024; const cv = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; cv[i] = Math.tanh(x * 3.2); }
+    sh.curve = cv;
+    const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.Q.value = 6;
+    lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(160, t + 1.4);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.08);
+    g.gain.setValueAtTime(0.5, t + 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    sh.connect(lp); lp.connect(g); g.connect(out);
+    for (const [f, ty] of [[55, "sawtooth"], [58.3, "sawtooth"], [110.6, "square"]] as [number, OscillatorType][]) {
+      const o = c.createOscillator(); o.type = ty;
+      o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.82, t + 1.5);
+      o.connect(sh); o.start(t); o.stop(t + 1.65);
+    }
+    burst(c, out, t + 0.04, 0.9, (x) => Math.sin(Math.PI * x) * (1 - x * 0.5), [{ type: "bandpass", f: 2600, q: 9, to: [[700, 0.85]] }], 0.22, [0.4, 1.6], [6, 20]);
+    thump(c, out, t, 70, 28, 0.6, 0.7);
   } catch { /* optional */ }
 }
 /** First-aid box: the latch snaps, the little steel door swings out on a dry hinge, a hollow knock (it's empty). */
@@ -1088,18 +1107,19 @@ export function playShardsLand(pan = 0) {
   } catch { /* sound is optional */ }
 }
 
-/** Terminal waking with a digital glitch: stuttering bit-crushed bursts and pitch blips (short). */
+/** Terminal waking: a relay clunks, dirty mains hum swells up with crackle, a low uneasy whine settles under it. */
 export function playGlitch() {
   try {
-    const m = master(0.32); if (!m) return; const { c, out, t } = m;
-    for (let i = 0; i < 7; i++) {
-      const at = t + i * 0.045 + Math.random() * 0.02, d = 0.02 + Math.random() * 0.035;
-      const o = c.createOscillator(); o.type = Math.random() < 0.5 ? "square" : "sawtooth";
-      o.frequency.setValueAtTime(200 + Math.random() * 2400, at); o.frequency.setValueAtTime(100 + Math.random() * 3000, at + d / 2);
-      const g = c.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.35, at + 0.003); g.gain.setValueAtTime(0.35, at + d); g.gain.exponentialRampToValueAtTime(0.0001, at + d + 0.01);
-      o.connect(g); g.connect(out); o.start(at); o.stop(at + d + 0.02);
-    }
-    burst(c, out, t, 0.32, (x) => (Math.sin(x * 70) > 0 ? 1 - x : 0.1), [{ type: "bandpass", f: 2400, q: 0.8 }], 0.35);
-    tone(c, out, t + 0.33, 1320, 0.06, 0.25, "square");
+    const m = master(0.45); if (!m) return; const { c, out, t } = m;
+    thump(c, out, t, 120, 45, 0.18, 0.6);
+    burst(c, out, t, 0.06, (x) => (1 - x) ** 2, [{ type: "bandpass", f: 1400, q: 1.2 }], 0.6, [0.6, 1.4], [2, 6]);
+    const hum = c.createGain(); hum.gain.setValueAtTime(0.0001, t + 0.04); hum.gain.exponentialRampToValueAtTime(0.16, t + 0.3); hum.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+    const hl = c.createBiquadFilter(); hl.type = "lowpass"; hl.frequency.value = 520; hl.Q.value = 2;
+    hl.connect(hum); hum.connect(out);
+    for (const f of [50, 100.7, 151]) { const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.connect(hl); o.start(t + 0.04); o.stop(t + 1.15); }
+    burst(c, out, t + 0.05, 0.7, (x) => (Math.random() < 0.18 ? 1 : 0.05) * (1 - x), [{ type: "highpass", f: 2200 }], 0.3, [0.2, 1.8], [4, 30]);
+    const w = c.createOscillator(); w.type = "sine"; w.frequency.setValueAtTime(420, t + 0.1); w.frequency.exponentialRampToValueAtTime(297, t + 1.0);
+    const wg = c.createGain(); wg.gain.setValueAtTime(0.0001, t + 0.1); wg.gain.exponentialRampToValueAtTime(0.05, t + 0.4); wg.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    w.connect(wg); wg.connect(out); w.start(t + 0.1); w.stop(t + 1.25);
   } catch { /* sound is optional */ }
 }

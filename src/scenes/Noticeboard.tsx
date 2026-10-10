@@ -77,8 +77,21 @@ const PAPERS: Paper[] = [
     </>),
   },
   {
-    id: "burnt", kind: "burn", x: 11.71, y: 60.3, w: 15.69, rot: 0, pad: [38, 16, 30, 16],
-    body: (<><p className="nb-burnt">If you are reading this, I am already dead…</p><p className="nb-burn-num">…4 · 6 · 1</p></>),
+    id: "burnt", kind: "burn", x: 11.71, y: 60.3, w: 15.69, rot: 0, pad: [13, 11, 9, 11],
+    body: (<>
+      <div className="nb-burn-lines">
+        <p className="char">LAB 7 · night log · 03:1</p>
+        <p>the vessel hums again. Voss says <span className="scorch">it is the pump.</span></p>
+        <p className="char">it is not the pump. it is them. I counted twi</p>
+      </div>
+      <p className="nb-burnt">If you are reading this, I am already dead…</p>
+      <p className="nb-burn-num">…4 · 6 · 1</p>
+      <div className="nb-burn-lines">
+        <p className="char">the rest is scratched on the wa</p>
+        <p><span className="scorch">don't let them</span> see you read th</p>
+        <p className="char sig">— N. O</p>
+      </div>
+    </>),
   },
   {
     id: "orlov", kind: "form", x: 34.22, y: 51.75, w: 28.77, rot: 0, pad: [16, 12, 12, 17],

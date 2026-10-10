@@ -7,6 +7,7 @@ import { checkCode, type AccessKind } from "@/lib/access";
 //  mode "access": slime door, [WL|FM]-[XXXX]-[XXXX]-[XXXX] boxes, CHECK -> /access/check.
 // Typing, pasting and long-press paste go into one invisible input laid over the boxes.
 const ART = "/scene/access-panel.webp";
+const ART_RED = "/scene/access-panel-red.webp";   // lockdown door: same machine, red screen (the door's own keypad is red)
 const GROUPS = { access: [2, 4, 4, 4], lock: [4] } as const;
 const MSG = { invalid: "CODE NOT VALID", used: "CODE ALREADY USED", slow: "TOO MANY TRIES", down: "LAB LINK DOWN" } as const;
 type Grant = { code: string; kind: AccessKind; wallet: string; used?: boolean | undefined; x?: string | undefined; discord?: string | undefined };
@@ -14,7 +15,7 @@ type Grant = { code: string; kind: AccessKind; wallet: string; used?: boolean | 
 let art: Promise<void> | null = null;
 export function preloadAccessPanel() {
   if (typeof window === "undefined") return Promise.resolve();
-  art ??= new Promise<void>((res) => { const i = new Image(); i.src = ART; i.decode().then(() => res(), () => res()); });
+  art ??= Promise.all([ART, ART_RED].map((src) => new Promise<void>((res) => { const i = new Image(); i.src = src; i.decode().then(() => res(), () => res()); }))).then(() => undefined);
   return art;
 }
 
@@ -92,7 +93,7 @@ export function AccessPanel({ open, mode, anchor, onClose, onGranted, onGuest }:
       <div className="apanel-catch" onPointerDown={onClose} aria-hidden="true" />
       {ready && (
         <div ref={box} className={"apanel " + mode + (state === "granted" ? " granted" : "") + (state === "denied" ? " denied" : "")} style={pos} role="dialog" aria-label="Secure access terminal">
-          <img src={ART} alt="" draggable={false} />
+          <img src={mode === "lock" ? ART_RED : ART} alt="" draggable={false} />
           <div className="apanel-screen">
             <h3>SECURE ACCESS TERMINAL</h3>
             <p className="apanel-label">ENTER CODE:</p>

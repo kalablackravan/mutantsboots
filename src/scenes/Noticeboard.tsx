@@ -95,14 +95,6 @@ const PAPERS: Paper[] = [
   },
 ];
 
-// single digits pencilled straight onto the cork in the gaps between papers (% of the board)
-const GAPS = [
-  { t: "2", x: 34.6, y: 31, r: -8 },
-  { t: "6", x: 62.1, y: 33.6, r: 6 },
-  { t: "9", x: 30.4, y: 71.3, r: -5 },
-  { t: "3", x: 65.4, y: 71.3, r: 7 },
-]
-
 function PaperArt({ p, big = false }: { p: Paper; big?: boolean }) {
   const a = ART[p.kind];
   return (
@@ -132,7 +124,6 @@ export function Noticeboard({ live, onReading }: { live: boolean; onReading?: (o
     <>
       <div className="nb-board" style={{ left: `${415.3 / 38.4}%`, top: `${542.2 / 18}%`, width: `${611.6 / 38.4}%`, height: `${413.6 / 18}%` }}>
         <img className="nb-board-art" src="/scene/lab-noticeboard.webp" alt="" draggable={false} />
-        {GAPS.map((g, i) => <span key={i} className="nb-gap" aria-hidden="true" style={{ left: `${g.x}%`, top: `${g.y}%`, transform: `translate(-50%,-50%) rotate(${g.r}deg)` }}>{g.t}</span>)}
         {PAPERS.map((p) => (
           <button key={p.id} type="button" className="nb-paper" tabIndex={live ? 0 : -1} aria-label={`Read the note about ${p.id}`}
             style={{ left: `${p.x}%`, top: `${p.y}%`, width: `${p.w}%`, transform: `rotate(${p.rot}deg)`, transformOrigin: "50% 50%" }} onClick={() => read(p)}>

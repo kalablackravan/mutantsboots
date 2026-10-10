@@ -1,34 +1,37 @@
 import type { CSSProperties } from "react";
 
-// Single digits scratched / chalked on the walls. Pure hype: none of them is a real code.
+// Three single digits per room, painted straight onto the wall (old faded paint, patchy, part of the plaster).
+// Pure hype: none of them is a real code.
 // x / y = CENTRE of the digit in canvas pixels on the 3840x1800 art (% = x/38.4, y/18); size in cqw; rot in degrees.
-type Mark = { t: string; x: number; y: number; rot: number; size: number; kind: "chalk" | "scratch" };
+type Mark = { t: string; x: number; y: number; rot: number; size: number };
 const GATE: Mark[] = [
-  { t: "0", x: 296, y: 601, rot: -6, size: 2.6, kind: "chalk" },     // left wall, above the test tubes
-  { t: "9", x: 1354, y: 1222, rot: 4, size: 2.2, kind: "chalk" },    // between vessel and lockdown door
-  { t: "7", x: 2554, y: 831, rot: 7, size: 2.4, kind: "scratch" },   // wall between the two doors (top)
-  { t: "8", x: 2570, y: 957, rot: -5, size: 2.4, kind: "scratch" },  // wall between the two doors (below the 7)
-  { t: "1", x: 3111, y: 270, rot: 3, size: 2.4, kind: "chalk" },     // top right wall, above the restricted door
-  { t: "7", x: 3696, y: 717, rot: -12, size: 1.8, kind: "scratch" }, // far right, beside the pipe
+  { t: "0", x: 296, y: 601, rot: -6, size: 3.6 },    // left wall, above the test tubes
+  { t: "7", x: 2560, y: 880, rot: 5, size: 3.6 },    // wall between the two doors
+  { t: "1", x: 3111, y: 270, rot: 3, size: 3.3 },  // top right wall, above the restricted door
 ];
 const LAB: Mark[] = [
-  { t: "8", x: 601, y: 411, rot: -8, size: 2.6, kind: "chalk" },     // above the noticeboard
-  { t: "4", x: 350, y: 681, rot: 5, size: 2.6, kind: "chalk" },      // left of the noticeboard
-  { t: "3", x: 1362, y: 220, rot: 6, size: 2.6, kind: "chalk" },     // top wall, left of the tubes
-  { t: "5", x: 2754, y: 210, rot: -6, size: 2.6, kind: "chalk" },    // top wall, right of the tubes
-  { t: "8", x: 3555, y: 601, rot: 4, size: 2.6, kind: "scratch" },   // right wall, beside the exit pipe
-  { t: "4", x: 2624, y: 881, rot: -10, size: 2.2, kind: "scratch" }, // wall right of the desk monitors
-  { t: "4", x: 861, y: 1142, rot: 3, size: 2.4, kind: "chalk" },     // lower wall, right of the small TV table
-  { t: "1", x: 1262, y: 1182, rot: 5, size: 2.4, kind: "scratch" },  // lower wall, left of the desk
-  { t: "1", x: 3275, y: 1232, rot: -8, size: 2.2, kind: "chalk" },   // between CCTV cabinet and out-of-service machine
+  { t: "8", x: 601, y: 411, rot: -7, size: 3.6 },    // above the noticeboard
+  { t: "5", x: 2754, y: 210, rot: -5, size: 3.6 },   // top wall, right of the tubes
+  { t: "1", x: 3275, y: 1232, rot: 4, size: 3.3 }, // between CCTV cabinet and out-of-service machine
 ];
 
 export function WallScrawl({ room }: { room: "gate" | "lab" }) {
+  const id = "wall-paint-" + room;
   return (
     <>
+      {/* rough brush edge + patchy coverage so the digit reads as paint on plaster, not a font on top */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <filter id={id} x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="4" result="d" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="3" seed="3" result="p" />
+          <feColorMatrix in="p" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.7" result="m" />
+          <feComposite in="d" in2="m" operator="in" />
+        </filter>
+      </svg>
       {(room === "gate" ? GATE : LAB).map((m, i) => (
-        <span key={i} className={"wall-scrawl " + m.kind} aria-hidden="true"
-          style={{ left: `${m.x / 38.4}%`, top: `${m.y / 18}%`, fontSize: `${m.size}cqw`, "--r": `${m.rot}deg` } as CSSProperties}>{m.t}</span>
+        <span key={i} className="wall-scrawl" aria-hidden="true"
+          style={{ left: `${m.x / 38.4}%`, top: `${m.y / 18}%`, fontSize: `${m.size}cqw`, "--r": `${m.rot}deg`, filter: `url(#${id})` } as CSSProperties}>{m.t}</span>
       ))}
     </>
   );

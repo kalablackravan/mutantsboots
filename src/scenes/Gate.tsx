@@ -7,7 +7,7 @@ import { preloadFile } from "@/lib/fileArt";
 import { playDoorBurst, playDoorOpen, playKitClose, playKitOpen, playVesselBlip, SFX, startClipLoop, startGaugeDings, startPipeFlow, startSubmergedBubbleLoop } from "@/lib/fileSounds";
 import { AccessPanel, preloadAccessPanel } from "@/overlays/AccessPanel";
 import { doorGranted, enterAsGuest, grantAccess } from "@/lib/access";
-import { WallScrawl } from "./WallScrawl";
+import { GateSigns } from "./GateSigns";
 import { Faucet, FirstAidKit, GateBackdrop, HomePad, SignLogo, SlimeDrips, VESSEL_CLEAN_BOX, VesselBubbles } from "./GateProps";
 
 type LayerBox = { left: number; top: number; width: number; height: number; objectPosition?: string };
@@ -134,7 +134,7 @@ export function Gate({ on, warm = false, zoom = "", onDoor, onLab, onHome }: Pro
             "--lc": l.color, "--lp": `${l.period}s`, "--ld": `${l.delay}s`,
           } as CSSProperties}><i /></span>
         ))}
-        <WallScrawl room="gate" />
+        <GateSigns />
         <FirstAidKit open={kitOpen} />
         <SceneLayer name="closeddoor.webp" box={SCENE_LAYERS.full} className="slime-closed" />
         <SceneLayer name="lockdoor.webp" box={SCENE_LAYERS.full} />

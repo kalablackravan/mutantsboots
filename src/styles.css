@@ -1056,3 +1056,4 @@ html[data-input="key"] .office :focus-visible{outline:3px solid var(--butter);ou
 .nb-burn-lines .char{-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 96%);mask-image:linear-gradient(90deg,#000 55%,transparent 96%)}
 .nb-burn-lines .sig{text-align:right;padding-right:34%}
 .nb-burn-lines .scorch{color:#3d2618;opacity:.6;text-shadow:0 0 .08em rgba(40,20,10,.8)}
+.nb-paper-art img.nb-tape{position:absolute;inset:0;pointer-events:none}

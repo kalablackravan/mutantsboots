@@ -108,12 +108,21 @@ const PAPERS: Paper[] = [
   },
 ];
 
+// tape strips on the paper art (% of the image), redrawn above the writing
+const TAPE: Partial<Record<Kind, string[]>> = {
+  burn: ["0.7% 17.5%, 25.5% 0.5%, 32% 5.5%, 6.5% 24.5%", "67.5% 5%, 74.5% 0.5%, 100% 19.5%, 94% 25.5%"],
+};
+
 function PaperArt({ p, big = false }: { p: Paper; big?: boolean }) {
   const a = ART[p.kind];
   return (
     <div className={"nb-paper-art k-" + p.kind + (big ? " big" : "")} style={{ aspectRatio: String(a.ratio) } as CSSProperties}>
       <img src={a.src} alt="" draggable={false} decoding={big ? "sync" : "async"} style={p.flip ? { transform: "scaleX(-1)" } : undefined} />
       <div className="nb-ink" style={{ inset: `${p.pad[0]}% ${p.pad[1]}% ${p.pad[2]}% ${p.pad[3]}%` }}>{p.body}</div>
+      {/* the note was written first, then taped up: the tape strips sit over the ink */}
+      {TAPE[p.kind]?.map((poly, i) => (
+        <img key={i} className="nb-tape" src={a.src} alt="" draggable={false} decoding={big ? "sync" : "async"} style={{ clipPath: `polygon(${poly})` }} />
+      ))}
     </div>
   );
 }
